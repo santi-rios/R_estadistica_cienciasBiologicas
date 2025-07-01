@@ -1,0 +1,81 @@
+---
+title: "Ejercicios y Buenas Prácticas de Visualización en Python"
+subtitle: "Aplicación y recomendaciones finales"
+format:
+  live-html:
+    toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+---
+
+## Ejercicio 1: Histograma de datos simulados
+
+- Simula 1000 datos de una distribución normal con media 60 y desviación estándar 8.
+- Grafica el histograma y personaliza el color y el número de bins.
+
+```{pyodide}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+np.random.seed(123)
+datos = np.random.normal(loc=60, scale=8, size=1000)
+df = pd.DataFrame({'valor': datos})
+
+plt.figure(figsize=(8,5))
+sns.histplot(df['valor'], bins=25, color="coral", edgecolor="black")
+plt.title("Distribución Normal Simulada")
+plt.xlabel("Valor")
+plt.ylabel("Frecuencia")
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Ejercicio 2: Comparación de grupos
+
+- Simula dos grupos de datos (n=50 cada uno) con medias y desviaciones estándar diferentes.
+- Grafica ambos grupos en un solo histograma, usando diferentes colores.
+
+```{pyodide}
+np.random.seed(321)
+g1 = np.random.normal(55, 5, 50)
+g2 = np.random.normal(70, 7, 50)
+grupo = np.array(["Grupo 1"]*50 + ["Grupo 2"]*50)
+df2 = pd.DataFrame({"valor": np.concatenate([g1, g2]), "grupo": grupo})
+
+plt.figure(figsize=(8,5))
+sns.histplot(data=df2, x="valor", hue="grupo", bins=15, palette=["#1f77b4", "#ff7f0e"], alpha=0.7, element="step", stat="count")
+plt.title("Comparación de Grupos")
+plt.xlabel("Valor")
+plt.ylabel("Frecuencia")
+plt.legend(title="Grupo")
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Buenas prácticas para visualización en Python
+
+- Usa títulos y etiquetas claras y descriptivas.
+- Elige paletas de colores accesibles y consistentes.
+- Usa `plt.tight_layout()` para mejorar la presentación.
+- Guarda tus gráficos con alta resolución (`dpi=300`) para presentaciones o publicaciones.
+- Siempre revisa que los ejes y leyendas sean legibles y no se sobrepongan.
+
+---
+
+## Reflexión
+
+- ¿Qué aprendiste sobre la importancia de la personalización en la visualización?
+- ¿Cómo puedes aplicar estas prácticas en tus propios proyectos?
+
+Estas recomendaciones te ayudarán a crear visualizaciones más efectivas y profesionales en Python.

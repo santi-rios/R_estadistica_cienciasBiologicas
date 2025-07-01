@@ -114,6 +114,7 @@ girar_derecha <- function() {
 -   Por el momento no veras ningún output al cargar el paquete, pero es importante que corras el código para poder usar Karel en la lección.
 
 ::: {.panel-tabset group="language"}
+
 ## R
 
 -   En R, importamos paquetes con la función `library()`.
@@ -202,7 +203,7 @@ Karel puede realizar las siguientes acciones (funciones):
 
 Veamos un primer ejemplo.
 
-::::: {.panel-tabset group="language"}
+::: {.panel-tabset group="language"}
 ## R
 
 Vamos a pedirle a Karel que avance, junte el coso y vuelva a avanzar:
@@ -218,7 +219,7 @@ ejecutar_acciones()
 
 ```
 
-::: callout-warning
+
 Qué pasa si intentas avanzar cuando hay una pared enfrente de Karel? Intenta hacerlo y observa el resultado.
 
 ```{webr}
@@ -231,7 +232,6 @@ avanzar()
 ejecutar_acciones()
 
 ```
-:::
 
 ## python
 
@@ -248,7 +248,7 @@ karel.ejecutar_acciones()
 
 ```
 
-::: {.panel-tabset group="language"}
+
 Qué pasa si intentas avanzar cuando hay una pared enfrente de Karel? Intenta hacerlo y observa el resultado.
 
 ```{pyodide}
@@ -258,8 +258,9 @@ karel = Karel(mundo="laberinto")
 karel.avanzar()
 karel.ejecutar_acciones()
 ```
+
 :::
-:::::
+
 
 ## Ejercicio 2
 
@@ -321,6 +322,7 @@ karel.avanzar()
 karel.avanzar()
 karel.ejecutar_acciones()
 ```
+
 :::
 
 Como ves, el código se vuelve un poco más largo y repetitivo. Esto es normal al principio, pero a medida que aprendas más sobre programación, podrás escribir código más eficiente y legible. 

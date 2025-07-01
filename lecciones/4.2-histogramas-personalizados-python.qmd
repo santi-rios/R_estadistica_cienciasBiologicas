@@ -1,0 +1,112 @@
+---
+title: "Ejemplo Práctico: Histogramas y Personalización en Python"
+subtitle: "Visualización avanzada y buenas prácticas"
+format:
+  live-html:
+    toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+---
+
+## Introducción
+
+- En esta lección, profundizaremos en la personalización de histogramas y buenas prácticas para visualización en Python.
+- Usaremos datos simulados de alturas de jirafas en dos islas, como en el ejemplo anterior.
+
+---
+
+## Simulación de datos
+
+```{pyodide}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+np.random.seed(12)
+x1 = np.round(np.random.normal(10, 2, 50))
+x2 = np.round(np.random.normal(18, 1.2, 50))
+alturas = np.concatenate([x1, x2])
+islas = np.array(["Isla #1"]*50 + ["Isla #2"]*50)
+df = pd.DataFrame({"altura": alturas, "isla": islas})
+```
+
+---
+
+## Histograma básico por grupo
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.histplot(data=df, x="altura", hue="isla", bins=10, alpha=0.7, element="step", stat="count")
+plt.title("Distribución de Alturas de Jirafas por Isla")
+plt.xlabel("Altura (cm)")
+plt.ylabel("Frecuencia")
+plt.legend(title="Isla")
+plt.show()
+```
+
+---
+
+## Personalizar colores y estilos
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.histplot(data=df, x="altura", hue="isla", bins=10, palette=["#00cd00", "#00c5cd"], alpha=0.7, element="step", stat="count")
+plt.title("Distribución de Alturas de Jirafas por Isla")
+plt.xlabel("Altura (cm)")
+plt.ylabel("Frecuencia")
+plt.legend(title="Isla", loc="upper right")
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Guardar el gráfico como imagen
+
+```{pyodide}
+plt.savefig("histograma_jirafas_personalizado.png", dpi=300)
+```
+
+---
+
+## Buenas prácticas
+
+- Usa títulos y etiquetas descriptivas.
+- Elige paletas de colores accesibles y consistentes.
+- Usa `plt.tight_layout()` para evitar que las etiquetas se sobrepongan.
+- Guarda tus gráficos con alta resolución para presentaciones o publicaciones.
+
+---
+
+## Ejercicio
+
+- Cambia los colores de la paleta por otros de tu preferencia.
+- Cambia la posición de la leyenda (`loc` puede ser "upper left", "lower right", etc.).
+- Guarda el gráfico con otro nombre y diferente resolución.
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.histplot(data=df, x="altura", hue="isla", bins=10, palette=["orange", "purple"], alpha=0.7, element="step", stat="count")
+plt.title("Alturas de Jirafas por Isla (Colores personalizados)")
+plt.xlabel("Altura (cm)")
+plt.ylabel("Frecuencia")
+plt.legend(title="Isla", loc="upper left")
+plt.tight_layout()
+plt.savefig("histograma_jirafas_ejercicio.png", dpi=200)
+plt.show()
+```
+
+---
+
+## Reflexión
+
+- ¿Qué combinación de colores comunica mejor la diferencia entre los grupos?
+- ¿Cómo afecta la posición de la leyenda a la claridad del gráfico?
+
+Estas prácticas te ayudarán a crear visualizaciones más claras y efectivas en Python.

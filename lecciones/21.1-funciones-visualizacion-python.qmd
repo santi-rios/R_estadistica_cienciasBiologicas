@@ -1,0 +1,111 @@
+---
+title: "Visualización de Datos Básica en Python"
+subtitle: "Introducción a la creación de gráficos con matplotlib y seaborn"
+format:
+  live-html:
+    toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+resources:
+  - datos
+---
+
+## Introducción
+
+En Python, las bibliotecas más populares para visualización de datos son `matplotlib` y `seaborn`. Permiten crear gráficos atractivos y flexibles, desde los más sencillos hasta representaciones complejas, con una sintaxis clara y poderosa.
+
+---
+
+## Instalación y Carga de Bibliotecas
+
+Para usar estas bibliotecas, primero debes asegurarte de tenerlas instaladas:
+
+```{pyodide}
+# Instalar (si es necesario)
+# !pip install matplotlib seaborn
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+```
+
+---
+
+## Conceptos Básicos de matplotlib y seaborn
+
+Vamos a usar el conjunto de datos `mtcars`, que puedes cargar desde un archivo CSV.
+
+```{pyodide}
+mtcars = pd.read_csv("./datos/mtcars.csv")
+```
+
+### Crear un Gráfico de Dispersión
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.scatterplot(data=mtcars, x="hp", y="mpg")
+plt.title("Relación entre Caballos de Fuerza y MPG")
+plt.xlabel("Caballos de Fuerza (hp)")
+plt.ylabel("Millas por Galón (mpg)")
+plt.show()
+```
+
+---
+
+## Añadir Colores por Categoría
+
+Coloreamos los puntos según la cantidad de cilindros:
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.scatterplot(data=mtcars, x="hp", y="mpg", hue="cyl", palette="viridis")
+plt.title("Relación entre Caballos de Fuerza y MPG por Cilindros")
+plt.xlabel("Caballos de Fuerza (hp)")
+plt.ylabel("Millas por Galón (mpg)")
+plt.legend(title="Cilindros")
+plt.show()
+```
+
+---
+
+## Crear un Histograma
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.histplot(mtcars["mpg"], bins=10, kde=False, color="blue")
+plt.title("Distribución de Millas por Galón")
+plt.xlabel("Millas por Galón")
+plt.ylabel("Frecuencia")
+plt.show()
+```
+
+---
+
+## Ejercicio: Crear un Gráfico Básico
+
+- Usa el conjunto de datos mtcars para crear un gráfico de dispersión de `wt` (peso) contra `mpg`.
+- Añade un título y etiquetas a los ejes.
+- Colorea los puntos según `gear`.
+
+```{pyodide}
+plt.figure(figsize=(8,5))
+sns.scatterplot(data=mtcars, x="wt", y="mpg", hue="gear", palette="Set1")
+plt.title("Relación entre Peso y MPG por Engranajes")
+plt.xlabel("Peso (1000 lbs)")
+plt.ylabel("Millas por Galón (mpg)")
+plt.legend(title="Engranajes")
+plt.show()
+```
+
+---
+
+## Reflexión
+
+- ¿Cómo ayuda la visualización a entender mejor los datos que estás analizando?
+- Explora otros conjuntos de datos y trata de visualizar relaciones clave o distribuciones interesantes.
+
+Esta lección te ofrece un vistazo rápido al poder de matplotlib y seaborn, preparando el terreno para futuras exploraciones más profundas en visualización de datos.

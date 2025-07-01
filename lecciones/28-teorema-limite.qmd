@@ -1,0 +1,214 @@
+---
+title: "Teorema del Límite Central"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+title-slide-attributes:
+  data-background-image: "https://github.com/allisonhorst/stats-illustrations/blob/main/make-your-own-stats-cartoons/ex_1.png?raw=true"
+  data-background-size: contain
+  data-background-opacity: "0.5"
+format: 
+    live-revealjs: 
+        theme: serif
+        scrollable: true
+        progress: true
+        slide-number: true
+        incremental: true
+        lang: es
+        logo: "https://cran.r-project.org/Rlogo.svg"
+webr:
+    packages: 
+        - ggplot2
+pyodide: 
+    packages: 
+        - numpy
+        - matplotlib
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Introducción al Teorema del Límite Central (TLC) {.smaller}
+
+- El **Teorema del Límite Central (TLC)** es uno de los conceptos más fundamentales en estadística. 
+- **Definición formal del Teorema del Límite Central:** Cuando se extraen muestras de una población con reemplazo y el tamaño de las muestras (n) aumenta, la distribución de los **promedios muestrales** de dichas muestras se aproximará cada vez más a una **distribución normal**. Esto es cierto independientemente de la forma de la distribución original de la población, y la normalidad de los promedios muestrales suele aparecer cuando  $n \geq 30$ .
+- cuando hablamos de reemplazo, significa que cada vez que tomamos una muestra, la devolvemos a la población original antes de tomar la siguiente muestra. Esto es en contrastraste con el muestreo sin reemplazo, donde no se permite que los elementos se repitan en las muestras ya que se eliminan de la población original. 
+- Un ejemplo de muestreo con reemplazo es cuando lanzamos una moneda y anotamos los resultados, luego volvemos a lanzar la moneda y anotamos los resultados, y así sucesivamente.
+- Un ejemplo de muestreo sin reemplazo es cuando seleccionamos una carta de una baraja de cartas y no la devolvemos antes de seleccionar la siguiente carta.
+- Vamos a ver un ejemplo para entender mejor cómo funciona el TLC y por qué es tan importante en estadística aplicada.
+
+## Ejemplo: Niveles de Glucosa en Sangre {.smaller}
+
+**Población Original con Distribución Sesgada a la Izquierda**
+
+![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSl0d0jY2EjoOC70ewuhyiMu4ljEDwMY9TNA&s)
+
+. . .
+
+Supongamos que estamos estudiando los **niveles de glucosa en sangre** en una población de pacientes diabéticos. Sabemos que los niveles de glucosa no siguen una distribución normal, sino que están **sesgados a la izquierda**. Esto significa que la mayoría de los pacientes tiene niveles de glucosa cercanos al valor promedio, pero algunos tienen niveles mucho más bajos, lo que crea una "cola" a la izquierda en la distribución.
+
+Podemos simular una distribución sesgada a la izquierda en R utilizando la función `rbeta` (distribución beta) para generar 10,000 observaciones que representen los niveles de glucosa en sangre:
+
+## {.smaller}
+
+En este caso, la **media** de los niveles de glucosa en la población es de **7.13** mmol/L, y la **desviación estándar** es de **1.61** mmol/L. 'rbeta' tomará dos argumentos: el número de observaciones que queremos generar (10,000) y los parámetros de la distribución beta (5 y 2) que determinan la forma de la distribución (no te preocupes demasiado por estos valores, solo queremos simular una distribución sesgada a la izquierda).  
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+# Generamos una distribución sesgada a la izquierda
+niveles_glucosa <- rbeta(10000, 5, 2) * 10
+
+# Visualizamos la distribución original
+glucosa_plot <- ggplot(data = data.frame(x = niveles_glucosa), aes(x = x)) +
+  geom_histogram(bins = 20, fill = "lightblue", color = "darkblue", alpha = 0.5) +
+  labs(title = "Distribución de Niveles de Glucosa en Sangre", x = "Niveles de Glucosa (mmol/L)", y = "Frecuencia")
+
+glucosa_plot
+
+```
+
+## Python
+
+```{pyodide}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generamos una distribución sesgada a la izquierda
+niveles_glucosa = np.random.beta(5, 2, 10000) * 10
+
+# Visualizamos la distribución original
+plt.hist(niveles_glucosa, bins=20, color="lightblue", edgecolor="darkblue", alpha=0.5)
+plt.title("Distribución de Niveles de Glucosa en Sangre")
+plt.xlabel("Niveles de Glucosa (mmol/L)")
+plt.ylabel("Frecuencia")
+plt.show()
+``` 
+
+:::
+
+##
+
+- La cola de la distribución está sesgada a la **izquierda**, lo que indica que hay más pacientes con niveles bajos de glucosa alejados de la media.
+- Un valor de desviación estándar $\sigma = 1.61$ nos dice que la mayoría de los valores están entre 5.52 mmol/L y 8.74 mmol/L, es decir, dentro de una desviación estándar de la media.
+
+![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSl0d0jY2EjoOC70ewuhyiMu4ljEDwMY9TNA&s)
+
+
+## Uso del TLC para Construir la Distribución Muestral {.smaller}
+
+- Según el TLC, si tomamos muestras lo suficientemente grandes ($n \geq 30$), la distribución de los promedios de estas muestras será aproximadamente normal, con media igual a la media de la población y una desviación estándar ajustada llamada **error estándar**.
+**Propiedades de la Distribución Muestral:**
+- **Media de la distribución de los promedios muestrales** ($\bar{x}$): Es igual a la media de la población original.
+- **Error estándar** ($\sigma_{\bar{x}}$): Es la desviación estándar de los promedios muestrales, que se calcula como ( $\sigma / \sqrt{n}$), donde n es el tamaño de la muestra.
+
+
+## Generar Promedios Muestrales {.smaller}
+
+- Para ilustrar el TLC, vamos a tomar muestras de tamaño n = 30 de nuestra población de niveles de glucosa y calcular los promedios muestrales. Luego, repetiremos este proceso varias veces para ver cómo se distribuyen los promedios.
+- Vamos a usar la función `sample` para tomar muestras aleatorias de tamaño 30 y la función `replicate` para repetir este proceso varias veces (100 veces). Luego, visualizaremos la distribución de los promedios muestrales.
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+# Paso 1: Tomamos 100 muestras de tamaño 30 y calculamos los promedios
+promedios_muestrales <- replicate(100, mean(sample(niveles_glucosa, size = 30)))
+
+# Paso 2: Visualizamos la distribución de los promedios muestrales
+ggplot(data = data.frame(x = promedios_muestrales), aes(x = x)) +
+  geom_histogram(bins = 20, fill = "lightblue", color = "darkblue", alpha = 0.5) +
+  labs(title = "Distribución de Promedios Muestrales (n = 30)", x = "Promedio de Niveles de Glucosa", y = "Frecuencia")
+```
+
+## Python
+
+```{pyodide}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Paso 1: Tomamos 100 muestras de tamaño 30 y calculamos los promedios
+promedios_muestrales = [np.mean(np.random.choice(niveles_glucosa, size=30)) for _ in range(100)]
+
+# Paso 2: Visualizamos la distribución de los promedios muestrales
+plt.hist(promedios_muestrales, bins=20, color="lightblue", edgecolor="darkblue", alpha=0.5)
+plt.title("Distribución de Promedios Muestrales (n = 30)")
+``` 
+
+:::
+
+## **Resultados** {.smaller}
+- **Media**: La media de los promedios muestrales debería estar cerca de la media de la población original, que es **7.13** mmol/L.
+- **Forma de la Distribución**: Aunque la distribución original de los datos está sesgada a la izquierda, la distribución de los promedios muestrales será **aproximadamente normal**.
+- **Error Estándar**: El error estándar de los promedios muestrales se puede calcular como $\sigma / \sqrt{n} = 1.61 / \sqrt{30} \approx 0.29$.
+
+## Verificación del TLC con Más Muestras {.smaller}
+
+Ahora, tomemos 1,000 muestras de tamaño 30 para ver si los promedios muestrales se ajustan aún mejor a una distribución normal.
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+# Paso 3: Tomamos 1,000 muestras de tamaño 30 y calculamos los promedios
+promedios_muestrales_1000 <- replicate(1000, mean(sample(niveles_glucosa, size = 30)))
+
+# Paso 4: Visualizamos la distribución de los promedios muestrales con 1,000 muestras
+ggplot(data = data.frame(x = promedios_muestrales_1000), aes(x = x)) +
+  geom_histogram(bins = 30, fill = "lightblue", color = "darkblue", alpha = 0.5) +
+  labs(title = "Distribución de Promedios Muestrales (n = 30, 1000 muestras)", x = "Promedio de Niveles de Glucosa", y = "Frecuencia")
+```
+
+## Python
+
+```{pyodide}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Paso 3: Tomamos 1,000 muestras de tamaño 30 y calculamos los promedios
+promedios_muestrales_1000 = [np.mean(np.random.choice(niveles_glucosa, size=30)) for _ in range(1000)]
+
+# Paso 4: Visualizamos la distribución de los promedios muestrales con 1,000 muestras
+```
+
+:::
+
+## **Resultados con 1,000 muestras**
+- La **media** de los promedios muestrales seguirá siendo aproximadamente **7.13**.
+- La **distribución** de los promedios muestrales será aún más cercana a una distribución **normal**.
+- El **error estándar** seguirá siendo **0.29**, mostrando que la variabilidad entre los promedios muestrales es menor que la variabilidad en los datos originales.
+
+## **Resumen del Teorema del Límite Central**
+
+. . .
+
+El **Teorema del Límite Central** nos proporciona una poderosa herramienta para analizar distribuciones muestrales, incluso cuando los datos originales no siguen una distribución normal. En este ejemplo, vimos cómo los **niveles de glucosa en sangre**, que están sesgados a la izquierda, producen promedios muestrales que tienden a seguir una distribución normal cuando el tamaño de la muestra es suficientemente grande.
+
+## **Aspectos clave del TLC:**
+1. **La forma de la distribución muestral**: Si el tamaño de la muestra es suficientemente grande ( $n \geq 30$ ), la distribución de los promedios muestrales será aproximadamente normal, sin importar la forma de la distribución original.
+2. **La media de la distribución muestral**: La media de los promedios muestrales será igual a la media de la población original.
+3. **El error estándar**: La desviación estándar de los promedios muestrales (error estándar) se puede calcular como ($\sigma / \sqrt{n}$), lo que indica que la variabilidad entre los promedios muestrales disminuye a medida que aumenta el tamaño de la muestra.
+
+
+## Resumen {.smaller}
+
+El **Teorema del Límite Central** es un principio clave en la estadística aplicada. Nos permite:
+
+- Trabajar con promedios de muestras cuando los datos originales no siguen una distribución normal.
+- Realizar pruebas estadísticas como la **prueba t**, **ANOVA**, y construir **intervalos de confianza** usando la **distribución normal**.
+- Ofrecer una justificación teórica para aplicar herramientas estadísticas basadas en normalidad, incluso cuando los datos no son normales.
+
+En biomedicina, el TLC es invaluable para analizar datos complejos y sesgados, como el número de mutaciones, los niveles de fármacos o las mediciones clínicas, permitiendo que los investigadores realicen análisis válidos y robustos basados en promedios de muestras.
+
+
+
+# FIN
+

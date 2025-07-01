@@ -1,0 +1,256 @@
+---
+title: "Distribuciones de Probabilidad II"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+title-slide-attributes:
+  data-background-image: "https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/7ae925e1-60bb-4b2c-ba7f-13c46b1848fa_rw_1920.png?h=47b190d464b51dd3e7394cdcd5cb9620"
+  data-background-size: contain
+  data-background-opacity: "0.5"
+format: 
+    live-revealjs: 
+        theme: serif
+        scrollable: true
+        progress: true
+        slide-number: true
+        incremental: true
+        lang: es
+        logo: "https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/b9063f0c-d776-46da-9dde-10d58bf47832_rw_600.gif?h=0928dff6693c2e75d633534a9229f71d"
+webr:
+    packages: 
+        - ggplot2
+        # - plotly
+        # - tweenr
+# pyodide: 
+#     packages: 
+#         - scikit-learn
+#         - pandas
+#         - matplotlib
+#         - seaborn
+#         - statsmodels
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Introducción y Objetivos {.smaller}
+
+
+- A pesar de que la distribución normal es la más conocida y utilizada para los datos en biología y medicina, existen muchas otras distribuciones de probabilidad que se pueden aplicar a diferentes tipos de datos.
+- En esta lección, exploraremos algunas de las distribuciones de probabilidad más comunes y cómo se pueden utilizar en la práctica.
+- Nuestro objetivo es comprender las características clave de estas distribuciones y cómo se pueden aplicar en el análisis de datos, además de graficarlas en R para visualizar su forma y propiedades.
+- También aprenderas a simular datos que sigan estas distribuciones con las funciones de R.
+- Al final de esta lección, tendrás una comprensión más amplia de las distribuciones de probabilidad y cómo se pueden utilizar en tu trabajo de análisis de datos.
+- Sin embargo, toma en cuenta que en este curso nos centraremos en la distribuciones más comun y útil para la biología y la medicina, la distribución normal.
+
+
+## Distribuciones de Probabilidad {.smaller}
+
+
+- Recordemos que una distribución de probabilidad describe la probabilidad de ocurrencia de cada valor en un conjunto de datos.
+- Cada distribución tiene sus propias características y propiedades, lo que las hace únicas y útiles para diferentes situaciones.
+- Algunas de las distribuciones de probabilidad más comunes, sin contar la ya vista dist. normal, incluyen: distribución binomial, distribución de Poisson,  distribución exponencial, entre otras.
+
+
+## Distribución Normal {.smaller}
+
+
+- Se caracteriza por su forma de campana y es simétrica alrededor de su media.
+- La distribución normal tiene dos parámetros clave: la media ($\mu$) y la desviación estándar ($\sigma$).
+- En gran parte, los datos en la naturaleza siguen una distribución normal y es fundamental en la teoría detrás de la mayoría de métodos y pruebas estadísticas.
+- En la siguiente diapositiva generaremos datos simulados que sigan una distribución normal.
+- Si no te acuerdas de estas funciones, revisa de nuevo la lección anterior de distribuciones de probabilidad y ggplot.
+
+
+
+## {.smaller}
+
+- Observa que utilizamos la función `rnorm()` para generar datos que sigan una distribución normal. Esta función toma tres argumentos principales: 
+- `n`: número de observaciones aleatorias a ser generadas. En este caso, generaremos 1000 observaciones.
+- `mean`: la media de la distribución normal. Establecemos la media en 50.
+- `sd`: la desviación estándar de la distribución normal. Establecemos la desviación estándar en 10.
+- Como estamos generando datos aleatorios, establecemos una semilla (`set.seed()`) para que los resultados sean reproducibles. Si no estableces una semilla, los resultados serán diferentes cada vez que ejecutes el código (aunque seguirán siendo datos que siguen una distribución normal con media 50 y desviación estándar 10).
+
+
+```{webr}
+#| warning: false
+# Generar datos de una distribución normal
+set.seed(42) # Establecer semilla para reproducibilidad
+datos_normales <- rnorm(1000, mean = 50, sd = 10)
+
+# Crear un data frame con los datos
+df_normales <- data.frame(valor = datos_normales)
+
+# Visualizar la distribución con ggplot2
+library(ggplot2)
+
+ggplot(df_normales, aes(x = valor)) +
+        geom_histogram(aes(y = ..density..), bins = 30, fill = "skyblue", color = "black") +
+        geom_density(color = "darkblue", size = 1) +
+        labs(title = "Distribución Normal", x = "Valores", y = "Densidad") +
+        theme_minimal()
+```
+
+## Distribución Binomial {.smaller}
+
+
+- La distribución binomial describe el número de éxitos en una secuencia de ensayos independientes (independientes significa que el resultado de un ensayo no afecta el resultado de otro, como lanzar una moneda).
+- Cada ensayo tiene dos resultados posibles: éxito o fracaso.
+- Los parámetros clave de la distribución binomial son el número de ensayos (n) y la probabilidad de éxito (p).
+- Ejemplo de variables con esta distribución: lanzar una moneda o contar el número de éxitos/fracasos en una muestra.
+- Observa que para simular datos de una distribución binomial, usamos la función `rbinom()` en lugar de `rnorm()`.
+- `rbinom()` genera datos de una distribución binomial con los parámetros especificados. Toma los siguientes argumentos: 
+
+##
+
+```r
+rbinom(n,    # Número de observaciones aleatorias a ser generadas
+       size, # Número de ensayos (> = 0)
+       prob) # La probabilidad de éxito en cada ensayo
+```
+
+
+
+## {.smaller}
+
+Simulemos un experimento donde lanzas una moneda 10 veces y quieres graficar un histograma que represente el número de caras obtenidas. Repetirás este experimento por 100 días. Como solo hay dos resultados posibles, cara o cruz, nuestra probabilidad de éxito es 0.5 o 50%. La función `rbinom()` tiene tres argumentos principales:
+
+- `n`: número de experimentos (en este caso, cuántas veces repetimos el experimento de lanzar la moneda 10 veces). Supongamos que repetimos el experimento 100 veces.
+- `size`: número de lanzamientos por experimento (en este caso, 10 lanzamientos por experimento).
+- `prob`: probabilidad de éxito (en este caso, la probabilidad de obtener cara, que es 0.5 para una moneda justa).
+
+```{webr}	
+# Paso 1: Simular 100 experimentos, cada uno con 10 lanzamientos de moneda
+set.seed(123)  # Fijar la semilla para reproducibilidad
+
+resultados <- rbinom(n = 100, size = 10, prob = 0.5)
+
+# Paso 2: Crear un histograma de los resultados
+ggplot(data.frame(resultados), aes(x = resultados)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribución del Número de Caras en 100 Lanzamientos de Moneda",
+    x = "Número de Caras Obtenidas cada 10 Lanzamientos",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+
+```
+
+## {.smaller}
+
+
+- El histograma mostrará la distribución del número de caras obtenidas en 10 lanzamientos de moneda, repetidos 100 veces. 
+- Dado que las probabilidades son simétricas (0.5 para cara y 0.5 para cruz), la distribución tendrá una media en torno a 5 (la mitad de los lanzamientos deberían ser caras, en promedio), pero con variabilidad en los resultados. 
+- Los valores extremos (muy pocos o muchas caras) serán menos frecuentes.
+- Ahora imagina que repetimos el experimento, pero con una moneda cargada que tiene una probabilidad de 0.85 de obtener cara. ¿Cómo crees que cambiaría la distribución de los resultados? Antes de correr el código, piensa en cómo se vería el histograma.
+
+
+```{webr}	
+set.seed(123)  # Fijar la semilla para reproducibilidad
+resultados <- rbinom(n = 100, size = 10, prob = 0.85)
+
+ggplot(data.frame(resultados), aes(x = resultados)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribución del Número de Caras en 100 Lanzamientos de Moneda",
+    x = "Número de Caras Obtenidas",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+
+```
+
+## Distribución de Poisson {.smaller}
+
+
+
+- La distribución de Poisson es una distribución de probabilidad que describe el número de eventos que ocurren en un intervalo de tiempo o espacio, cuando estos eventos suceden de manera independiente y con una tasa promedio constante.
+
+- Se utiliza para modelar eventos raros o inusuales, como accidentes, llamadas telefónicas, o errores en un proceso.
+
+- La distribución de Poisson tiene un solo parámetro, la tasa de ocurrencia ($\lambda$), que representa el número promedio de eventos en el intervalo.
+
+- La distribución de Poisson es útil para modelar eventos discretos y se utiliza en situaciones donde los eventos son raros y aleatorios.
+
+- A continuación, veremos cómo se ve la distribución de Poisson y cómo se puede aplicar en la práctica.
+
+
+
+## 
+
+
+- Un ejemplo de una variable con esta distribución es el número de mutaciones en una cadena de DNA en una determinada región durante un período de tiempo fijo.
+- Imagina que estamos investigando el número de mutaciones en una sección de ADN en células cancerígenas. 
+- Sabemos, a partir de estudios previos, que en promedio ocurren 3 mutaciones por célula. Queremos simular y visualizar la distribución de mutaciones en 1000 células.
+
+
+## {.smaller}
+
+
+En este caso, la tasa promedio de mutaciones por célula es 3 y el suceso que estamos modelando es el número de mutaciones en una célula. Usaremos la función `rpois()` para simular datos que sigan una distribución de Poisson. Esta función toma dos argumentos principales:
+- `n`: número de observaciones aleatorias a ser generadas.
+- `lambda`: la tasa de ocurrencia de eventos en un intervalo de tiempo o espacio.
+- En este caso, generaremos 1000 observaciones de la distribución de Poisson con una tasa de ocurrencia de 3 mutaciones por célula.
+
+
+```{webr}
+# Paso 1: Simular el número de mutaciones en 1000 células
+set.seed(12)  # Fijar semilla para reproducibilidad
+
+mutaciones <- rpois(n = 1000, lambda = 3)
+
+# Paso 2: Crear un histograma de los resultados
+ggplot(data.frame(mutaciones), aes(x = mutaciones)) +
+  geom_histogram(binwidth = 1, fill = "lightgreen", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribución de Mutaciones en Células (Distribución de Poisson)",
+    subtitle = "Simulación del número de mutaciones por célula en 1000 células",
+    x = "Número de Mutaciones por Célula",
+    y = "Frecuencia"
+  ) +
+  theme_minimal()
+
+```
+
+
+## {.smaller}
+
+
+- El histograma muestra la distribución del número de mutaciones por célula en 1000 células. Dado que usamos una distribución de Poisson con un parámetro $\lambda$ = 3, esperamos que:
+
+- El pico del histograma esté alrededor de 3 (el número promedio de mutaciones por célula).
+- La distribución será asimétrica, con más células concentradas en el rango de mutaciones bajas, y una "cola" que se extiende hacia la derecha a medida que aumentan el número de mutaciones.
+- Puedes ajustar el número de células para cambiar el tamaño de la muestra o cambiar el valor de lambda para simular una tasa diferente de mutaciones por célula.
+
+
+
+## Otras Distribuciones {.smaller}
+
+
+- Además de la distribución normal, binomial y de Poisson, existen muchas otras distribuciones de probabilidad que se utilizan en diferentes contextos.
+- En [este enlace](https://www.stat.umn.edu/geyer/5101/examp/rlook.html) y [este](https://rstudio.github.io/r-manuals/r-intro/Probability-distributions.html) puedes encontrar una lista de las distribuciones de probabilidad que puedes encontrar en R.
+- Aunque en el curso nos enfocaremos en la distribución normal, veremos que muchas pruebas estadísticas utilizan otras distribuciones, por lo que es útil conocerlas y comprender sus propiedades.
+- Algunos de estos ejemplos, son la distribución chi-cuadrada, t de Student, F de Fisher, entre otras que son fundamentales en la inferencia estadística y en el análisis de datos.
+- Solo para conocerlas, veamos rápidamente algunas de estas distribuciones utilizadas en análisis estadístico. 
+
+
+## Distribuciones y pruebas asociadas {.smaller}
+
+
+| **Distribución**           | **Prueba estadística asociada**                             | **Aplicaciones en Biomedicina**                                      | **Ilustración** |
+|----------------------------|-------------------------------------------------------------|----------------------------------------------------------------------|-----------------|
+| **t de Student**            | Prueba t (una muestra, dos muestras independientes, pareada) | Comparación de medias de biomarcadores, tratamientos, etc.           | ![](https://www.conexionismo.com/calculadoras_estadisticas/images/distribucion_t.jpg)           |
+| **Chi-cuadrada (χ²)**       | Prueba de bondad de ajuste, prueba de independencia (χ²)     | Comparación de frecuencias, análisis de tablas de contingencia       | ![](https://statkat.com/images/chi-squared-distribution.png)           |
+| **F de Fisher**             | ANOVA, pruebas de igualdad de varianzas, regresión           | Comparación de varios tratamientos, análisis de regresión            | ![](https://docs.analytica.com/images/6/61/FDist%285%2C10%29.png)           |
+| **Normal (Z)**              | Prueba Z, intervalos de confianza                            | Comparación de medias para grandes muestras                          | ![](https://discovery.cs.illinois.edu/static/learn/NC-WebG.png)           |
+| **Binomial**                | Prueba binomial, prueba exacta de Fisher                     | Evaluación de proporciones de éxito (por ejemplo, respuesta a un tratamiento) |            |
+
+
+# FIN
+
+

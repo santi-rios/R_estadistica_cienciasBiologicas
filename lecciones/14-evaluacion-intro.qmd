@@ -1,0 +1,396 @@
+---
+title: "Primera Evaluación"
+subtitle: "Conceptos Básicos"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+title-slide-attributes:
+  data-background-image: "http://orcaasesina.com/wp-content/uploads/2024/10/358e3ecd-32dd-493b-a2b0-12bafabf186c_rw_1920.png"
+  data-background-size: contain
+  data-background-opacity: "0.5"
+format: 
+    live-revealjs: 
+        theme: serif
+        scrollable: true
+        progress: true
+        slide-number: true
+        incremental: true
+        lang: es
+        logo: "https://cran.r-project.org/Rlogo.svg"
+resources:
+  - datos
+# webr:
+#     packages: 
+#         - htmltools
+#         - TurtleGraphics
+#         - calendR
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Ejercicio 1
+
+Asigna los valores `2` y `5` a las variables `a` y `b`. Tras asignarles valores, multiplica los números.
+
+
+```{webr}
+#| exercise: eval_intro_ex1
+
+# Definición de variables
+a <- ______
+______ <- ______
+
+# Multiplicación
+______ * ______
+
+```
+
+```{webr}
+#| exercise: eval_intro_ex1
+#| check: true
+
+if (identical(.result, 10)) {
+  list(correct = TRUE, message = "Correcto.")
+} else {
+  list(correct = FALSE, message = "Incorrecto. Puedes revisar la solucion con el boton Show solution.")
+}
+```
+
+::: { .solution exercise="eval_intro_ex1" }
+::: { .callout-tip collapse="false"}
+## Solución
+
+```r
+# Definición de variables
+a <- 2
+b <- 5
+
+# Multiplicación
+a * b
+```
+
+:::
+:::
+
+## Ejercicio 2
+
+Suma `3` más `4` y multiplicalo por 10 y asígnalo a una variable `x`. Imprime el valor de `x` con la función `print()`.
+
+
+```{webr}
+#| exercise: eval_intro_ex2
+
+# Definición de variables
+x <- (______) * ______
+
+# Imprimir el valor de x
+______(x)
+
+```
+
+```{webr}
+#| exercise: eval_intro_ex2
+#| check: true
+
+if (identical(.result, print(70))) {
+  list(correct = TRUE, message = "Felicidades! Respuesta correcta.")
+} else {
+  list(correct = FALSE, message = "Incorrecto. Puedes revisar la solucion con el boton Show solution.")
+}
+```
+
+::: { .solution exercise="eval_intro_ex2" }
+::: { .callout-tip collapse="false"}
+## Solución
+
+```r
+# Definición de variables
+x <- (3 + 4) * 10
+
+# Imprimir el valor de x
+print(x)
+```
+
+:::
+:::
+
+
+## Ejercicio 3
+
+Reemplaza el guion bajo por un texto entre comillas para crear una variable de carácter. Corre el código y verifica que el tipo de dato sea correcto.
+
+```{webr}
+#| exercise: eval_intro_ex3
+
+# Crear una variable de carácter
+caracter <- ______
+
+print(caracter)
+
+typeof(caracter)
+
+```
+
+
+```{webr}
+#| exercise: eval_intro_ex3
+#| check: true
+
+# Evaluate the student's expression to get the result
+if (identical(typeof(caracter), "character")) {
+  list(correct = TRUE, message = "Correcto! La variable es de tipo caracter.")
+} else {
+  list(correct = FALSE, message = "Incorrecto.")
+}
+```
+
+## Ejercicio 4
+
+Reemplaza el guion bajo por un texto entre comillas para crear una variable numérica. Corre el código y verifica que el tipo de dato sea correcto.
+
+```{webr}
+#| exercise: eval_intro_ex4
+
+# Crear una variable numérica
+numerica <- ______
+
+print(numerica)
+
+typeof(numerica)
+
+class(numerica)
+
+```
+
+
+```{webr}
+#| exercise: eval_intro_ex4
+#| check: true
+
+# Evaluate the student's expression to get the result
+if (identical(class(numerica), "numeric")) {
+  list(correct = TRUE, message = "Correcto! La variable es de tipo numerica.")
+} else {
+  list(correct = FALSE, message = "Incorrecto.")
+}
+```
+
+
+## Ejercicio 5
+
+Crea un vector numérico con los valores `1`, `2` y `3`. Suma los valores del vector con la función `sum()`.
+
+
+```{webr}
+#| exercise: eval_intro_ex5
+
+# Definición de variables
+vector_suma <- ______
+
+# suma de los valores del vector
+sum(______)
+
+```
+
+```{webr}
+#| exercise: eval_intro_ex5
+#| check: true
+
+if (identical(.result, sum(c(1,2,3)))) {
+  list(correct = TRUE, message = "Felicidades! Respuesta correcta.")
+} else {
+  list(correct = FALSE, message = "Incorrecto. Puedes revisar la solucion con el boton Show solution.")
+}
+```
+
+::: { .solution exercise="eval_intro_ex5" }
+::: { .callout-tip collapse="false"}
+## Solución
+
+```r
+# Definición de variables
+# Vector de números
+x <- c(1, 2, 3)
+
+# Suma
+sum(x)
+```
+
+:::
+:::
+
+
+
+## Ejercicio 6 {.smaller}
+
+Para este ejercicio, vamos a utilizar un conjunto de datos llamado `trees`. Este viene incluído en R, por lo que no es necesario instalarlo. Este conjunto de datos contiene información sobre la circunferencia, altura y volumen de 31 árboles. Para cargar el conjunto de datos, primero carga los datos con la función `data()`. Luego, vamos a explorar el nombre de las columnas del conjunto de datos con la función `colnames()`. Al ifnal, crea un vector con los nombres de las columnas y asignalo a la variable `nombres_columnas`. Imprime el resultado con la función `print()`.
+
+```{webr}
+#| exercise: eval_intro_ex6
+
+# Cargar el conjunto de datos
+data(______)
+
+# Explorar las columnas del conjunto de datos
+colnames(______)
+
+# Asignar los nombres de las columnas a una variable
+nombres_columnas <- colnames(______)
+
+# Imprimir el resultado
+print(______)
+
+```
+
+
+```{webr}
+#| exercise: eval_intro_ex6
+#| check: true
+
+data(trees)
+
+if (isTRUE(all.equal(.result, print(colnames(trees))))) {
+  list(correct = TRUE, message = "Correcto!")
+} else {
+  list(correct = FALSE, message = "Incorrecto.")
+}
+```
+
+
+::: { .hint exercise="eval_intro_ex6"}
+::: { .callout-note collapse="false"}
+
+## Pista 1
+
+
+
+```r
+data(datos_a_cargar)
+
+colnames(datos_cargados)
+
+nombres_columnas <- colnames(datos_cargados)
+
+print(nombres_columnas)
+
+```
+:::
+:::
+
+
+::: { .solution exercise="eval_intro_ex6" }
+::: { .callout-tip collapse="false"}
+
+## Solución
+
+
+```r
+data(trees)
+
+colnames(trees)
+
+nombres_columnas <- colnames(trees)
+
+print(trees)
+```
+
+
+:::
+:::
+
+
+## Ejercicio 7
+
+Ahora, vamos a leer el archivo que se encuentra dentro de la carpeta `datos`. Primero, lista los archivos dentro de la carpeta `datos` con la función `list.files("datos")`. Luego, lee el archivo que se encuentra en esa carpeta con la función `read.csv()` y asignalo a la variable `datos_csv`. Finalmente, imprime los primeros datos con la función `head()`. Respuesta en la siguiente diapositiva. 
+
+```{webr}
+
+# Listar archivos en el directorio actual
+list.files(______)
+
+# Leer un archivo CSV
+# datos_csv <- read.csv("datos/______.csv")
+
+# Imprimir los primeros datos
+# head(______)
+
+```
+
+## Respuesta
+
+```r
+
+
+# Listar archivos en el directorio actual
+list.files(datos)
+
+# Leer un archivo CSV
+datos_csv <- read.csv("datos/mtcars.csv")
+
+# Imprimir los primeros datos
+head(datos_csv)
+
+```
+
+## Ejercicio 8
+
+Usando los datos que almacenas en la variable `datos_csv`, carga la librería `dplyr` y selecciona las columnas `mpg`, `cyl` y `hp` con la función `select()`. Asigna el resultado a la variable `datos_seleccionados` e imprime los datos con la función `head()`. Respuesta en la siguiente diapositiva.
+
+```{webr}
+
+library(______)
+
+# Seleccionar columnas
+# datos_seleccionados <- datos_csv ______
+    select(______, ______, ______)
+
+
+head(______)
+```
+
+
+## Respuesta
+
+```r
+
+
+library(dplyr) # o library(tidyverse)
+
+# Seleccionar columnas
+datos_seleccionados <- datos_csv %>%
+    select(mpg, cyl, hp)
+
+
+head(datos_seleccionados)
+
+```
+
+## Ejercicio 9
+
+Contesta: Cuántas variables y observaciones tiene el conjunto de datos `datos_seleccionados`? Respuesta en la siguiente diapositiva.
+
+```{webr}
+
+______ %>% colnames()
+
+______ %>% nrow()
+
+```
+
+## Respuesta
+
+```r
+
+
+# Número de variables
+datos_seleccionados %>% colnames()
+
+# Número de observaciones
+datos_seleccionados %>% nrow()
+
+```

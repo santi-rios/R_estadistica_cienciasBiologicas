@@ -1,0 +1,124 @@
+---
+title: "Estadísticas Descriptivas en Python"
+subtitle: "Introducción a las Estadísticas Descriptivas con pandas"
+format: live-html 
+pyodide:
+  packages:
+    - pandas
+sidebar: false
+---
+
+## Introducción
+
+- Las estadísticas descriptivas son herramientas cruciales en el análisis de datos, ya que nos permiten resumir y describir las características principales de un conjunto de datos.
+- En Python, la librería `pandas`, junto con `numpy`, nos ofrece funciones potentes para calcular medidas como la media, la mediana, la desviación estándar, entre otras.
+- Estas medidas ofrecen una visión general del comportamiento de los datos y son fundamentales para cualquier análisis cuantitativo.
+
+---
+
+## Funciones Básicas para Resumen Estadístico con pandas
+
+A continuación, se presentan algunos de los métodos más utilizados en `pandas` para calcular estadísticas descriptivas sobre un objeto Series o DataFrame:
+
+- **Media (`.mean()`):** Calcula el promedio de un conjunto de valores numéricos.
+- **Mediana (`.median()`):** Determina el valor central de un conjunto de datos.
+- **Desviación Estándar (`.std()`):** Mide la cantidad de variación o dispersión.
+- **Varianza (`.var()`):** Representa la media de las desviaciones al cuadrado respecto a la media.
+- **Máximo y Mínimo (`.max()`, `.min()`):** Identifican los valores más alto y más bajo.
+- **Conteo (`.count()` o `len()`):** Cuenta el número de elementos no nulos.
+- **Resumen (`.describe()`):** Proporciona un resumen estadístico completo.
+
+```{pyodide}
+import pandas as pd
+
+datos = pd.Series([1, 2, 3, 4, 5])
+
+print(f"Media: {datos.mean()}")
+print(f"Mediana: {datos.median()}")
+print(f"Desviación Estándar: {datos.std()}")
+print(f"Varianza: {datos.var()}")
+print(f"Máximo: {datos.max()}")
+print(f"Mínimo: {datos.min()}")
+print(f"Conteo: {datos.count()}")
+print("\nResumen completo:")
+print(datos.describe())
+```
+
+---
+
+## Aplicación en un Conjunto de Datos
+
+Para entender mejor estas funciones, utilizaremos el conjunto de datos `mtcars`, que cargaremos desde un archivo CSV:
+
+```{pyodide}
+import pandas as pd
+
+# Cargar conjunto de datos
+mtcars = pd.read_csv("/home/santi/Projects/R_estadistica_cienciasBiologicas/datos/mtcars.csv")
+
+# Calcular media y mediana de millas por galón (mpg)
+mean_mpg = mtcars['mpg'].mean()
+median_mpg = mtcars['mpg'].median()
+
+# Calcular la desviación estándar y la varianza de caballos de fuerza (hp)
+sd_hp = mtcars['hp'].std()
+var_hp = mtcars['hp'].var()
+
+# Encontrar el valor máximo y mínimo de peso (wt)
+max_wt = mtcars['wt'].max()
+min_wt = mtcars['wt'].min()
+
+# Obtener un resumen completo de mpg
+summary_mpg = mtcars['mpg'].describe()
+
+# Imprimir resultados
+print(f"Media de MPG: {mean_mpg}")
+print(f"Mediana de MPG: {median_mpg}")
+print(f"Desviación Estándar de HP: {sd_hp}")
+print(f"Varianza de HP: {var_hp}")
+print(f"Peso Máximo: {max_wt}")
+print(f"Peso Mínimo: {min_wt}")
+print("\nResumen Estadístico de MPG:")
+print(summary_mpg)
+```
+
+## Ejercicio: Cálculo de Estadísticas Descriptivas
+
+- Calcula la media y mediana del número de cilindros (`cyl`) en `mtcars`.
+- Determina la desviación estándar del consumo de gasolina (`mpg`).
+- Encuentra el valor máximo y mínimo de relaciones de transmisión (`gear`).
+- Proporciona un resumen completo para el desplazamiento del motor (`disp`).
+
+```{pyodide}
+# 1. Media y Mediana de cilindros
+mean_cyl = mtcars['cyl'].mean()
+median_cyl = mtcars['cyl'].median()
+
+# 2. Desviación Estándar de MPG
+sd_mpg = mtcars['mpg'].std()
+
+# 3. Máximo y Mínimo de relaciones de transmisión
+max_gear = mtcars['gear'].max()
+min_gear = mtcars['gear'].min()
+
+# 4. Resumen completo de desplazamiento (disp)
+summary_disp = mtcars['disp'].describe()
+
+# Imprimir resultados del ejercicio
+print(f"Media de Cilindros: {mean_cyl}")
+print(f"Mediana de Cilindros: {median_cyl}")
+print(f"Desviación Estándar de MPG: {sd_mpg}")
+print(f"Máximo de Gear: {max_gear}")
+print(f"Mínimo de Gear: {min_gear}")
+print("\nResumen Estadístico de Desplazamiento:")
+print(summary_disp)
+```
+
+---
+
+## Reflexión
+
+- ¿Cómo te ayudan estas medidas a entender mejor tu conjunto de datos?
+- Piensa en cómo podrías utilizar estas herramientas para analizar otros conjuntos de datos con los que trabajes en el futuro.
+
+Esta lección introductoria sobre estadísticas descriptivas en Python te prepara para abordar el análisis cuantitativo con confianza, dándote las herramientas necesarias para obtener rápidamente conclusiones significativas de tus datos.

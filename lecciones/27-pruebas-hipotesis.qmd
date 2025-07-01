@@ -1,0 +1,125 @@
+---
+title: "Pruebas de Hipótesis"
+subtitle: "Conceptos Clave de Variables"
+format: 
+    live-html: 
+        scrollable: true
+webr:
+    packages: 
+        - ggplot2
+pyodide: 
+    packages: 
+        - numpy
+        - scipy
+        - matplotlib
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Introducción
+
+Las pruebas de hipótesis son un componente fundamental de la inferencia estadística. Nos permiten evaluar si los datos observados apoyan una hipótesis sobre una población. En esta lección, exploraremos conceptos como los errores tipo I y II, el valor p, y cómo realizar pruebas de hipótesis en R con ejemplos sencillos.
+
+---
+
+## Conceptos Clave
+
+
+    Hipótesis Nula ((H_0)): Afirma que no hay efecto o diferencia. Es la hipótesis que intentamos refutar.
+    Hipótesis Alternativa ((H_a)): Afirma que hay un efecto o diferencia.
+    Error Tipo I ((\alpha)): Rechazar (H_0) cuando es verdadera. El nivel de significancia, usualmente 0.05.
+    Error Tipo II ((\beta)): No rechazar (H_0) cuando (H_a) es verdadera.
+    Valor p: Probabilidad de obtener un resultado igual o más extremo que el observado, asumiendo que (H_0) es cierta.
+
+
+
+---
+
+## Ejemplo de Prueba de Hipótesis
+
+Verificaremos si los estudiantes de un curso tienen una media de calificación de 75 usando una prueba t de una muestra.
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+# Simulación de datos de calificaciones
+set.seed(123)
+calificaciones <- rnorm(30, mean = 78, sd = 10)
+
+# Hipótesis
+# H0: La media es 75
+# Ha: La media no es 75
+
+# Realizar prueba t de una muestra
+resultado <- t.test(calificaciones, mu = 75)
+
+# Mostrar resultados
+print(resultado)
+
+# Interpretación de valor p
+if (resultado$p.value < 0.05) {
+  cat("Rechazamos H0: La media es significativamente diferente de 75.\n")
+} else {
+  cat("No rechazamos H0: No hay evidencia significativa para decir que la media es diferente de 75.\n")
+}
+
+# Visualización
+hist(calificaciones, breaks=10, col="lightblue", main="Distribución de Calificaciones",
+     xlab="Calificaciones", xlim=c(50, 100))
+abline(v=mean(calificaciones), col="red", lwd=2, lty=2)
+legend("topright", legend=c("Media Observada"), col=c("red"), lty=2, cex=0.8)
+```
+
+## Python
+
+```{pyodide}
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+# Simulación de datos de calificaciones
+np.random.seed(123)
+calificaciones = np.random.normal(loc=78, scale=10, size=30)
+
+# Hipótesis
+# H0: La media es 75
+# Ha: La media no es 75
+
+# Realizar prueba t de una muestra
+resultado = stats.ttest_1samp(calificaciones, popmean=75)
+
+# Mostrar resultados
+print("Estadístico t:", resultado.statistic)
+print("Valor p:", resultado.pvalue)
+
+# Interpretación de valor p
+if resultado.pvalue < 0.05:
+    print("Rechazamos H0: La media es significativamente diferente de 75.")
+else:
+    print("No rechazamos H0: No hay evidencia significativa para decir que la media es diferente de 75.")
+
+# Visualización
+plt.hist(calificaciones, bins=10, color="lightblue", edgecolor="black")
+plt.title("Distribución de Calificaciones")
+plt.xlabel("Calificaciones")
+plt.ylabel("Frecuencia")
+plt.xlim(50, 100)
+plt.axvline(np.mean(calificaciones), color="red", linestyle="--", linewidth=2, label="Media Observada")
+plt.legend(loc="upper right")
+plt.show()
+```
+---
+
+
+:::
+
+## Reflexión y Discusión:
+
+
+    Examina el valor p en el contexto de este ejercicio. ¿Qué concluyes sobre la hipótesis?
+    Discute las implicaciones de cometer un error tipo I o tipo II en el contexto de este análisis. ¿Cómo podrían afectar cada uno de estos errores a las conclusiones y decisiones basadas en esta prueba?
+
+Esta lección proporciona una introducción práctica a las pruebas de hipótesis en R, mostrando cómo podemos usar herramientas estadísticas para extraer conclusiones con base en datos. Dominar estos conceptos y técnicas te permitirá realizar juicios informados y rigurosos en cualquier análisis estadístico que realices.

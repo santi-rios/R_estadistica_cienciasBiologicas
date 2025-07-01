@@ -1,0 +1,165 @@
+---
+title: "Estadísticas Descriptivas en R"
+subtitle: "Introducción a las Estadísticas Descriptivas"
+format: 
+    live-revealjs: 
+        scrollable: true
+webr:
+    packages: 
+        - dplyr
+# pyodide: 
+#     packages: 
+#         - scikit-learn
+#         - pandas
+#         - matplotlib
+#         - seaborn
+#         - statsmodels
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Introducción
+
+- Las estadísticas descriptivas son herramientas cruciales en el análisis de datos, ya que nos permiten resumir y describir las características principales de un conjunto de datos. 
+- En R, disponemos de funciones básicas que nos ayudan a calcular medidas como la media, la mediana, la desviación estándar, entre otras. - Estas medidas ofrecen una visión general del comportamiento de los datos y son fundamentales para cualquier análisis cuantitativo.
+- Veremos la teoría más adelante, pero 
+
+---
+
+## Funciones Básicas para Resumen Estadístico
+
+A continuación, se presentan algunas de las funciones más utilizadas en R para calcular estadísticas descriptivas:
+
+    Media (`mean()`):
+
+```{webr}
+# Calcula el promedio de un conjunto de valores numéricos.
+
+mean(c(1, 2, 3, 4, 5))  # Devuelve 3
+```
+## 
+
+Mediana (median()):
+
+    Determina el valor central de un conjunto de datos ordenados.
+
+    median(c(1, 3, 3, 6, 7, 8, 9))  # Devuelve 6
+
+Desviación Estándar (sd()):
+
+    Mide la cantidad de variación o dispersión de un conjunto de datos.
+
+    sd(c(1, 2, 3, 4, 5))  # Calcula la desviación estándar
+
+Varianza (var()):
+
+    Representa la media de las desviaciones al cuadrado respecto a la media.
+
+    var(c(1, 2, 3, 4, 5))  # Calcula la varianza
+
+Máximo y Mínimo (max(), min()):
+
+    Identifican los valores más alto y más bajo de un conjunto de datos.
+
+    max(c(1, 2, 3, 4, 5))  # Devuelve 5
+    min(c(1, 2, 3, 4, 5))  # Devuelve 1
+
+count (length()):
+
+    Cuenta el número de elementos en un vector.
+
+    length(c(1, 2, 3, 4, 5))  # Devuelve 5
+
+Resumen (summary()):
+
+    Proporciona un resumen estadístico completo, incluyendo mínimo, mediana, media, máximo y cuartiles.
+
+    summary(c(1, 2, 3, 4, 5))
+
+
+---
+
+## Aplicación en un Conjunto de Datos
+
+Para entender mejor estas funciones, utilizarémos el conjunto de datos mtcars, que está incorporado en R:
+
+```{webr}
+# Cargar conjunto de datos
+data("mtcars")
+
+# Calcular media y mediana de millas por galón (mpg)
+mean_mpg <- mean(mtcars$mpg)
+median_mpg <- median(mtcars$mpg)
+
+# Calcular la desviación estándar y la varianza de caballos de fuerza (hp)
+sd_hp <- sd(mtcars$hp)
+var_hp <- var(mtcars$hp)
+
+# Encontrar el valor máximo y mínimo de peso (wt)
+max_wt <- max(mtcars$wt)
+min_wt <- min(mtcars$wt)
+
+# Obtener un resumen completo de mpg
+summary_mpg <- summary(mtcars$mpg)
+
+# Imprimir resultados
+print(paste("Media de MPG:", mean_mpg))
+print(paste("Mediana de MPG:", median_mpg))
+print(paste("Desviación Estándar de HP:", sd_hp))
+print(paste("Varianza de HP:", var_hp))
+print(paste("Peso Máximo:", max_wt))
+print(paste("Peso Mínimo:", min_wt))
+print("Resumen Estadístico de MPG:")
+print(summary_mpg)
+
+
+```
+
+## Ejercicio
+
+Ejercicio: Cálculo de Estadísticas Descriptivas
+
+    Calcula la media y mediana del número de cilindros (cyl) en mtcars.
+    Determina la desviación estándar del consumo de gasolina (mpg).
+    Encuentra el valor máximo y mínimo de relaciones de transmisión (gear).
+    Proporciona un resumen completo para el desplazamiento del motor (disp).
+
+Código del Ejercicio:
+
+```{webr}
+# 1. Media y Mediana de cilindros
+mean_cyl <- mean(mtcars$cyl)
+median_cyl <- median(mtcars$cyl)
+
+# 2. Desviación Estándar de MPG
+sd_mpg <- sd(mtcars$mpg)
+
+# 3. Máximo y Mínimo de relaciones de transmisión
+max_gear <- max(mtcars$gear)
+min_gear <- min(mtcars$gear)
+
+# 4. Resumen completo de desplazamiento (disp)
+summary_disp <- summary(mtcars$disp)
+
+# Imprimir resultados del ejercicio
+print(paste("Media de Cilindros:", mean_cyl))
+print(paste("Mediana de Cilindros:", median_cyl))
+print(paste("Desviación Estándar de MPG:", sd_mpg))
+print(paste("Máximo de Gear:", max_gear))
+print(paste("Mínimo de Gear:", min_gear))
+print("Resumen Estadístico de Desplazamiento:")
+print(summary_disp)
+
+```
+
+
+
+---
+
+## Reflexión
+
+    ¿Cómo te ayudan estas medidas a entender mejor tu conjunto de datos?
+    Piensa en cómo podrías utilizar estas herramientas para analizar otros conjuntos de datos con los que trabajes en el futuro.
+
+Esta lección introductoria sobre estadísticas descriptivas en R te prepara para abordar el análisis cuantitativo con confianza, dándote las herramientas necesarias para obtener rápidamente conclusiones significativas de tus datos.
