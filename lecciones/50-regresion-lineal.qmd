@@ -1,0 +1,86 @@
+---
+title: "Regresión Lineal Simple"
+subtitle: "Conceptos Clave de Variables"
+format: 
+    live-revealjs: 
+        scrollable: true
+webr:
+    packages: 
+        - ggplot2
+# pyodide: 
+#     packages: 
+#         - scikit-learn
+#         - pandas
+#         - matplotlib
+#         - seaborn
+#         - statsmodels
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## Introducción
+
+La regresión lineal simple es una técnica estadística que modela la relación entre dos variables continuas mediante una ecuación lineal. Este método es útil para predecir los valores de una variable dependiente basada en los valores de una variable independiente.
+
+---
+
+## Conceptos Clave
+
+
+
+    Modelo de Regresión Lineal Simple:
+        Representado por la ecuación ( y = \beta_0 + \beta_1x + \epsilon ), donde:
+        ( y ) es la variable dependiente (resultado).
+        ( x ) es la variable independiente (predictora).
+        ( \beta_0 ) es la intersección (ordenada en el origen).
+        ( \beta_1 ) es la pendiente del modelo.
+        ( \epsilon ) es el término de error.
+
+    Interpretación:
+        ( \beta_1 ) indica el cambio en la variable dependiente por cada unidad de cambio en la variable independiente.
+        El objetivo es minimizar la suma de los cuadrados de las diferencias entre los valores observados y los valores predichos.
+
+
+---
+
+## Ejercicio Práctico en R
+
+Veamos cómo ajustar un modelo de regresión lineal simple utilizando un conjunto de datos simulado.
+
+```{webr}
+# Simulación de datos
+set.seed(123)
+horas_estudio <- rnorm(100, mean = 5, sd = 1.5)
+calificacion_examen <- 50 + 8 * horas_estudio + rnorm(100, mean = 0, sd = 5)
+
+# Ajuste del modelo de regresión lineal simple
+modelo <- lm(calificacion_examen ~ horas_estudio)
+
+# Resumen del modelo
+summary(modelo)
+
+# Coeficientes del modelo
+cat("Intercepto (beta_0):", coef(modelo)[1], "\n")
+cat("Pendiente (beta_1):", coef(modelo)[2], "\n")
+
+# Visualización de los resultados
+plot(horas_estudio, calificacion_examen,
+     main = "Regresión Lineal: Horas de Estudio vs Calificación",
+     xlab = "Horas de Estudio", ylab = "Calificación",
+     col = "blue", pch = 19)
+abline(modelo, col = "red", lwd = 2)
+legend("topleft", legend = c("Línea de Regresión"), col = c("red"), lty = 1, cex = 0.8)
+
+```
+
+
+---
+
+
+## Reflexión y Discusión
+
+    Observa la pendiente y el intercepto del modelo: ¿Qué te dicen sobre la relación entre las horas de estudio y las calificaciones?
+    Analiza cómo la línea de regresión se ajusta a los datos. ¿Qué sugiere este modelo sobre el poder predictivo de las horas de estudio respecto a las calificaciones de los estudiantes?
+
+Esta lección proporciona una comprensión práctica de la regresión lineal simple en R, permitiendo a los estudiantes capturar y analizar relaciones lineales entre variables y utilizar estos modelos predictivos en escenarios del mundo real.

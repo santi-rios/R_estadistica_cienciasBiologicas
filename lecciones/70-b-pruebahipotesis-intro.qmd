@@ -1,0 +1,176 @@
+---
+title: "Introducción a las Pruebas de Hipótesis"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+    render-df: gt-interactive
+engine: knitr
+pyodide: 
+    packages: 
+        - numpy
+        - pandas
+        - scipy
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+
+## Introducción a las Pruebas de Hipótesis
+
+- Las **pruebas de hipótesis** son una parte fundamental del **método científico** y se utilizan para evaluar la validez de las afirmaciones sobre un fenómeno o proceso.
+- En la investigación científica, las pruebas de hipótesis se utilizan para determinar si los resultados observados son **estadísticamente significativos** o si se deben a la **variabilidad aleatoria** de los datos.
+- En este módulo, exploraremos los conceptos básicos de las pruebas de hipótesis.
+- Este módulo es un poco más teórico que práctico'. Mucho de lo que se discute aquí es fundamental para comprender cómo funcionan las pruebas de hipótesis y cómo interpretar los resultados.
+
+
+
+### Método Científico
+
+Tener una comprensión de las bases filosóficas del método científico es esencial para realizar investigaciones de manera adecuada. Aunque existen diversos enfoques sobre la filosofía de la ciencia en distintos contextos, es importante partir de algunas referencias clave para comprender las diversas perspectivas que se aplican en la investigación científica. Entre las obras recomendadas se encuentran las de autores como Chalmers (1999) y Gower (1997), quienes ofrecen una visión general del desarrollo de la ciencia y sus métodos. En este módulo encontrarás estas lecturas si gustas profundizar en el tema.
+
+::: {.callout-tip}
+Desde un enfoque biológico, textos como los de Ford (2000), James & McCulloch (1985), Loehle (1987) y Underwood (1990, 1991) son útiles para aplicar la filosofía científica en las ciencias naturales. Por otro lado, Maxwell & Delaney (1990) ofrecen una perspectiva desde las ciencias del comportamiento, mientras que Hilborn & Mangel (1997) presentan alternativas al enfoque popperiano en situaciones donde no es posible realizar pruebas experimentales.
+:::
+
+### Hipótesis y Pruebas
+
+- En el método científico, una **hipótesis** es una declaración que puede ser probada mediante investigación, de preferencia de manera experimental. 
+- Cuando se formula una hipótesis, se puede predecir un conjunto de observaciones bajo ciertas condiciones si el **modelo** o teoría que se está probando es correcto. 
+- Este proceso de hacer predicciones y someterlas a prueba es parte de lo que [Peters (1991)](https://www.amazon.com.mx/Critique-Ecology-Robert-Peters-1991-07-26/dp/B01FKRTV8O) denominó la fase **analítica, pública o popperiana** del método científico. 
+  - Aquí, las hipótesis se evalúan mediante pruebas críticas o formales, con el objetivo de **falsificarlas** (es decir, refutarlas si no son correctas). Este enfoque sigue la filosofía de Karl Popper, quien sostenía que las teorías científicas nunca pueden ser probadas definitivamente, pero sí pueden ser falsificadas.
+
+::: {.callout-important}
+## Karl Popper y el falsacionismo
+La teoría de **Karl Popper**, conocida como falsacionismo, es un enfoque filosófico para la ciencia que se centra en la idea de que una hipótesis o teoría científica ***nunca puede ser probada como verdadera*** de manera definitiva, sino que solo puede ser falsada o refutada. Popper argumentó que el progreso científico se logra a través de la eliminación de teorías falsas, más que por la acumulación de confirmaciones.
+
+## Principios Clave del Falsacionismo de Popper:
+
+**Falsabilidad**: Una característica esencial de una teoría científica es que debe ser falsable, es decir, debe ser posible concebir un experimento o una observación que pueda demostrar que la teoría es falsa. Si una teoría no es falsable, Popper la considera no científica. Por ejemplo, no puedes probar que todos los cisnes son blancos, pero puedes refutar esta afirmación si encuentras un cisne no blanco.
+
+**Provisionalidad del conocimiento**: Según Popper, todo conocimiento científico es provisional y está sujeto a revisión. Ninguna teoría puede ser considerada definitiva, ya que siempre es posible que nuevas evidencias la refuten.
+
+**Preferencia por teorías arriesgadas**: Popper valoraba las teorías que hacen predicciones específicas y arriesgadas, porque estas son más susceptibles de ser falsadas. Cuanto más arriesgada es una predicción y más improbable parecía antes de la prueba, más informativa es la teoría.
+
+**Crítica y debate**: La ciencia avanza a través de la crítica constante y el debate de las teorías existentes, buscando siempre refutar y mejorar la comprensión actual.
+
+## Relación con la Prueba de Hipótesis:
+
+La falsabilidad de Popper se relaciona directamente con la prueba de hipótesis en la estadística y la investigación científica. Algunos puntos clave de esta relación son:
+
+- **Formulación de Hipótesis Nula ($H_0$)**: En la prueba de hipótesis, se formula una hipótesis nula que representa una afirmación a ser probada (por ejemplo, que no hay efecto o que dos grupos no son diferentes). La hipótesis nula es el equivalente a la teoría que uno intenta falsar.
+
+- **Falsación de la Hipótesis Nula**: El objetivo de una prueba de hipótesis es intentar refutar la hipótesis nula. Si los datos proporcionan suficiente evidencia en contra de la hipótesis nula, se rechaza a favor de la hipótesis alternativa ($H_1$), que representa una afirmación contraria (por ejemplo, que hay un efecto o que los grupos son diferentes).
+  - **OJO**: No se puede probar la hipótesis alternativa directamente, solo se puede rechazar la hipótesis nula. NUNCA decimos que aceptamos la hipótesis alternativa, solo que no rechazamos la hipótesis nula. 
+
+- **Criterios de Decisión**: Se utilizan criterios estadísticos, como niveles de significancia y valores p, para decidir si se rechaza o no la hipótesis nula. Un resultado estadísticamente significativo sugiere que hay suficiente evidencia para rechazar la hipótesis nula, aunque esto no "prueba" la hipótesis alternativa.
+
+- **Provisionalidad de los Resultados**: Similar al enfoque de Popper, los resultados de las pruebas de hipótesis son provisionales, sujetos a revisión y refutación con nuevas evidencias o mejores análisis. 
+
+## La Imposibilidad de Probar una Teoría
+
+- Los filósofos (como Popper) han señalado que probar una teoría de manera definitiva es lógicamente imposible. 
+- Esto se debe a que, para probar completamente una hipótesis, sería necesario observar absolutamente todos los casos relacionados con la hipótesis. 
+- Un ejemplo clásico de esto es la creencia de que todos los cisnes son blancos, basada en siglos de observación en Europa. Sin embargo, esta creencia fue refutada con el descubrimiento de cisnes negros en Australia. 
+:::
+
+
+
+### La Hipótesis Nula $H_0$
+
+- En el contexto de las pruebas científicas, se introduce la **hipótesis nula** como un punto de partida para la falsificación. 
+- La hipótesis nula incluye todas las posibilidades excepto la predicción de la hipótesis original.  
+  - Por ejemplo, en un estudio sobre la bioluminiscencia de los dinoflagelados, la hipótesis nula podría ser que la bioluminiscencia no tiene ningún efecto o incluso reduce la tasa de mortalidad de los copépodos que se alimentan de dinoflagelados. 
+  - Esta hipótesis nula abarca todas las posibilidades excepto la predicción de que la bioluminiscencia aumenta la mortalidad de los copépodos.
+
+### Ejemplo Práctico
+
+Supongamos que un grupo de investigadores está estudiando un nuevo medicamento que se cree que reduce la presión arterial en pacientes con hipertensión. 
+
+- hipótesis alternativa ($H_a$): La hipótesis original de los investigadores es que "el nuevo medicamento reduce la presión arterial en pacientes con hipertensión". Esta es la hipótesis que los investigadores esperan demostrar.
+- La hipótesis nula ($H_0$), en cambio, es una declaración que niega la hipótesis original. En este caso, sería: "El nuevo medicamento no tiene ningún efecto en la reducción de la presión arterial en pacientes con hipertensión". 
+  - La hipótesis nula incluye todas las posibilidades excepto la predicción de la hipótesis original. Esto significa que bajo la hipótesis nula, cualquier observación que no resulte en una reducción de la presión arterial significativa se considera consistente con esta hipótesis. Por ejemplo, si el medicamento:
+    - No tiene efecto en la presión arterial (los niveles de presión arterial permanecen iguales).
+    - Aumenta la presión arterial.
+    - Reduce la presión arterial, pero no de manera significativa.
+  - Cada una de estas situaciones es consistente con la hipótesis nula, ya que en ninguna de ellas se observa el efecto específico que los investigadores desean comprobar (una reducción significativa de la presión arterial).
+  - **Proceso de Prueba**: Durante el análisis estadístico, se recopilan datos del estudio y se evalúa si hay suficiente evidencia para rechazar la hipótesis nula en favor de la hipótesis original. Si los datos muestran una reducción significativa en la presión arterial, los investigadores pueden rechazar la hipótesis nula y aceptar que el medicamento tiene un efecto positivo. Sin embargo, si no hay evidencia suficiente, no pueden rechazar la hipótesis nula, lo que significa que no hay pruebas concluyentes de que el medicamento funcione como se esperaba.
+
+## Resumen hasta ahora
+
+- El **método científico** es un proceso basado en la formulación de hipótesis que pueden ser falsificadas mediante pruebas experimentales. 
+- La elección de qué hipótesis probar debe basarse tanto en el contenido empírico de las mismas como en su capacidad para hacer predicciones claras y distintivas. 
+- Además, es importante recordar que, aunque una hipótesis no puede ser probada de manera definitiva, sí puede ser refutada por una sola observación en contra.
+
+## Ejemplo en R
+
+A continuación, un ejemplo simple de cómo realizar una prueba de hipótesis en R. Supongamos que queremos probar si el promedio de una variable numérica es mayor que un valor específico (por ejemplo, si el promedio de una muestra es mayor que 50).
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+#| autorun: true
+
+# Cargar las librerías necesarias
+library(tidyverse)
+
+# Crear un conjunto de datos de ejemplo
+set.seed(123)
+datos <- tibble(valor = rnorm(100, mean = 52, sd = 10))
+
+# Prueba de hipótesis: ¿El promedio de 'valor' es mayor que 50?
+t_test <- t.test(datos$valor, mu = 50, alternative = "greater")
+
+# Resultados de la prueba de hipótesis
+t_test
+```
+
+
+## Python
+
+```{pyodide}
+#| autorun: true
+
+# Cargar las librerías necesarias
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+# Crear un conjunto de datos de ejemplo
+np.random.seed(123)
+datos = pd.DataFrame({'valor': np.random.normal(loc=52, scale=10, size=100)})
+
+# Prueba de hipótesis: ¿El promedio de 'valor' es mayor que 50?
+t_test = stats.ttest_1samp(datos['valor'], popmean=50, alternative="greater")
+
+# Resultados de la prueba de hipótesis
+print(t_test)
+```
+
+:::
+
+En este código:
+
+- Generamos un conjunto de datos con una variable llamada `valor`, que sigue una distribución normal con media de 52 y desviación estándar de 10.
+- Realizamos una prueba t para evaluar la hipótesis nula de que el promedio de `valor` es igual a 50, contra la hipótesis alternativa de que el promedio es mayor que 50.
+- El resultado de `t_test` nos indicará si podemos rechazar la hipótesis nula a favor de la hipótesis alternativa, dependiendo del valor p.
+  - Si el valor p es menor que el nivel de significancia (generalmente `0.05`), rechazaríamos la hipótesis nula y concluiríamos que el promedio de `valor` es mayor que 50.
+  - En este caso, el valor p es `0.0001`, lo que sugiere que hay suficiente evidencia para rechazar la hipótesis nula.
+
+

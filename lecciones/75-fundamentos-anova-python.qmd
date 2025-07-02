@@ -1,0 +1,159 @@
+---
+title: "Fundamentos del ANOVA con Python"
+author: "Traducido y adaptado para Python"
+format: live-html
+pyodide: 
+    packages: 
+        - numpy
+        - pandas
+        - matplotlib
+        - seaborn
+        - statsmodels
+resources: 
+  - datos
+---
+
+## Introducción al Análisis de Varianza (ANOVA)
+
+El **Análisis de Varianza** (ANOVA, por sus siglas en inglés) es una técnica estadística utilizada para comparar las medias de tres o más grupos. La prueba ANOVA permite determinar si existen diferencias estadísticamente significativas entre las medias de diferentes grupos, basándose en la variabilidad *dentro* de los grupos y *entre* los grupos. Sin embargo, ANOVA no indica cuáles grupos son diferentes entre sí; para ello, se utilizan pruebas post-hoc.
+
+En esta lección, vamos a ver los fundamentos del ANOVA, incluyendo los conceptos clave, los supuestos y los tipos de ANOVA. En las próximas lecciones, veremos cómo realizar ANOVA en Python y cómo visualizar los resultados.
+
+---
+
+## ¿Por qué utilizamos ANOVA para probar hipótesis?
+
+Cuando queremos comparar las medias de más de dos grupos, hacer múltiples pruebas t individuales aumenta el riesgo de cometer errores de Tipo I (falsos positivos). ANOVA ofrece una solución al proporcionar una prueba estadística única que evalúa si hay al menos una diferencia significativa entre las medias de los grupos, controlando adecuadamente la tasa de error de Tipo I.
+
+---
+
+## Conceptos clave en ANOVA
+
+- La **varianza** es una medida de dispersión que indica cuánto varían los datos respecto a la media. En ANOVA, la varianza se utiliza para comparar la variabilidad dentro de los grupos y entre los grupos.
+
+![En la figura observamos que cada grupo tiene distintas medias y varianza. Además, hay grupos con medias más cercanas y otros, como el 1, con medias más alejadas de los otros grupos.](https://estamatica.net/wp-content/uploads/2020/04/tabla-anova-spss.jpg)
+
+### Suma de cuadrados Entre-grupos y Dentro de los grupos
+
+- La **suma de cuadrados** representa una medida de variación o desviación con respecto a la media. 
+- Se puede dividir en dos partes: la Suma de Cuadrados *dentro* de grupos (variabilidad de las observaciones individuales dentro de cada grupo) y la Suma de Cuadrados *entre* grupos (variabilidad de las medias de los grupos respecto a la media general).
+
+### Razón F
+
+- La **razón F** es el estadístico utilizado en ANOVA para comparar la variabilidad entre los grupos con la variabilidad dentro de los grupos.
+- Es la relación entre la varianza media entre grupos (MSB) y la varianza media dentro de los grupos (MSE).
+- Se utiliza para probar la hipótesis nula en ANOVA.
+
+$$
+F = \frac{\text{Varianza entre grupos}}{\text{Varianza dentro de los grupos}} = \frac{MSB}{MSE}
+$$
+
+Donde:
+- $MSB = \frac{SSB}{df_{\text{entre}}}$ (Suma de cuadrados entre grupos / grados de libertad entre grupos)
+- $MSE = \frac{SSE}{df_{\text{dentro}}}$ (Suma de cuadrados dentro de los grupos / grados de libertad dentro de los grupos)
+
+---
+
+## La lógica de ANOVA
+
+ANOVA se basa en comparar dos estimaciones de la varianza:
+
+1.  **Varianza entre grupos:** Estima la varianza a partir de la variabilidad entre las medias de los grupos.
+2.  **Varianza dentro de los grupos:** Estima la varianza a partir de la variabilidad dentro de cada grupo.
+
+Si todas las medias de los grupos son iguales, esperamos que estas dos estimaciones de la varianza sean aproximadamente iguales, resultando en una razón F cercana a 1. Si al menos una media es diferente, la varianza entre grupos será mayor que la varianza dentro de los grupos, y la razón F será mayor que 1.
+
+![En este ejemplo, hay poca variación dentro de los grupos, pero mucha entre los grupos. En este caso, el valor F será alto. Esto indica que las diferencias entre los grupos son estadísticamente significativas.](https://greenbeltacademy.com/wp-content/uploads/2023/01/Variance-for-Means.gif)
+
+![En este ejemplo, hay más variación dentro de los grupos, pero poca entre los grupos. El valor F será bajo. Esto indica que las diferencias observadas entre las medias de los grupos probablemente no son estadísticamente significativas.](https://shire.science.uq.edu.au/CONS7008/_book/DataFigs/ANOVA.png)
+
+---
+
+## Hipótesis en ANOVA
+
+### Hipótesis nula ($H_0$)
+
+Todas las medias poblacionales son iguales:
+
+$$
+H_0: \mu_1 = \mu_2 = \dots = \mu_k
+$$
+
+### Hipótesis alternativa ($H_a$)
+
+Al menos una de las medias poblacionales es diferente:
+
+$$
+H_a: \text{Al menos una } \mu_i \text{ es diferente}
+$$
+
+---
+
+## Tipos de ANOVA
+
+- **ANOVA de una vía (One-way ANOVA):** Compara las medias de tres o más grupos independientes basados en un solo factor.
+- **ANOVA de dos vías (Two-way ANOVA):** Compara las medias considerando dos factores y su interacción.
+- **ANOVA de medidas repetidas (Repeated Measures ANOVA):** Se utiliza cuando los mismos sujetos son medidos bajo diferentes condiciones o a lo largo del tiempo.
+
+---
+
+## Supuestos de ANOVA
+
+1.  **Independencia de las observaciones:** Las observaciones en cada grupo son independientes entre sí.
+2.  **Normalidad:** Los residuos (la diferencia entre los valores observados y los predichos por el modelo) siguen una distribución normal.
+3.  **Homogeneidad de varianzas (homocedasticidad):** Las varianzas de los residuos son iguales en todos los grupos.
+
+Si estos supuestos no se cumplen, se pueden considerar transformaciones de datos o utilizar pruebas no paramétricas alternativas, como la prueba de Kruskal-Wallis.
+
+---
+
+## Ejemplo de ANOVA de una vía en Python
+
+Vamos a realizar un ANOVA de una vía para ver si hay diferencias en el peso de los pollitos (`chickwts` dataset) según el tipo de alimento que recibieron.
+
+```{pyodide}
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Cargar datos
+# El conjunto de datos `chickwts` está disponible en R, pero podemos cargarlo desde una URL para usarlo en Python.
+url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/chickwts.csv"
+chickwts = pd.read_csv(url, index_col=0)
+chickwts.rename(columns={'feed': 'suplemento', 'weight': 'peso'}, inplace=True)
+
+print(chickwts.head())
+
+# Visualización de los datos
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='suplemento', y='peso', data=chickwts)
+sns.stripplot(x='suplemento', y='peso', data=chickwts, color='black', alpha=0.5)
+plt.title('Distribución del peso de los pollitos por tipo de suplemento')
+plt.show()
+```
+
+### Realizar el ANOVA
+
+Usaremos la librería `statsmodels` para ajustar el modelo lineal y obtener la tabla ANOVA.
+
+```{pyodide}
+# Ajustar el modelo de ANOVA de una vía
+# La fórmula 'peso ~ suplemento' indica que queremos predecir el 'peso' en función del 'suplemento'
+model = ols('peso ~ C(suplemento)', data=chickwts).fit()
+
+# Obtener la tabla ANOVA
+anova_table = sm.stats.anova_lm(model, typ=2)
+
+print(anova_table)
+```
+
+### Interpretación
+
+- **sum_sq (Suma de cuadrados):** `C(suplemento)` (entre grupos) tiene una suma de cuadrados de 231129.5, mientras que `Residual` (dentro de los grupos) tiene 195556.0.
+- **df (Grados de libertad):** Hay 5 grados de libertad para el factor `suplemento` (6 grupos - 1) y 65 para los residuos (71 observaciones - 6 grupos).
+- **F (Estadístico F):** El valor F es 15.38.
+- **PR(>F) (Valor p):** El valor p es `5.9e-10`, que es extremadamente pequeño.
+
+**Conclusión:** Dado que el valor p es mucho menor que 0.05, rechazamos la hipótesis nula. Hay evidencia estadística suficiente para concluir que al menos uno de los tipos de suplemento tiene un efecto diferente en el peso medio de los pollitos. Para saber qué grupos son diferentes, necesitaríamos realizar pruebas post-hoc.

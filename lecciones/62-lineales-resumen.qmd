@@ -1,0 +1,82 @@
+---
+title: "Resumen y reflexiones de los modelos lineales"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: vapor
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - datos
+        - dplyr
+        - tidyr
+        - ggplot2
+    render-df: gt-interactive
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+## Resumen de modelos lineales
+
+---
+
+- En este pesado módulo, revisamos los **modelos lineales** como una herramienta central para el análisis de datos. 
+- Espero haber logrado mi objetivo principal: que los estudiantes comprendan cómo estos modelos pueden aplicarse a una amplia variedad de datos, desde correlaciones hasta ANOVAs.
+
+---
+
+### **1. Fundamentos de la Regresión**
+
+- Este es uno de los puntos más importantes del curso y la estadística en general, ya que establece la base para todo lo que sigue: pruebas de hipótesis, tests estadísticos, p-values... 
+- Todo se reduce (o se basa) en la ecuación de la línea recta $(y = a \cdot x + b$), las pendientes y los interceptos.
+- Comprobamos cómo los modelos lineales expresan relaciones entre variables.
+- Abordamos la idea de transformar datos no paramétricos mediante **rangos**.
+- Supuestos que revisamos: **normalidad de los residuos**, y **homocedasticidad**.
+
+
+---
+
+### **2. Casos Especiales de Regresión: Una o Dos Medias (Pruebas t y Pruebas No Paramétricas)**
+
+Los modelos lineales se simplifican cuando contamos con una o dos medias.
+
+- **Una media**: Cuando solo hay un valor de $(x$), el modelo de regresión se simplifica a $(y = b$), lo que es equivalente a una **prueba t de una muestra**. Si los datos no son métricos, pueden transformarse en rangos, lo que lleva a la **prueba de rango con signo de Wilcoxon**.
+
+- **Dos medias**: Si tenemos dos grupos, podemos modelar la diferencia entre las medias como una pendiente. Esto se relaciona directamente con la **prueba t de dos muestras independientes** y su versión no paramétrica, el **test de Mann-Whitney U**.
+
+- **Muestras pareadas**: Introducción a la **prueba t para muestras pareadas** y la **prueba de Wilcoxon pareada**.
+
+---
+
+### **3. Casos Especiales: Tres o Más Medias (ANOVA)**
+
+Los modelos lineales se pueden extender a más de dos grupos, introduciendo el análisis de varianza (**ANOVA**).
+
+- **Codificación dummy**: Mostrar cómo los coeficientes de regresión pueden representar categorías mediante la codificación dummy.
+- **ANOVA de una vía**: Introducir el **ANOVA de una vía** como una extensión de la regresión para tres o más medias.
+- **ANOVA de dos vías**: Extender el ANOVA para incluir más de un factor categórico, presentando el **ANOVA de dos vías**.
+
+---
+
+### **4. ¿qué sigue?**
+
+El curso seguirá con los temas de pruebas de hipótesis y cómo estas son esencialmente comparaciones de modelos lineales. En este módulo, vimos un poco de esto con las pruebas t, donde vimos:
+
+- Las pruebas de hipótesis son equivalentes a comparar un modelo completo con uno donde un parámetro está fijo (generalmente en cero).
+
+**Inferencia estadística**: 
+
+- Veremos en detalle cómo hacer inferencias, donde se utilizan los **valores-p** para determinar la significancia de los resultados.
+
+---

@@ -1,0 +1,208 @@
+---
+title: "No paramétricos y violación de supuestos "
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+    render-df: gt-interactive
+engine: knitr
+---
+
+
+### Análisis Paramétrico y No Paramétrico: Ventajas, Supuestos y Cuándo Usarlos
+
+#### **Análisis Paramétrico**
+
+El **análisis paramétrico** se basa en el supuesto de que los datos provienen de una **distribución específica**, generalmente la **distribución normal**. Los análisis paramétricos son potentes, ya que utilizan las propiedades conocidas de distribuciones como la normal para calcular probabilidades y realizar inferencias sobre la población de la cual se extrajo la muestra.
+
+#### **Supuestos del Análisis Paramétrico**
+
+1. **Muestras aleatorias e independientes**: Este es el supuesto más importante en cualquier análisis estadístico. Los datos deben ser independientes entre sí y haberse recolectado de manera aleatoria para que los resultados sean válidos.
+   
+2. **Distribución especificada (normalidad)**: Los datos deben provenir de una distribución normal, o al menos aproximarse a ella. Para muchas pruebas paramétricas (como el ANOVA), se supone que las medias de los grupos siguen una distribución normal con varianzas homogéneas entre los grupos.
+
+3. **Varianza homogénea**: En pruebas como el ANOVA, se asume que las varianzas dentro de cada grupo son similares. Esta suposición puede ser violada levemente si los tamaños de muestra son grandes, pero es más importante cuando los tamaños de muestra son pequeños.
+
+#### **Ventajas del Análisis Paramétrico**
+
+- **Mayor poder estadístico**: Las pruebas paramétricas tienden a ser más poderosas que las no paramétricas, lo que significa que tienen una mayor probabilidad de detectar una diferencia real cuando la hipótesis alternativa es verdadera.
+- **Flexibilidad en diseños complejos**: Existen muchas pruebas paramétricas que se ajustan a diseños experimentales complicados, como el **ANOVA de medidas repetidas**, **ANCOVA**, y **ANOVA multifactorial**.
+  
+#### **Desventajas del Análisis Paramétrico**
+
+- **Sensibilidad a los supuestos**: Si los datos no cumplen con los supuestos de normalidad, independencia o varianza homogénea, los resultados de las pruebas paramétricas pueden ser incorrectos o engañosos.
+- **Difícil de aplicar con pequeños tamaños de muestra**: Cuando los tamaños de muestra son pequeños, las pruebas paramétricas pueden volverse inexactas si los datos no siguen una distribución normal.
+
+### **Análisis No Paramétrico**
+
+El **análisis no paramétrico**, también conocido como **pruebas libres de distribución**, no requiere que los datos sigan una distribución específica (como la normal). Estas pruebas son útiles cuando los datos no cumplen con los supuestos de las pruebas paramétricas o cuando los datos son ordinales o categóricos.
+
+#### **Cuándo Usar una Prueba No Paramétrica**
+
+1. **Datos ordinales o de rango**: Si los datos son ordinales (por ejemplo, clasificaciones o escalas de calificación), las pruebas no paramétricas son más apropiadas, ya que no se puede calcular una media significativa de estos datos.
+
+2. **Datos con outliers**: Si los datos contienen **valores atípicos** extremos que distorsionan la distribución, una prueba no paramétrica puede ser más robusta, ya que no se basa en la media, sino en posiciones relativas o rangos.
+
+3. **Distribución no normal**: Si los datos claramente no siguen una distribución normal (como datos sesgados o con límites claros), es mejor aplicar una prueba no paramétrica, especialmente cuando la transformación de los datos no corrige el problema.
+
+4. **Pequeñas muestras**: Las pruebas paramétricas requieren muestras suficientemente grandes para que el **Teorema Central del Límite** garantice que la distribución de la media sea aproximadamente normal. Con tamaños de muestra pequeños, las pruebas no paramétricas son más confiables si no se puede asumir la normalidad.
+
+#### **Pruebas No Paramétricas Comunes**
+
+1. **Prueba de Mann-Whitney U**: Es la alternativa no paramétrica a la prueba **t de dos muestras independientes**. Compara las diferencias en las distribuciones de dos grupos sin asumir normalidad.
+
+2. **Prueba de Kruskal-Wallis**: Alternativa no paramétrica al **ANOVA de una vía**. Compara las distribuciones de más de dos grupos independientes.
+
+3. **Prueba de Wilcoxon**: Alternativa no paramétrica a la **prueba t de muestras pareadas**. Es útil cuando se tienen dos muestras relacionadas o emparejadas.
+
+4. **Prueba de Friedman**: Alternativa no paramétrica al **ANOVA de medidas repetidas**. Se usa cuando se toman múltiples medidas en las mismas unidades experimentales.
+
+#### **Ventajas del Análisis No Paramétrico**
+
+- **Menos supuestos**: No requiere que los datos provengan de una distribución normal, lo que lo hace más flexible cuando los datos no cumplen con los supuestos paramétricos.
+- **Robustez**: Menos influenciado por valores atípicos o desviaciones graves de la normalidad.
+
+#### **Desventajas del Análisis No Paramétrico**
+
+- **Menor poder estadístico**: Las pruebas no paramétricas suelen ser menos poderosas que sus contrapartes paramétricas. Esto significa que, cuando la hipótesis alternativa es cierta, es menos probable que una prueba no paramétrica rechace la hipótesis nula.
+- **Menos información sobre parámetros**: No proporcionan estimaciones de parámetros como la media o la varianza, lo que puede limitar las inferencias que se pueden hacer a partir de los resultados.
+
+### **Cómo Decidir entre Pruebas Paramétricas y No Paramétricas**
+
+La decisión de usar una prueba paramétrica o no paramétrica no debe automatizarse, ya que depende de varios factores:
+
+1. **Evaluar la normalidad de los datos**: Si los datos son continuos, se puede evaluar la normalidad utilizando pruebas como:
+   - **Prueba de Shapiro-Wilk**.
+   - **Prueba de Anderson-Darling**.
+   - **Prueba de Kolmogorov-Smirnov**.
+
+   Sin embargo, las pruebas de normalidad pueden tener **baja potencia** con muestras pequeñas, lo que significa que podrían no detectar desviaciones de la normalidad. También pueden ser **demasiado sensibles** con tamaños de muestra grandes, detectando desviaciones triviales que no afectan los análisis.
+
+2. **Inspección visual**: Un enfoque práctico es utilizar gráficos (como **histogramas**, **diagramas de caja**, o **gráficos Q-Q**) para evaluar si los datos parecen seguir una distribución normal. Si los datos son claramente no normales o contienen outliers significativos, una prueba no paramétrica puede ser más adecuada.
+
+3. **Considerar transformaciones**: En lugar de pasar directamente a un análisis no paramétrico, también se puede considerar una **transformación de los datos** (por ejemplo, logaritmos o recíprocos) para aproximar mejor una distribución normal.
+
+4. **Tamaño de la muestra**: En conjuntos de datos pequeños, la decisión entre una prueba paramétrica y no paramétrica es más crítica debido a la baja potencia de las pruebas. En datos grandes, incluso pequeñas desviaciones de la normalidad pueden ser detectadas, pero es importante considerar si esas desviaciones son lo suficientemente significativas como para invalidar una prueba paramétrica.
+
+### **Errores Comunes al Decidir entre Paramétrico y No Paramétrico**
+
+- **No considerar transformaciones**: Saltar directamente a pruebas no paramétricas sin intentar transformar los datos primero puede ser un error, ya que las transformaciones pueden resolver los problemas de normalidad mientras conservan el poder de las pruebas paramétricas.
+- **Uso ciego de pruebas de normalidad**: Basarse exclusivamente en pruebas de normalidad automáticas puede llevar a decisiones incorrectas, especialmente con tamaños de muestra pequeños o grandes. La inspección visual y el conocimiento de la naturaleza de los datos son esenciales.
+- **Ignorar el contexto del estudio**: La decisión entre pruebas paramétricas y no paramétricas no debe basarse solo en una prueba de normalidad; debe considerar el diseño del estudio, el tamaño de la muestra y los objetivos del análisis.
+
+### **Conclusión**
+
+La elección entre una prueba paramétrica y una no paramétrica depende de varios factores, incluidos los supuestos de los datos, el tamaño de la muestra y la distribución subyacente. Los análisis paramétricos ofrecen más poder estadístico cuando se cumplen los supuestos, mientras que las pruebas no paramétricas proporcionan flexibilidad cuando los datos no siguen una distribución normal o hay outliers. La clave es no automatizar esta decisión, sino evaluar cuidadosamente la naturaleza de los datos antes de seleccionar el método más adecuado.
+
+### Cómo abordar la violación de los supuestos de normalidad en un análisis de regresión lineal múltiple (MLR)
+
+En la regresión lineal múltiple (MLR), uno de los supuestos clave es que los **residuos** (errores) siguen una **distribución normal**. Sin embargo, en la práctica, este supuesto a menudo se viola. Afortunadamente, existen varias estrategias para manejar la violación de este supuesto sin comprometer la validez del análisis. A continuación se describen algunas de las técnicas más utilizadas:
+
+---
+
+#### 1. **Transformaciones de los Datos**
+
+Las **transformaciones** son una de las soluciones más comunes para abordar la no normalidad en los datos o los residuos. Las transformaciones pueden hacer que los datos se ajusten mejor a una distribución normal, especialmente cuando los datos están sesgados o tienen una dispersión desigual.
+
+- **Transformación logarítmica**: Puede ser útil cuando los datos están sesgados positivamente (cola larga hacia la derecha). Por ejemplo, si tienes datos financieros con distribuciones sesgadas, aplicar el logaritmo puede reducir la asimetría.
+  
+  \[
+  Y' = \log(Y)
+  \]
+
+- **Transformación raíz cuadrada**: Se utiliza para datos que tienen una variabilidad creciente a medida que aumentan los valores. Es útil para reducir la heterocedasticidad y la asimetría.
+
+  \[
+  Y' = \sqrt{Y}
+  \]
+
+- **Transformación inversa**: Puede ser útil cuando los datos tienen una fuerte asimetría positiva.
+
+  \[
+  Y' = \frac{1}{Y}
+  \]
+
+- **Transformación Box-Cox**: Es una transformación general que encuentra el mejor ajuste entre varias transformaciones posibles.
+
+  \[
+  Y' = \frac{(Y^\lambda - 1)}{\lambda}, \quad \lambda \neq 0
+  \]
+
+La elección de la transformación depende del problema específico, y es recomendable probar varias transformaciones para observar cuál mejora más la normalidad de los residuos.
+
+---
+
+#### 2. **Métodos Robustos**
+
+Los **métodos robustos** son menos sensibles a los outliers y a distribuciones de colas pesadas, lo que los hace útiles cuando la normalidad no se cumple. Estos métodos no dependen de los supuestos estrictos de los mínimos cuadrados ordinarios (OLS).
+
+- **Regresión robusta (M-estimadores)**: Los M-estimadores minimizan una función que penaliza menos los outliers, a diferencia de OLS, que minimiza la suma de los errores al cuadrado. Esto reduce el impacto de los valores atípicos en los coeficientes de regresión.
+
+- **Regresión con estimación S**: Similar a los M-estimadores, pero se enfoca en minimizar la dispersión de los residuos, proporcionando una solución más robusta a outliers.
+
+Estos métodos te permiten realizar análisis más robustos cuando los supuestos de normalidad o la presencia de outliers pueden sesgar los resultados de OLS.
+
+---
+
+#### 3. **Métodos No Paramétricos**
+
+Cuando los datos no cumplen con los supuestos de normalidad y las transformaciones no ayudan, los **métodos no paramétricos** pueden ser una excelente alternativa. A diferencia de los métodos paramétricos, los métodos no paramétricos no suponen ninguna distribución específica de los datos.
+
+- **Prueba de Wilcoxon o prueba de rangos con signo de Wilcoxon**: Es una alternativa no paramétrica a la prueba t para muestras independientes o relacionadas.
+
+- **Regresión no paramétrica**: Existen regresiones no paramétricas, como la regresión por núcleos (kernel regression) o la regresión local (LOESS), que no hacen suposiciones sobre la forma funcional de la relación entre las variables dependientes e independientes.
+
+Estos métodos son útiles cuando la forma funcional del modelo o la distribución de los errores no es clara y no se pueden hacer suposiciones sobre la distribución de los datos.
+
+---
+
+#### 4. **Detección y Eliminación de Valores Atípicos (Outliers)**
+
+Los **outliers** pueden tener un impacto desproporcionado en el análisis y violar los supuestos de normalidad. Es esencial identificarlos y decidir si deben eliminarse o manejarse de otra manera.
+
+- **Gráficos de caja (boxplots)**: Son una herramienta simple y efectiva para detectar outliers. Los puntos que caen fuera de los bigotes del gráfico podrían ser posibles outliers.
+
+- **Gráficos de dispersión**: Ayudan a detectar outliers en relaciones bivariadas o multivariadas. Los puntos que se encuentran muy lejos del ajuste del modelo pueden ser outliers.
+
+- **Distancia de Cook**: Es una métrica útil para identificar observaciones que tienen un gran impacto en el ajuste del modelo. Si una observación tiene una distancia de Cook alta, podría ser un outlier influyente.
+
+Una vez que se identifican los outliers, se puede optar por eliminarlos, tratarlos con métodos robustos o transformarlos, dependiendo de la naturaleza del estudio.
+
+---
+
+#### 5. **Selección y Evaluación del Modelo**
+
+A veces, la violación de los supuestos de normalidad puede ser una señal de que el **modelo está mal especificado**. En lugar de ajustar los datos al modelo, puede ser más apropiado reconsiderar el modelo en sí.
+
+- **Modelos no lineales**: Si la relación entre las variables no es lineal, el uso de un modelo no lineal (como la regresión polinómica o la regresión logarítmica) puede mejorar el ajuste y los residuos pueden ajustarse mejor a una distribución normal.
+
+- **Modelos generalizados**: Si los datos no son normales, los **modelos lineales generalizados (GLM)** ofrecen una alternativa flexible, permitiendo que la variable dependiente siga distribuciones como Poisson, binomial negativa, gamma, entre otras.
+
+---
+
+### Conclusión
+
+Cuando los supuestos de normalidad se violan en un análisis de regresión lineal múltiple, existen varias estrategias para abordar el problema:
+
+1. **Transformaciones**: Aplicar transformaciones a los datos puede corregir la asimetría y mejorar la normalidad.
+2. **Métodos robustos**: Usar métodos de regresión robusta que sean menos sensibles a outliers o distribuciones de colas pesadas.
+3. **Métodos no paramétricos**: Usar métodos que no requieran suposiciones sobre la distribución de los datos.
+4. **Detección y eliminación de outliers**: Identificar y manejar valores atípicos que puedan estar distorsionando el análisis.
+5. **Reevaluación del modelo**: Considerar un modelo diferente, como uno no lineal o un modelo generalizado, si el modelo lineal no es apropiado.
+
+La elección de la estrategia depende de la naturaleza de los datos y el contexto del análisis. Es fundamental evaluar cuidadosamente las opciones antes de proceder con el análisis final.

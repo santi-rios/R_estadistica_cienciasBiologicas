@@ -1,0 +1,170 @@
+---
+title: "ANCOVA: Análisis de Covarianza con Python"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html
+        # highlight-style: github
+        # highlight-lines: true
+        # theme: solar
+toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+        - statsmodels
+---
+---
+
+### Lección sobre ANCOVA: Análisis de Covarianza en Ciencias de la Salud y Biológicas
+
+---
+
+#### **Introducción al ANCOVA**
+
+El **Análisis de Covarianza (ANCOVA)** es una extensión del ANOVA que incluye **predictores continuos** (covariables) junto con los predictores categóricos. ANCOVA permite ajustar las diferencias entre grupos teniendo en cuenta una covariable continua, como la edad, el peso, o cualquier otra medida continua que pueda influir en la variable dependiente.
+
+En un **ANCOVA**, el modelo lineal incluye tanto las **variables categóricas** como una o más **variables continuas**. Este análisis es útil cuando queremos ajustar los efectos de las variables categóricas por una covariable, mejorando la precisión de nuestras estimaciones.
+
+---
+
+### **Puntos clave a enseñar:**
+
+1.  **ANCOVA como modelo lineal**: El modelo lineal en un ANCOVA es similar a los que usamos en ANOVA, pero con la adición de un término que representa la covariable continua. Por ejemplo, en un ANCOVA unidireccional, el modelo sería:
+
+    \[ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_3 \cdot \text{age} \]
+
+    -   \(\beta_0\) es la intersección (la media para el grupo de referencia cuando la covariable es 0).
+    -   \(\beta_1\), \(\beta_2\), etc. son los efectos de los grupos categóricos.
+    -   \(\beta_3\) es el efecto de la covariable continua (en este caso, la edad).
+
+2.  **Ajuste por covariables**: El objetivo principal del ANCOVA es ajustar las diferencias entre los grupos teniendo en cuenta la influencia de una covariable. Esto permite estimar los efectos de los grupos categóricos de manera más precisa.
+
+3.  **Codificación dummy**: `statsmodels` maneja automáticamente la codificación dummy para las variables categóricas cuando se usa la sintaxis de fórmula.
+
+4.  **Interpretación**: En un ANCOVA, se pueden interpretar tanto los **efectos principales** de los grupos categóricos como el efecto de la covariable continua.
+
+---
+
+### **Ejemplo en Python: ANCOVA**
+
+A continuación, realizamos un ANCOVA utilizando `statsmodels` y visualizamos los resultados con `seaborn`.
+
+#### **Paso 1: Generar los datos**
+
+Utilizamos datos simulados y añadimos una covariable continua (`age`), que está correlacionada con la variable dependiente `value`.
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Función para generar datos con media y sd fijas
+def rnorm_fixed(n, mean, sd):
+    x = np.random.normal(size=n)
+    x = x - np.mean(x)
+    x = x / np.std(x)
+    x = x * sd + mean
+    return x
+
+# Generar los datos con una covariable continua (edad)
+N = 20  # Número de muestras por grupo
+D = pd.DataFrame({
+  'value': np.concatenate([rnorm_fixed(N, 0, 1), rnorm_fixed(N, 1, 1), rnorm_fixed(N, 0.5, 1)]),
+  'group': np.repeat(['a', 'b', 'c'], N)
+})
+
+# Añadir una covariable continua (edad), correlacionada con la variable dependiente
+D['age'] = D['value'] + rnorm_fixed(len(D), mean=0, sd=3)
+
+# Visualizar las primeras filas de los datos
+D.head()
+```
+
+#### **Paso 2: Visualización del ANCOVA**
+
+Creamos una gráfica que muestra la relación entre la covariable `age` y la variable dependiente `value`, utilizando diferentes colores para los grupos.
+
+```{pyodide}
+
+# Gráfico del ANCOVA usando seaborn
+sns.lmplot(data=D, x='age', y='value', hue='group', ci=None)
+plt.title('ANCOVA: Análisis de Covarianza')
+plt.show()
+```
+
+#### **Paso 3: Códigos en Python: ANCOVA**
+
+Podemos realizar el ANCOVA utilizando `statsmodels`.
+
+```{pyodide}
+
+# ANCOVA con statsmodels
+ancova_model = smf.ols('value ~ group + age', data=D).fit()
+ancova_table = sm.stats.anova_lm(ancova_model, typ=2)
+
+print("--- Tabla ANCOVA ---")
+print(ancova_table)
+
+print("\n--- Resumen del Modelo ---")
+print(ancova_model.summary())
+```
+
+#### **Paso 4: Interpretación de los resultados**
+
+En el resultado del ANCOVA, podemos examinar los efectos principales de los grupos y de la covariable `age`. La tabla ANCOVA nos muestra la significancia de cada término en el modelo.
+
+---
+
+### **Ejercicio Práctico**
+
+1.  **Ejercicio 1**: Usa el conjunto de datos `mtcars` para realizar un ANCOVA, comparando el consumo de combustible (`mpg`) según el número de cilindros (`cyl`), ajustando por el peso del automóvil (`wt`).
+
+```{pyodide}
+# exercise: ancova_mtcars
+from statsmodels.datasets import get_rdataset
+import statsmodels.formula.api as smf
+import statsmodels.api as sm
+
+mtcars = get_rdataset("mtcars", "datasets", cache=True).data
+
+# ANCOVA con mtcars
+ancova_mpg_cyl_wt_model = smf.ols('mpg ~ C(cyl) + wt', data=mtcars).fit()
+ancova_mpg_cyl_wt_table = sm.stats.anova_lm(ancova_mpg_cyl_wt_model, typ=2)
+
+# Mostrar resultados
+print(ancova_mpg_cyl_wt_table)
+print(ancova_mpg_cyl_wt_model.summary())
+```
+
+::: {.callout-important collapse="true" title="Respuesta"}
+```python
+from statsmodels.datasets import get_rdataset
+mtcars = get_rdataset("mtcars", "datasets", cache=True).data
+
+# ANCOVA con mtcars
+ancova_mpg_cyl_wt_model = smf.ols('mpg ~ C(cyl) + wt', data=mtcars).fit()
+ancova_mpg_cyl_wt_table = sm.stats.anova_lm(ancova_mpg_cyl_wt_model, typ=2)
+
+# Mostrar resultados
+print(ancova_mpg_cyl_wt_table)
+print(ancova_mpg_cyl_wt_model.summary())
+```
+:::
+
+---
+
+### **Conclusión**
+
+El **ANCOVA** es una herramienta estadística poderosa que combina los efectos de factores categóricos y covariables continuas en un solo modelo. Este análisis permite ajustar por covariables, proporcionando estimaciones más precisas de los efectos de los grupos categóricos. Al entender cómo integrar covariables en un **modelo lineal**, los estudiantes pueden aplicar ANCOVA para analizar datos más complejos en ciencias de la salud y biológicas.

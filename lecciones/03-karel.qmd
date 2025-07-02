@@ -61,7 +61,8 @@ girar_izquierda <- function() {
 juntar_coso <- function() {
   karel::juntar_coso()
   karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1
+  .karel_env$step_counter <<- .karel_env$step_counter + 1```{webr}
+
 }
 
 poner_coso <- function() {

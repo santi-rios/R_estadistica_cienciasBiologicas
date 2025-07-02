@@ -1,0 +1,523 @@
+---
+title: "Problemas comunes en ANOVA"
+subtitle: "Valores atípicos, normalidad y homogeneidad de varianzas"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - datarium
+        - emmeans
+        - moments
+    render-df: gt-interactive
+engine: knitr
+---
+
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+En esta lección, veremos qué hacer cuando violamos los supuestos de normalidad y homogeneidad de varianzas en un ANOVA. En estos casos, es posible que necesitemos realizar correcciones para garantizar que los resultados sean válidos. También veremos cómo manejar valores atípicos en nuestros datos.
+
+En caso que los supuestos de normalidad no se cumplan, puedes utilizar pruebas no paramétricas como el test de Kruskal-Wallis (que es similar al ANOVA de una vía). Sin embargo, no existen alternativas no-paramétricas para el ANOVA de dos vías ni para el ANOVA de tres vías.
+
+
+## Librerías
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
+```
+
+
+## ANOVA de una vía
+
+En este ejemplo, utilizaremos el conjunto de datos `PlantGrowth` para realizar un ANOVA de una vía. Este conjunto de datos contiene los datos de un experimento en el que se midió el peso de plantas bajo tres condiciones diferentes: control, tratamiento 1 y tratamiento 2.
+
+```{webr}
+#| autorun: true
+#| warning: false
+data("PlantGrowth")
+
+PlantGrowth 
+```
+
+### Reordenar niveles de un factor
+
+- Usando la función `levels()`, podemos ver los niveles del factor `group` en el conjunto de datos `PlantGrowth`.
+
+```{webr}
+#| autorun: true
+#| warning: false
+levels(PlantGrowth$group)
+```
+
+- En caso que los niveles no estén en el orden deseado, podemos reordenarlos utilizando la función `reorder_levels()` del paquete `rstatix` de la siguiente manera. Esto es útil para asegurarnos de que los niveles de un factor se muestren en el orden correcto en los gráficos y análisis. Normalmente, quieres mostrar primero el grupo de control y luego los grupos de tratamiento.
+
+```{webr}
+#| autorun: true
+#| warning: false
+PlantGrowth <- PlantGrowth %>%
+  reorder_levels(group, order = c("ctrl", "trt1", "trt2"))
+
+levels(PlantGrowth$group)
+```
+
+### Pregunta de investigación
+
+- La pregunta de investigación es si las condiciones de tratamiento tienen un efecto significativo en el crecimiento de las plantas.
+
+
+### Resumen estadístico
+
+```{webr}
+#| autorun: true
+#| warning: false
+PlantGrowth %>%
+  group_by(group) %>%
+  get_summary_stats(weight, type = "mean_sd")
+```	
+
+### Visualización preliminar
+
+```{webr}
+#| autorun: true
+#| warning: false
+ggboxplot(PlantGrowth, x = "group", y = "weight")
+```
+
+### Valores atípicos (*outliers*)
+
+- Eliminar valores atípicos puede mejorar la normalidad de los datos y hacer que los resultados del ANOVA sean más confiables.
+- Sin embargo, es importante tener en cuenta que la eliminación de valores atípicos depende del contexto de tu investigación y debe justificarse adecuadamente.
+- En el gráfico pasado, puedes ver que el boxplot identificó dos valores atípicos en el grupo `trt1` (puntos fuera de la caja). Estos valores se identifican con la fórmula `1.5 * IQR` (rango intercuartílico). Es decir, cualquier valor que esté a más de 1.5 veces el IQR por encima del tercer cuartil o por debajo del primer cuartil se considera un valor atípico.
+- Podemos inspeccionar estos valores atípicos con la función `identify_outliers()` del paquete `rstatix`.
+
+```{webr}
+#| autorun: true
+#| warning: false
+PlantGrowth %>% 
+  group_by(group) %>%
+  identify_outliers(weight)
+```
+
+- Podemos ver que hay dos valores atípicos en el grupo `trt1`. Podemos eliminar estos valores atípicos y volver a realizar el ANOVA.
+- También observa que esta función nos devuelve una columna `is.extreme` que identifica si un valor se encuentra a más de 3 veces el IQR del tercer cuartil o del primer cuartil.
+- Para eliminar los valores atípicos de manera sencilla, podemos hacer lo siguiente:
+  - Primero, identificamos los valores atípicos con la función `identify_outliers()` y los almacenamos en una variable.
+  - Luego, usamos la función `anti_join()` del paquete `dplyr` para eliminar los valores atípicos del conjunto de datos original.
+  - Finalmente, almacenamos el conjunto de datos limpio (sin outliers) en una nueva variable llamada `plant_clean`. 
+
+```{webr}
+#| autorun: true
+#| warning: false
+valores_atipicos <- PlantGrowth %>% 
+  group_by(group) %>%
+  identify_outliers(weight)
+
+plant_clean <- PlantGrowth %>%
+  anti_join(valores_atipicos)
+
+plant_clean
+
+```
+
+Verificamos que ya no hay valores atípicos en el conjunto de datos limpio.
+
+```{webr}
+#| autorun: true
+#| warning: false
+plant_clean %>% 
+  group_by(group) %>%
+  identify_outliers(weight)
+```
+
+
+### Prueba de Normalidad
+
+- Como estamos haciendo un ANOVA de una vía, podemos usar la función `lm()` o `aov()` por facilidad de la siguiente manera:
+
+```{webr}
+#| autorun: true
+#| warning: false
+# modelo lineal = anova
+model  <- lm(weight ~ group, data = plant_clean)
+# QQ plot 
+ggqqplot(residuals(model))
+
+# Shapiro-Wilk test para normalidad
+shapiro_test(residuals(model))
+
+```
+
+- Como el valor p es mayor a 0.05, podemos asumir que los residuales siguen una distribución normal.
+- También podemos checar la normalidad de los datos en cada grupo con la función `shapiro_test()` de la siguiente manera:
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+plant_clean %>%
+  group_by(group) %>%
+  shapiro_test(weight)
+
+```
+
+::: {.callout-note}
+Si tu muestra es mayor que 50, es preferible usar el QQ plot ya que la prueba de Shapiro-Wilk se vuelve muy sensible a desviaciones menores de la normalidad en muestras grandes.
+:::
+
+
+### Homogeneidad de varianza o homocedasticidad
+
+- La homogeneidad de varianza es un supuesto importante en el ANOVA. Significa que las varianzas de las diferentes condiciones son iguales.
+- Podemos verificar la homogeneidad de varianza con la prueba de Levene y con un gráfico de residuales vs. valores ajustados, como el siguiente:
+
+```{webr}
+#| autorun: true
+#| warning: false
+plot(model, 1)
+
+```
+
+- En este gráfico, no hay una relación evidente entre los residuales y los valores ajustados (la media de cada grupo), lo cual es bueno. Por lo tanto, podemos asumir la homogeneidad de varianza. Recuerda la clase de supuestos de modelos lineales para más información ([link de la clase](https://riverorca.com/mod/hvp/view.php?id=248)).
+
+- Podemos verificar la homogeneidad de varianza con la prueba de Levene de la siguiente manera:
+
+```{webr}
+#| autorun: true
+#| warning: false
+plant_clean %>% levene_test(weight ~ group)
+```
+
+- El valor de p es mayor a 0.05, por lo que podemos asumir que las varianzas son homogéneas.
+
+
+### ANOVA 
+
+- Vamos a usar la función `anova_test()` del paquete `rstatix` para realizar un ANOVA de una vía:
+
+```{webr}
+#| autorun: true
+#| warning: false
+res.aov <- plant_clean %>% anova_test(weight ~ group)
+res.aov
+```
+
+- En este caso, el valor p es menor a 0.05, lo que indica que hay diferencias significativas entre los grupos. Por lo tanto, vamos a realizar una prueba post-hoc para determinar cuáles son los grupos que difieren entre sí.
+
+### Post-hoc tests
+
+- Vamos a realizar una prueba post-hoc de Tukey para determinar cuáles son los grupos que difieren entre sí. Esto se hace con la función `tukey_hsd()` del paquete `rstatix`:
+
+```{webr}
+#| autorun: true
+#| warning: false
+pwc <- plant_clean %>% tukey_hsd(weight ~ group)
+pwc
+```
+
+- Podemos ver que hay dos comparaciones con diferencias significativas: `ctrl` vs. `trt1` y `trt1` vs. `trt2`.
+
+### Reportar resultados
+
+- Podemos reportar los resultados de la siguiente manera:
+
+> Se realizó un ANOVA de una vía para evaluar si el crecimiento de las plantas era diferente para los 3 grupos de tratamiento: `ctrl` (n = 10), `trt1` (n = 10) y `trt2` (n = 10). El crecimiento de las plantas difiere de manera  significativa entre los diferentes grupos de tratamiento, F(2, 25) = 13.394, p < 0.001. El crecimiento de las plantas disminuyó en el grupo `trt1` (media = 4.66) en comparación con el grupo `ctrl` (media = 5.03). Aumentó en el grupo `trt2` (media = 5.53) en comparación con `trt1` y `ctrl`. Las comparaciones post-hoc de Tukey revelaron que el aumento de `trt1` a `trt2` (1.19, IC 95% (0.593 a 1.78)) fue estadísticamente significativo (p < 0.001). La prueba de Tukey también mostró diferencias significativas entre `ctrl` y `trt1` (-0.693, IC 95% (-1.29 a -0.09)).
+
+### Gráfico con p-values
+
+- Para visualizar los resultados del ANOVA con las comparaciones post-hoc, podemos hacer lo siguiente:
+  - Primero, añadimos la posición `x` a los datos de las comparaciones múltiples (variable `pwc`) con la función `add_xy_position()` del paquete `rstatix`. Esto es necesario para que las etiquetas de significancia se muestren correctamente en el gráfico.
+  - Luego, creamos un gráfico de caja con `ggboxplot()` y añadimos las etiquetas de significancia con la función `stat_pvalue_manual()`.
+  - Finalmente, añadimos el subtítulo y la leyenda con los resultados del ANOVA y las comparaciones post-hoc. En el subtitulo, usamos la función `get_test_label()` para obtener una etiqueta descriptiva del ANOVA.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+pwc <- pwc %>% add_xy_position(x = "group")
+
+ggboxplot(plant_clean, x = "group", y = "weight") +
+  stat_pvalue_manual(pwc, hide.ns = TRUE) +
+  labs(
+    subtitle = get_test_label(res.aov, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+    )
+
+```
+
+::: {.callout-tip}
+En caso que quisieramos hacer un ANOVA sin asumir la igualdad de varianzas, podemos usar el test de Welch. Para ello, simplemente cambiamos la función `anova_test()` por `welch_anova_test()`. Esta función realiza un ANOVA de una vía con corrección de Welch para la igualdad de varianzas. Observa que los grados de libertad son diferentes en este caso debido a la corrección de Welch.
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Welch ANOVA test
+res.aov2 <- plant_clean %>% welch_anova_test(weight ~ group)
+
+# Comparaciones múltiples con el método Games-Howell
+pwc2 <- plant_clean %>% games_howell_test(weight ~ group)
+
+# Plot con valores p
+pwc2 <- pwc2 %>% add_xy_position(x = "group", step.increase = 1)
+
+ggboxplot(plant_clean, x = "group", y = "weight") +
+  stat_pvalue_manual(pwc2, hide.ns = TRUE) +
+  labs(
+    subtitle = get_test_label(res.aov2, detailed = TRUE),
+    caption = get_pwc_label(pwc2)
+    )
+```
+
+:::
+
+## ANOVA de dos vías
+
+Para este ejemplo vamos a utilizar el conjunto de datos `jobsatisfaction` del paquete `datarium`. Este conjunto de datos contiene la puntuación de satisfacción laboral organizada por género y niveles de educación. 
+
+Nos interesa ver el efecto de la variable `education_level` en la satisfacción laboral, y cómo este efecto puede depender del género. En otras palabras, queremos ver si el efecto de `education_level` en la satisfacción laboral es diferente para hombres y mujeres.
+
+```{webr}
+#| autorun: true
+#| warning: false
+# install.packages("datarium")
+
+data("jobsatisfaction", package = "datarium")
+
+jobsatisfaction 
+```
+
+
+### Resumen estadístico
+
+```{webr}
+#| autorun: true
+#| warning: false
+jobsatisfaction %>%
+  group_by(gender, education_level) %>%
+  get_summary_stats(score, type = "mean_sd")
+```
+
+### Visualización preliminar
+
+```{webr}
+#| autorun: true
+#| warning: false
+bxp <- ggboxplot(
+  jobsatisfaction, x = "gender", y = "score",
+  color = "education_level", palette = "jco"
+  )
+
+bxp
+```
+
+
+### Valores atípicos
+
+```{webr}
+#| autorun: true
+#| warning: false
+jobsatisfaction %>%
+  group_by(gender, education_level) %>%
+  identify_outliers(score)
+```
+
+- No hay valores atípicos en los datos.
+
+### Prueba de Normalidad
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Build the linear model
+model  <- lm(score ~ gender*education_level,
+             data = jobsatisfaction)
+# Create a QQ plot of residuals
+ggqqplot(residuals(model))
+
+# Compute Shapiro-Wilk test of normality
+shapiro_test(residuals(model))
+```
+
+- Cumple con el supuesto de normalidad. Esto también lo podemos comparar con la prueba de Shapiro-Wilk en cada celda de diseño (cada combinación de género y nivel de educación):
+
+```{webr}
+#| autorun: true
+#| warning: false
+jobsatisfaction %>%
+  group_by(gender, education_level) %>%
+  shapiro_test(score)
+```
+
+### Homogeneidad de varianza
+
+```{webr}
+#| autorun: true
+#| warning: false
+jobsatisfaction %>% levene_test(score ~ gender*education_level)
+```
+
+- La prueba de Levine no es significativa, por lo que podemos asumir que las varianzas son homogéneas.
+
+### ANOVA
+
+- recuerda que tenemos un diseño de dos vías, por lo que podemos explorar la interacción entre las variables `gender` y `education_level`.
+- Si usamos la función `anova_test()` del paquete `rstatix`, podemos realizar lo siguiente:
+
+```{webr}
+#| autorun: true
+#| warning: false
+res.aov <- jobsatisfaction %>% anova_test(score ~ gender * education_level)
+res.aov
+```
+
+- En este caso, el valor p de la interacción entre `gender` y `education_level` es significativo, lo que indica que el efecto de `education_level` en la satisfacción laboral depende del género.
+- Si no tuvieramos una interacción significativa, podríamos seguir con las pruebas de los efectos principales de `gender` y `education_level`, es decir:
+
+```r
+jobsatisfaction %>% anova_test(score ~ gender + education_level)
+```
+
+### Post-hoc 
+
+- Cuando tenemos un ANOVA de dos o más vías con interacción, una forma fácil de determinar las comparaciones significativas es realizar pruebas de comparaciones múltiples entre los niveles de cada factor organizados por el otro factor.
+- Para esto, vamos a hacer estos pasos:
+  - Primero, agrupamos los datos por `gender` 
+  - Luego, realizamos pruebas de comparaciones múltiples entre los niveles de `education_level` organizados por `gender` con la función `emmeans_test()` del paquete `emmeans`.
+  - El paquete `emmeans` es muy útil cuando tenemos diseños de ANOVA complejos con interacciones, ya que nos permite realizar comparaciones entre los niveles de un factor organizados por otro factor. 
+  - Vamos a usar el método de ajuste de Holm para corregir los valores p de las comparaciones múltiples.
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(emmeans)
+
+pwc <- jobsatisfaction %>% 
+  group_by(gender) %>%
+  emmeans_test(score ~ education_level, p.adjust.method = "holm") 
+
+pwc
+```
+
+- Podemos ver que hay diferencias significativas en la satisfacción laboral entre todos los grupos de educación para hombres y mujeres.
+- Si no hubera una interacción significativa, podríamos realizar pruebas de comparaciones múltiples entre los niveles principales de cada factor organizados por el otro factor de la siguiente manera:
+
+```r
+jobsatisfaction %>%
+  pairwise_t_test(
+    score ~ education_level, 
+    p.adjust.method = "bonferroni"
+    )
+```
+### Reporte de resultados
+
+> Se realizó un ANOVA de dos vías para evaluar los efectos del género y el nivel de educación en la satisfacción laboral. Se encontró una interacción significativa entre el género y el nivel de educación en la satisfacción laboral, F(2, 52) = 7.33, p = 0.0016. Se realizaron pruebas post-hoc de comparaciones múltiples con el método de Holm entre los niveles de educación organizados por género. Se encontraron diferencias significativas en la satisfacción laboral entre todos los grupos de educación para hombres y mujeres.
+
+### Gráfico con p-values
+
+```{webr}
+#| autorun: true
+#| warning: false
+pwc <- pwc %>% add_xy_position(x = "gender")
+
+bxp +
+  stat_pvalue_manual(pwc) +
+  labs(
+    subtitle = get_test_label(res.aov, detailed = TRUE),
+    caption = get_pwc_label(pwc)
+    )
+```
+
+## Correcciones de normalidad
+
+- En caso que los residuales no sigan una distribución normal, podemos realizar correcciones para garantizar que los resultados del ANOVA sean válidos.
+
+Para estos ejemplos, vamos a usar los datos `iris`, que contienen medidas de longitud y ancho de sépalos y pétalos de tres especies de iris.
+
+```{webr}
+#| autorun: true
+#| warning: false
+data("iris")
+
+head(iris)
+```
+
+### skewness (asimetría)
+
+- La asimetría es una medida de la simetría de una distribución. Si la asimetría es 0, la distribución es simétrica (como en la distribución normal). Si es positiva, la distribución es asimétrica hacia la derecha (cola a la derecha). Si es negativa, la distribución es asimétrica hacia la izquierda (cola a la izquierda).
+
+
+![](../distribution-shape.jpeg)
+
+Entre mayor sea el valor de *skewness*, significa que la distribución difiere más de una distribución normal. Podemos calcular la asimetría con la función `skewness()` del paquete `moments` de la siguiente manera:
+
+```{webr}
+#| autorun: true
+#| warning: false
+# install.packages("moments")
+library(moments)
+
+skewness(iris$Sepal.Length, na.rm = TRUE)
+```
+
+### Transformación de datos
+
+- Una forma común de corregir la asimetría es transformar los datos. 
+- Algunos de los métodos de transformación más comunes incluyen:
+  - Para asimetría moderada:
+    - `sqrt(x)` para corregir asimetría positiva.  
+    - `sqrt(max(x+1) - x)` para corregir asimetría negativa.
+  - Para simetría moderada:
+    - `log10(x)` para corregir asimetría positiva.
+    - `log10(max(x+1) - x)` para corregir asimetría negativa.
+  - Para asimetría severa:
+    - `1/x` para corregir asimetría positiva.
+    - `1/(max(x+1) - x)` para corregir asimetría negativa.
+- Con el ejemplo anterior, vamos a probar algunas transofrmaciones. Observa como cambia la asimetría de los datos.
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Transformación de raíz cuadrada
+skewness(sqrt(iris$Sepal.Length), na.rm = TRUE)
+
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Transformación logarítmica
+skewness(log(iris$Sepal.Length), na.rm = TRUE)
+
+```
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Transformación inversa
+skewness(1/iris$Sepal.Length, na.rm = TRUE)
+```
+
+::: {.callout}
+Parece que la transformación logarítmica es la que más se acerca a una distribución normal. Sin embargo, es importante recordar que la transformación de datos puede cambiar la interpretación de los resultados, por lo que debes tener cuidado al aplicarla. Por ejemplo, si transformas los datos con una raíz cuadrada, los resultados se interpretarán en términos de la raíz cuadrada de la variable original. Es decir, si la variable original era la longitud del sépalo, los resultados transformados se interpretarán en términos de la raíz cuadrada de la longitud del sépalo.
+
+:::

@@ -1,0 +1,170 @@
+---
+title: "R y Chat-GPT"
+subtitle: "Usar AI para ayudar a programar en R"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+        - ez
+        - multcomp
+    render-df: gt-interactive
+engine: knitr
+---
+
+
+
+En esta presentación veremos cómo usar la inteligencia artificial para ayudarnos a programar en R. Usaremos [Chat-GPT](https://openai.com/index/chatgpt/) por su facilidad de uso y su capacidad para entender el lenguaje natural. No usaremos ningún modelo de paga, sino que usaremos la versión gratuita de OpenAI para hacer preguntas y obtener respuestas.
+
+Para ilustrar el potencial de Chat-GPT + R, vamos a crear una aplicación interactiva de analisis de datos. A pesar de que esta es una tarea avanzada, veremos cómo podemos usar Chat-GPT para hacer preguntas y obtener respuestas en R.
+
+::: {.callout-note}
+
+## Prompts o preguntas
+
+- Los *prompts* son preguntas que se le hacen a un modelo de lenguaje para obtener una respuesta.
+- Para obtener buenos resultados, es importante hacer preguntas claras y concisas. Recuerda especificar el contexto (librerías, dataset, etc.), así como la acción que deseas realizar.
+- Ejemplo de prompts: 
+  - "Crea un histograma de la variable `mpg` del dataset `mtcars`."
+  - "Usando la librería de R "dplyr", escribe un código de R que filtre todos mis resultados que cumplan la condición "mujeres mayores a 20 años". Después, realiza un grafico para visualizar estos resultados utilizando la librería "ggplot"
+  - Explica cómo funciona la función `lm()` en R.
+  - "¿Cómo puedo hacer un gráfico de barras en R con la librería ggplot2?"
+  - Cómo funciona este código de R: m1 <- gam(y ~ s(year, by = sites), data = my\_data, family = “poisson”)
+  - Genera un conjunto de datos simulados con 100 observaciones y 3 variables, donde la variable dependiente es una variable continua y las variables independientes son categóricas. Luego, ajusta un modelo de regresión lineal simple y muestra los resultados.
+
+## Recursos Extra
+
+- Puedes usar la librería `askgpt` para hacer preguntas a Chat-GPT desde RStudio. Sigue el tutorial en [este enlace](https://www.r-bloggers.com/2023/04/introducing-askgpt-a-chat-interface-that-helps-you-to-learn-r/)
+- Otro paquete popular para usar Chat-GPT en R es `gptstudio`. Puedes encontrar más información en [este enlace](https://github.com/MichelNivard/gptstudio)
+
+:::
+
+
+## Shiny App
+
+- Para realizar la aplicación, vamos a utilizar el paquete `shiny` de R. Este paquete nos permite crear aplicaciones web interactivas con R.
+- Primero, instalamos el paquete `shiny` si no lo tenemos instalado. Para instalarlo, ejecutamos el siguiente código:
+
+```r
+install.packages("shiny")
+```
+
+Puedes cargar y explorar este paquete con el siguiente código:
+
+```r
+library(shiny)
+runExample("01_hello")
+```
+
+- Para crear una aplicación de Shiny, necesitamos crear dos archivos: `ui.R` y `server.R`. El archivo `ui.R` contiene la interfaz de usuario de la aplicación, mientras que el archivo `server.R` contiene el código que se ejecuta en el servidor.
+- Si no entiendes estos conceptos, puedes preguntarle a Chat-GPT: "Cómo es la estructura de una aplicación de Shiny en R? Explica la diferencia entre ui.R y server.R"
+- La estructura básica de una aplicación de Shiny es la siguiente:
+
+```r
+library(shiny)
+
+ui <- ...
+
+server <- ...
+
+shinyApp(ui = ui, server = server)
+
+runApp("my_app")
+```
+
+## Pasos
+
+1. Abre RStudio y crea un nuevo proyecto. Crea un archivo llamado `app.R` (o `ui.R` y `server.R` si prefieres). Si no entiendes la diferencia, puedes preguntarle a Chat-GPT.
+2. Abre Chat-GPT y pregunta lo siguiente: "Crea una aplicación de Shiny en R que muestre un histograma de la variable `mpg` del dataset `mtcars`."
+3. Copia y pega el código generado por Chat-GPT en R. Dependiendo de la respuesta de Chat-GPT, es posible que te diga que crees un archivo `ui.R` y un archivo `server.R`. Si es así, sigue las instrucciones de Chat-GPT. De otro modo, simplemente copia y pega el código en un nuevo script de R.
+4. En rstudio, presiona "Run App" para ejecutar la aplicación de Shiny. Deberías ver un histograma de la variable `mpg` del dataset `mtcars`. Si todo funciona correctamente, se debería abrir la aplicación en tu navegador o en RStudio. ¡felicidades! Has creado tu primera aplicación de Shiny con la ayuda de Chat-GPT.
+
+![](../gpt.png)
+
+5. Si deseas hacer más preguntas a Chat-GPT, puedes hacerlo. Por ejemplo, puedes preguntarle cómo agregar un título al histograma, cómo cambiar los colores, cómo agregar una leyenda, etc. Chat-GPT te ayudará a mejorar tu aplicación de Shiny paso a paso.
+6. También puedes decirle que te explique el código (o alguna sección que no entiendas) para que puedas aprender más sobre R y Shiny:
+
+```markdown
+Para crear una aplicación de Shiny en R que muestre un histograma de la variable `mpg` del dataset `mtcars`, puedes seguir estos pasos. A continuación, te proporciono el código completo para una aplicación básica de Shiny:
+
+```r
+# Primero, asegúrate de tener el paquete Shiny instalado
+if (!require(shiny)) {
+  install.packages("shiny")
+}
+
+# Carga el paquete Shiny
+library(shiny)
+
+# Define la interfaz de usuario (UI) de la aplicación
+ui <- fluidPage(
+  # Título de la aplicación
+  titlePanel("Histograma de MPG del dataset mtcars"),
+  
+  # Barra lateral con un control deslizante para el número de bins
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("bins",
+                  "Número de bins:",
+                  min = 1,
+                  max = 50,
+                  value = 10)
+    ),
+    
+    # Panel principal para mostrar el histograma
+    mainPanel(
+      plotOutput("distPlot")
+    )
+  )
+)
+
+# Define la lógica del servidor para la aplicación
+server <- function(input, output) {
+  output$distPlot <- renderPlot({
+    # Genera un histograma de la variable mpg
+    x <- mtcars$mpg
+    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    
+    hist(x, breaks = bins, col = 'darkgray', border = 'white',
+         xlab = "Millas por galón (mpg)",
+         main = "Histograma de MPG")
+  })
+}
+
+# Ejecuta la aplicación
+shinyApp(ui = ui, server = server)
+```
+
+### Explicación del Código
+
+1. **Carga de Shiny**: Nos aseguramos de que el paquete Shiny esté instalado y lo cargamos.
+
+2. **UI (Interfaz de Usuario)**:
+   - `fluidPage()`: Crea un diseño de página fluido que ajusta los elementos de la UI.
+   - `titlePanel()`: Define el título de la aplicación.
+   - `sidebarLayout()`: Organiza la página en una barra lateral (`sidebarPanel`) y un panel principal (`mainPanel`).
+   - `sliderInput()`: Permite al usuario seleccionar el número de bins para el histograma mediante un control deslizante.
+
+3. **Servidor**:
+   - `renderPlot()`: Genera el histograma cada vez que cambia el número de bins.
+   - `hist()`: Función que crea el histograma utilizando el número de bins seleccionado por el usuario.
+
+4. **Ejecutar la Aplicación**: `shinyApp(ui = ui, server = server)` combina la UI y el servidor para lanzar la aplicación.
+
+Para ejecutar esta aplicación, guarda el código en un archivo R (por ejemplo, `app.R`) y ejecuta ese archivo con RStudio o desde la consola de R. Esto abrirá una ventana de navegador mostrando la aplicación interactiva.
+
+```

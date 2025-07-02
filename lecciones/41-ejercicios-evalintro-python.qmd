@@ -61,17 +61,18 @@ Si no sabemos qué significan las variables, es imposible analizar los datos. En
 
 ```{pyodide}
 # exercise: examen1_1
-# envir: myenv
 
 # Obtén información sobre el DataFrame oms
 ______.info()
 ```
 
-::: {.hint exercise="examen1_1"}
+
+
+::: {.callout-tip collapse="true" title="Tip"}
 Usa el nombre del DataFrame seguido de `.info()`.
 :::
 
-::: {.solution exercise="examen1_1"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms.info()
 ```
@@ -81,11 +82,10 @@ oms.info()
 
 A partir de la descripción del dataset, podemos ver distintos problemas. Vamos a limpiar los datos por partes.
 
-- Existen 3 variables que se refieren a `país` (`country`, `iso2`, `iso3`). Vamos a quitar 2 de estas 3 variables (`iso2`, `iso3`).
+- Existen 3 variables que se refieren a `país` (`pais`, `iso2`, `iso3`). Vamos a quitar 2 de estas 3 variables (`iso2`, `iso3`).
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_2
+# exercise: examen1_2
 
 # Elimina las columnas 'iso2' e 'iso3'
 oms_2 = oms.drop(columns=[______, ______])
@@ -93,55 +93,51 @@ oms_2 = oms.drop(columns=[______, ______])
 oms_2.head() # Verificamos que se haya hecho correctamente
 ```
 
-::: {.hint exercise="examen1_2"}
+::: {.callout-tip collapse="true" title="Tip"}
 Recuerda el método `.drop()` de pandas.
 :::
 
-::: {.solution exercise="examen1_2"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms_2 = oms.drop(columns=['iso2', 'iso3'])
 oms_2.head()
 ```
 :::
 
-- Después, tenemos una variable que indica año (`year`). Explora qué tipo de variable es y conviértela a una variable de tipo `category`.
+- Después, tenemos una variable que indica año (`anio`). Explora qué tipo de variable es y conviértela a una variable de tipo `category`.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_3
+# exercise: examen1_3
 
-# Convierte la columna 'year' a tipo 'category'
-oms_3 = oms_2.assign(year = oms_2['year'].astype(______))
+# Convierte la columna 'anio' a tipo 'category'
+oms_3 = oms_2.astype({'______': '______'})
 
 oms_3.info() # Verificamos el cambio
+# oms_3.head() # Mostramos las primeras filas para verificar
 ```
 
-::: {.hint exercise="examen1_3"}
+::: {.callout-tip collapse="true" title="Tip"}
 Usa el método `.astype()` para cambiar el tipo de dato.
 :::
 
-::: {.solution exercise="examen1_3"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
-oms_3 = oms_2.assign(year = oms_2['year'].astype('category'))
-oms_3.info()
+oms_3 = oms_2.astype({'anio': 'category'})
+
+oms_3.info() # Verificamos el cambio
 ```
 :::
 
 - Ahora, tenemos que solucionar el mayor problema de estos datos: las `56` columnas restantes son redundantes. Todas representan la cuenta de casos de *TB*. Podemos reestructurar estas columnas a un formato largo usando `melt()`.
-
-::: {layout-ncol="2"}
-![](https://i.imgur.com/52PlC5i.png)
-![](https://i.imgur.com/fT3fTWS.png)
-:::
+![](./figuras/long_wide.png)
 
 - Para juntar y agrupar, usaremos la función `melt()` de `pandas`.
 - El reto es juntar las `56` variables. La forma más fácil es especificar las columnas que queremos mantener fijas (`id_vars`).
-- Al correr el siguiente código, deberías tener un dataframe con 4 columnas: `country`, `year`, `clave` y `casos`.
+- Al correr el siguiente código, deberías tener un dataframe con 4 columnas: `pais`, `anio`, `clave` y `casos`.
 - **Ojo**: en este paso, también vamos a eliminar las filas con valores faltantes con el método `.dropna()`.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_4
+# exercise: examen1_4
 
 # Reestructura el DataFrame de formato ancho a largo
 oms_4 = oms_3.melt(
@@ -154,14 +150,14 @@ oms_4 = oms_3.melt(
 oms_4.head() # Verificamos que se haya hecho correctamente
 ```
 
-::: {.hint exercise="examen1_4"}
-Las columnas que no se "derriten" son `country` y `year`.
+::: {.callout-tip collapse="true" title="Tip"}
+Las columnas que no se "derriten" son `pais` y `anio`.
 :::
 
-::: {.solution exercise="examen1_4"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms_4 = oms_3.melt(
-    id_vars=["country", "year"], 
+    id_vars=["pais", "anio"], 
     var_name="clave", 
     value_name="casos"
 ).dropna(subset=["casos"])
@@ -184,8 +180,7 @@ oms_4.head()
 - Usaremos el accesor `.str` de pandas y su método `replace()`.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_5
+# exercise: examen1_5
 
 # Reemplaza 'nuevosrecaida' por 'nuevos_recaida'
 oms_5 = oms_4.copy() # Creamos una copia para evitar SettingWithCopyWarning
@@ -194,7 +189,7 @@ oms_5["clave"] = oms_5["clave"].str.replace(______, ______)
 oms_5.head() # Verificamos que se haya hecho correctamente
 ```
 
-::: {.solution exercise="examen1_5"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms_5 = oms_4.copy()
 oms_5["clave"] = oms_5["clave"].str.replace("nuevosrecaida", "nuevos_recaida")
@@ -206,8 +201,7 @@ oms_5.head()
 - Usaremos el método `.str.split()` con `expand=True`.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_6
+# exercise: examen1_6
 
 # Separa la columna 'clave' en 'nuevos', 'tipo' y 'sexo_edad'
 oms_6 = oms_5.copy()
@@ -216,7 +210,7 @@ oms_6[['nuevos', 'tipo', 'sexo_edad']] = oms_6['clave'].str.split(______, expand
 oms_6.head() # Verificamos que se haya hecho correctamente
 ```
 
-::: {.solution exercise="examen1_6"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms_6 = oms_5.copy()
 oms_6[['nuevos', 'tipo', 'sexo_edad']] = oms_6['clave'].str.split('_', expand=True)
@@ -227,19 +221,18 @@ oms_6.head()
 - A continuación podemos eliminar las columnas `nuevos` y `clave` que ya no necesitamos.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_7
+# exercise: examen1_7
 
 oms_7 = oms_6.drop(columns=[______, ______])
 
 oms_7.head() # Verificamos que se haya hecho correctamente
 ```
 
-::: {.hint exercise="examen1_7"}
+::: {.callout-tip collapse="true" title="Tip"}
 Recuerda el método `drop()`.
 :::
 
-::: {.solution exercise="examen1_7"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms_7 = oms_6.drop(columns=['nuevos', 'clave'])
 oms_7.head()
@@ -249,8 +242,7 @@ oms_7.head()
 - Para separar la columna `sexo_edad` en `sexo` y `edad`, podemos usar slicing con el accesor `.str`.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_8
+# exercise: examen1_8
 
 oms_8 = oms_7.copy()
 oms_8['sexo'] = oms_8['sexo_edad'].str[______]
@@ -260,7 +252,7 @@ oms_8 = oms_8.drop(columns=['sexo_edad'])
 oms_8.head() # Verificamos que se haya hecho correctamente
 ```
 
-::: {.solution exercise="examen1_8"}
+::: {.callout-important collapse="true" title="Respuesta"}
 ```python
 oms_8 = oms_7.copy()
 oms_8['sexo'] = oms_8['sexo_edad'].str[0]
@@ -276,12 +268,11 @@ oms_8.head()
 - Esto es útil y muy común en `pandas`.
 
 ```{pyodide}
-#| envir: myenv
-#| exercise: examen1_9
+# exercise: examen1_9
 
 oms_limpio = (oms
     .drop(columns=[______, ______])
-    .melt(id_vars=['country', 'year'], var_name='clave', value_name='casos')
+    .melt(id_vars=['pais', 'anio'], var_name='clave', value_name='casos')
     .dropna(subset=['casos'])
     .assign(
         clave = lambda df: df['clave'].str.replace('nuevosrecaida', 'nuevos_recaida'),
@@ -312,7 +303,5 @@ oms_limpio # Verificamos que se haya hecho correctamente
 Si todo va bien hasta ahora, deberías de tener un dataset similar a este. En el siguiente ejercicio exploraremos estos datos limpios.
 
 ```{pyodide}
-#| envir: myenv
-#| echo: true
 oms_limpio.head()
 ```

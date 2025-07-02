@@ -1,0 +1,119 @@
+---
+title: "Pruebas Múltiples y el Problema del Error Tipo I Acumulado"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: lux
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+    render-df: gt-interactive
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+![](https://datascience.recursos.uoc.edu/wp-content/uploads/2020/06/PID_00275831_011.jpg)
+
+
+Uno de los problemas más desafiantes en las pruebas de hipótesis estadísticas es el riesgo de **acumulación de errores de decisión** cuando se realizan múltiples pruebas al mismo tiempo. A medida que aumenta el número de pruebas, también lo hace la probabilidad de cometer al menos un **error Tipo I** (rechazar incorrectamente la hipótesis nula) entre el conjunto de pruebas. Este problema se conoce como la **tasa de error Tipo I familiar** (o **tasa de error Tipo I en experimentos**), y es importante abordarlo para evitar sacar conclusiones incorrectas a partir de los datos.
+
+
+## Tasa de Error Tipo I Familiar
+
+La **tasa de error Tipo I familiar** (también conocida como **tasa de error Tipo I en experimentos**) se refiere a la **probabilidad de cometer al menos un error Tipo I** en un conjunto de pruebas de hipótesis que se realizan simultáneamente. Este problema surge en situaciones como:
+
+- Comparaciones por pares de grupos de tratamiento en un experimento.
+- Pruebas de correlaciones entre múltiples variables.
+- Múltiples análisis univariados (como pruebas t) en las mismas unidades experimentales.
+
+Si las pruebas son **independientes** (es decir, ortogonales), la tasa de error Tipo I familiar puede calcularse mediante la siguiente fórmula:
+
+$$
+1 - (1 - \alpha)^c
+$$
+
+Donde:
+- $$\alpha$$ es el nivel de significancia para cada prueba individual.
+- $c$ es el número de pruebas.
+
+Por ejemplo, si realizamos 10 pruebas con un nivel de significancia $\alpha = 0.05$, la probabilidad de cometer al menos un error Tipo I sería:
+
+$$
+1 - (1 - 0.05)^{10} = 1 - 0.95^{10} = 0.401
+$$
+
+Esto significa que hay un 40.1% de probabilidad de cometer al menos un error Tipo I en las 10 pruebas, lo cual es mucho mayor que el 5% esperado para cada prueba individual.
+
+## Enfoques para Controlar el Error Tipo I en Pruebas Múltiples
+
+Existen varios enfoques para controlar la **tasa de error Tipo I familiar** en situaciones de pruebas múltiples. Estos enfoques se basan en ajustar el nivel de significancia de cada prueba individual para mantener controlada la tasa de error global. Veamos algunos de los métodos más comunes:
+
+##### 1. **Procedimiento de Bonferroni**
+
+El **procedimiento de Bonferroni** es uno de los métodos más simples y ampliamente utilizados para ajustar el nivel de significancia en pruebas múltiples. La idea básica es dividir el nivel de significancia original ($\alpha$) entre el número de pruebas ($c$) para obtener un nivel de significancia ajustado para cada prueba:
+
+$$
+\alpha_{\text{ajustado}} = \frac{\alpha}{c}
+$$
+
+Por ejemplo, si tenemos $\alpha = 0.05$ y realizamos 10 pruebas, el nivel de significancia ajustado sería:
+
+$$
+\alpha_{\text{ajustado}} = \frac{0.05}{10} = 0.005
+$$
+
+Esto significa que cada prueba individual debe ser significativa a un nivel de $0.005$ para que podamos rechazar la hipótesis nula, lo que reduce considerablemente la probabilidad de cometer un error Tipo I en el conjunto de pruebas.
+
+**Ventajas:**
+- Es fácil de aplicar y tiene una gran flexibilidad, ya que puede usarse en cualquier situación con pruebas múltiples.
+
+**Desventajas:**
+- Es muy **conservador**, lo que significa que reduce mucho el poder de las pruebas individuales, especialmente cuando hay muchas pruebas.
+- Por lo tanto, puede ser demasiado restrictivo en algunos casos, lo que lleva a un alto riesgo de errores Tipo II (no detectar un efecto real).
+- Esto podría considerarse incluso más grave que cometer un error Tipo I en algunas situaciones. Por ejemplo, en la investigación médica, es más grave no detectar un tratamiento efectivo y nunca más probarlo que experimentar  uno que no lo es y descartarlo luego.
+
+##### 2. **Procedimiento de Dunn-Sidak**
+
+El **procedimiento de Dunn-Sidak** es una modificación del procedimiento de Bonferroni que mejora ligeramente el poder de las pruebas. El nivel de significancia ajustado se calcula de la siguiente manera:
+
+$$
+\alpha_{\text{ajustado}} = 1 - (1 - \alpha)^{1/c}
+$$
+
+Por ejemplo, si tenemos $\alpha = 0.05$ y realizamos 10 pruebas, el nivel de significancia ajustado sería:
+
+$$
+\alpha_{\text{ajustado}} = 1 - (1 - 0.05)^{1/10} = 0.005116
+$$
+
+El ajuste es muy similar al de Bonferroni, pero ligeramente menos conservador, lo que mejora un poco el poder de las pruebas.
+
+##### 3. **Bonferroni Secuencial (Holm, 1979)**
+
+El **procedimiento de Bonferroni secuencial**, propuesto por Holm en 1979, es una mejora significativa respecto al Bonferroni estándar. En este procedimiento, los valores p de las pruebas se **ordenan** de menor a mayor, y luego se ajusta el nivel de significancia para cada prueba de la siguiente manera:
+
+1. La prueba con el **valor p más pequeño** se compara con $\alpha/c$.
+2. La segunda prueba se compara con $\alpha/(c-1)$, y así sucesivamente.
+3. Si encontramos una prueba no significativa, dejamos de probar y no rechazamos las hipótesis restantes.
+
+Este procedimiento tiene más **poder** que el Bonferroni estándar, ya que ajusta gradualmente el nivel de significancia en lugar de hacerlo uniformemente para todas las pruebas.
+
+## Cuándo Usar Ajustes para Pruebas Múltiples
+
+- Es muy común en la investigación científica y estadística realizar múltiples pruebas de hipótesis para explorar diferentes aspectos de los datos.
+- En tales situaciones, es importante controlar la tasa de error Tipo I familiar para evitar conclusiones incorrectas.
+- Un ejemplo común es la **comparación de múltiples grupos de tratamiento** en un experimento, donde se realizan pruebas de comparación por pares entre todos los grupos.
+  - Esto sucede a menudo cuando tenemos múltiples medias, las cuales analizamos con un ANOVA. Si recuerdas, el ANOVA NO nos dice cuáles medias son diferentes, solo que al menos una es diferente. Por lo tanto, necesitamos hacer pruebas adicionales para determinar cuáles son diferentes. En este punto, debemos ajustar el nivel de significancia para controlar el error Tipo I acumulado. Veremos esto en el siguiente módulo, donde nos adentraremos en el ANOVA y las pruebas post-hoc (pruebas adicionales para determinar cuáles medias son diferentes).  

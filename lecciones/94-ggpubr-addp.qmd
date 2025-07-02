@@ -1,0 +1,359 @@
+---
+title: "GGPUBR: How to Add P-Values Generated Elsewhere to a GGPLOT"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+    render-df: gt-interactive
+engine: knitr
+---
+
+
+This article describes how to add p-values generated elsewhere to a ggplot using the ggpubr package. The following key ggpubr functions will be used:
+
+    stat_pvalue_manual(): Add manually p-values to a ggplot, such as box blots, dot plots and stripcharts.
+    geom_bracket(): Add brackets with label annotation to a ggplot. Helpers for adding p-value or significance levels to a plot.
+
+You will learn how to:
+
+    Add custom p-values created from elsewhere
+    Add p-values obtained from the rstatix R package
+    Add brackets with custom p-value labels to a ggplot
+
+Make sure you have the following R packages:
+
+    tidyverse for data manipulation and visualization
+    ggpubr for creating easily publication ready plots
+    rstatix provides pipe-friendly R functions for easy statistical analyses
+
+Load required R packages:
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(tidyverse)
+library(ggpubr)
+library(rstatix)
+```
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Convert `dose` variable into factor
+df <- ToothGrowth
+df$dose <- factor(df$dose)
+
+# Inspect the data 
+# Display two random rows by groups
+set.seed(123)
+df %>% sample_n_by(dose, size = 2)
+```
+
+Add p-values computed from elsewhere
+
+Key R function: stat_pvalue_manual() [in ggpubr package]
+
+```r
+stat_pvalue_manual(data, label = NULL)
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# p-values
+stat.test <- tibble::tribble(
+  ~group1, ~group2,   ~p.adj,
+    "0.5",     "1", 2.54e-07,
+    "0.5",     "2", 1.32e-13,
+      "1",     "2", 1.91e-05
+  )
+stat.test
+```
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Box plots + p-values
+ggboxplot(df, x = "dose", y = "len") +
+  stat_pvalue_manual(
+    stat.test, 
+    y.position = 35, step.increase = 0.1,
+    label = "p.adj"
+    )
+```
+
+
+Add p-values obtained from the rstatix package
+Create a simple box plot
+
+```{webr}
+#| autorun: true
+#| warning: false
+bxp <- ggboxplot(df, x = "dose", y = "len")
+bxp
+```
+
+Pairwise comparisons
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Statistical test
+stat.test <- df %>% t_test(len ~ dose)
+stat.test
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Box plot
+stat.test <- stat.test %>% add_xy_position(x = "dose")
+bxp + stat_pvalue_manual(stat.test, label = "p.adj.signif", tip.length = 0.01)
+```
+
+Faceted Plots 
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Statistical tests
+stat.test <- df %>%
+  group_by(supp) %>%
+  t_test(len ~ dose, ref.group = "0.5")
+stat.test
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Box plots
+stat.test <- stat.test %>% add_xy_position(x = "dose")
+ggboxplot(df, x = "dose", y = "len", facet.by = "supp") +
+  stat_pvalue_manual(stat.test, label = "p.adj.signif", tip.length = 0.01)
+```
+
+Grouped plots
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Box plot: comparison against reference
+stat.test <- df %>%
+  group_by(supp) %>%
+  t_test(len ~ dose, ref.group = "0.5") 
+
+# Box plots
+stat.test <- stat.test %>% 
+  add_xy_position(x = "supp", dodge = 0.8)
+bxp <- ggboxplot(df, x = "supp", y = "len", color = "dose")
+bxp + stat_pvalue_manual(stat.test,   label = "p.adj", tip.length = 0.01)
+```
+
+Specify manually the y position of the p-values
+
+Create a simple box plot:
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Pairwise t-test between groups
+stat.test <- ToothGrowth %>%
+  t_test(len ~ dose) %>%
+  mutate(y.position = c(29, 35, 39))
+stat.test
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Create a box plot and add the p-value
+ggboxplot(ToothGrowth, x = "dose", y = "len") +
+  stat_pvalue_manual(stat.test, label = "p.adj")
+```
+
+Faceted plots: Comparisons between two groups
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Pairwise t-test between groups
+stat.test <- df %>%
+  group_by(dose) %>%
+  t_test(len ~ supp) %>%
+  adjust_pvalue() %>%
+  mutate(y.position = 35)
+stat.test
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Create a box plot and add the p-value
+p <- ggboxplot(
+  df, x = "supp", y = "len",
+   color = "supp", palette = "jco",
+  facet.by = "dose", ylim = c(0, 40)
+  )
+
+p + stat_pvalue_manual(stat.test, label = "p.adj")
+```
+
+Faceted Plot: Pairwise comparissons between multiple groups
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Pairwise t-test between groups
+stat.test <- df %>%
+  group_by(supp) %>%
+  t_test(len ~ dose) %>%
+  adjust_pvalue() %>%
+  mutate(y.position = rep(c(29, 35, 39), 2))
+stat.test
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Create a box plot and add the p-value
+p <- ggboxplot(
+  df, x = "dose", y = "len",
+   color = "supp", palette = "jco",
+  facet.by = "supp", ylim = c(0, 40)
+  )
+
+p + stat_pvalue_manual(stat.test)
+```
+
+
+Grouped plots
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Pairwise t-test between groups
+stat.test <- df %>%
+  group_by(dose) %>%
+  t_test(len ~ supp) %>%
+  adjust_pvalue() %>%
+  mutate(y.position = 35)
+stat.test
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Create a box plot and add the p-value
+p <- ggboxplot(
+  ToothGrowth, x = "dose", y = "len",
+   color = "supp", palette = "jco",
+   ylim = c(0, 40)
+  )
+
+p + stat_pvalue_manual(stat.test, xmin = "dose", xmax = NULL)
+```
+
+Add brackets with custom p-value labels to a ggplot
+
+This section describes the function geom_bracket() [in ggpubr package] for adding brackets with label annotation to a ggplot. It makes it easy to add p-value or significance levels created elsewhere to a plot.
+Basic brackets with labels
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Add bracket with labels
+ggboxplot(df, x = "dose", y = "len") +
+  geom_bracket(
+    xmin = "0.5", xmax = "1", y.position = 30,
+    label = "t-test, p < 0.05"
+  )
+
+# Customize bracket tip.length tip.length
+# Move up the label using vjust
+ggboxplot(df, x = "dose", y = "len") +
+  geom_bracket(
+    xmin = "0.5", xmax = "1", y.position = 30,
+    label = "t-test, p < 0.05", 
+    tip.length = c(0.2, 0.02), vjust = -1
+  )
+```
+
+Using plotmath expression and specifying multiple brackets manually
+
+```{webr}
+#| autorun: true
+#| warning: false
+#Using plotmath expression
+ggboxplot(df, x = "dose", y = "len") +
+ geom_bracket(
+   xmin = "0.5", xmax = "1", y.position = 30,
+   label = "list(~italic(p)<=0.001)", type = "expression",
+   tip.length = c(0.2, 0.02)
+ )
+
+
+# Specify multiple brackets manually
+ggboxplot(df, x = "dose", y = "len") +
+  geom_bracket(
+    xmin = c("0.5", "1"), xmax = c("1", "2"),
+    y.position = c(30, 35), label = c("***", "**"),
+    tip.length = 0.01
+  )
+```
+
+
+Compute statistical test and add p-values
+```{webr}
+#| autorun: true
+#| warning: false
+# Compute statistical tests and add p-values
+stat.test <- compare_means(len ~ dose, ToothGrowth, method = "t.test")
+ggboxplot(df, x = "dose", y = "len") +
+  geom_bracket(
+    aes(xmin = group1, xmax = group2, label = signif(p, 2)),
+    data = stat.test, y.position = 35
+  )
+```
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Increase step length between brackets
+ggboxplot(df, x = "dose", y = "len") +
+  geom_bracket(
+    aes(xmin = group1, xmax = group2, label = signif(p, 2)),
+    data = stat.test, y.position = 35, step.increase = 0.1
+  )
+```
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Or specify the positions of each comparison
+ggboxplot(df, x = "dose", y = "len") +
+  geom_bracket(
+    aes(xmin = group1, xmax = group2, label = signif(p, 2)),
+    data = stat.test, y.position = c(32, 35, 38)
+   )
+```
+
+

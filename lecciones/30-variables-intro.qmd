@@ -1,10 +1,10 @@
 ---
 title: "Introducción a los Tipos de Variables en Estadística con R"
-format: live-html
 sidebar: false
 webr:
     packages: 
         - dplyr
+format: live-html
 pyodide: 
     packages: 
         - numpy
@@ -88,7 +88,7 @@ Estas variables representan cantidades o valores numéricos. Pueden ser de dos t
 
 ### Importancia de los Tipos de Variables
 
-Es fundamental comprender el tipo de variable que estamos analizando, ya que esto influirá en las técnicas estadísticas que debemos utilizar. Por ejemplo, las pruebas aplicables a datos categóricos pueden ser diferentes de las que aplicamos a datos numéricos.
+Es fundamental comprender el tipo de variable que estamos analizando, ya que esto influirá en las técnicas estadísticas que debemos utilizar. Por ejemplo, las pruebas aplicables a datos categóricos pueden ser diferentes de las que aplicamos a datos nu```{pyodide}méricos.
 
 ## Ejercicio Práctico en R: Trabajando con Diferentes Tipos de Variables
 

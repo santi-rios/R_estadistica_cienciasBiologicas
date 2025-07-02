@@ -1,0 +1,143 @@
+---
+title: "ANOVA de dos vías en Python"
+author: "Traducido y adaptado de R por un asistente de IA"
+format: live-html
+pyodide: 
+  packages: 
+      - numpy
+      - pandas
+      - matplotlib
+      - seaborn
+      - statsmodels
+resources: 
+    - datos
+---
+
+
+## ¿Qué es el test ANOVA de dos vías?
+
+La prueba de ANOVA de dos vías se utiliza para evaluar simultáneamente el efecto de dos variables categóricas (factores) sobre una variable de respuesta continua.
+
+Los **factores** son las variables de agrupamiento. Las diferentes categorías dentro de un factor se denominan **niveles**. Las combinaciones de niveles de los factores se llaman **celdas**.
+
+Por ejemplo, en un experimento que estudia el crecimiento de los dientes en cobayas, podríamos tener dos factores:
+1.  **Tipo de Suplemento**: con los niveles "Jugo de Naranja" (OJ) y "Vitamina C" (VC).
+2.  **Dosis**: con los niveles 0.5, 1.0 y 2.0 mg/día.
+
+La variable de respuesta sería la longitud del diente.
+
+### Diseños balanceados y no balanceados
+
+-   **Diseño balanceado**: Cuando los tamaños de muestra dentro de todas las celdas son iguales. En este caso, se puede aplicar el test ANOVA estándar de dos vías.
+-   **Diseño no balanceado**: Cuando los tamaños de muestra son diferentes entre las celdas. Este caso requiere ajustes en el cálculo del ANOVA (diferentes tipos de Suma de Cuadrados).
+
+## Hipótesis en el ANOVA de dos vías
+
+En un ANOVA de dos vías, se prueban tres hipótesis nulas:
+
+1.  **Efecto principal del Factor A**: No hay diferencia en las medias de la variable de respuesta entre los niveles del Factor A.
+2.  **Efecto principal del Factor B**: No hay diferencia en las medias de la variable de respuesta entre los niveles del Factor B.
+3.  **Efecto de interacción (A x B)**: No hay interacción entre los factores A y B. Esto significa que el efecto de un factor no depende del nivel del otro factor.
+
+La hipótesis alternativa para cada caso es que sí hay una diferencia o una interacción.
+
+## ¿Qué son las interacciones?
+
+Una **interacción** ocurre cuando el efecto de un factor sobre la variable de respuesta depende del nivel de otro factor. Los efectos de los factores no son simplemente aditivos.
+
+Por ejemplo, si el efecto de la dosis de vitamina C en el crecimiento de los dientes es diferente para el jugo de naranja en comparación con la vitamina C pura, entonces existe una interacción.
+
+Detectar interacciones es crucial porque revela relaciones complejas que no serían evidentes si solo se examinaran los efectos principales. Ignorar una interacción significativa puede llevar a conclusiones incorrectas.
+
+## Ejemplo en Python
+
+Vamos a realizar un ANOVA de dos vías usando el conjunto de datos `ToothGrowth` que viene con R y que podemos cargar fácilmente.
+
+### 1. Cargar librerías y datos
+
+Primero, instalamos las librerías necesarias si no las tenemos.
+
+```{pyodide}
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+```
+
+```{pyodide}
+# Cargamos los datos
+data = pd.read_csv('./datos/ToothGrowth.csv')
+data['dose'] = data['dose'].astype('category') # Convertir 'dose' a categórica
+data.head()
+```
+
+### 2. Visualización de los datos
+
+Un gráfico de cajas o de puntos es útil para visualizar las medias y las posibles interacciones.
+
+```{pyodide}
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='dose', y='len', hue='supp', data=data, palette='viridis')
+plt.title('Longitud del diente por Dosis y Tipo de Suplemento')
+plt.xlabel('Dosis (mg/día)')
+plt.ylabel('Longitud del diente')
+plt.show()
+```
+
+Un gráfico de interacción puede mostrar más claramente si las líneas que conectan las medias son paralelas (sin interacción) o si se cruzan/divergen (con interacción).
+
+```{pyodide}
+plt.figure(figsize=(10, 6))
+sns.pointplot(x='dose', y='len', hue='supp', data=data, palette='viridis', dodge=True)
+plt.title('Gráfico de Interacción para Longitud del Diente')
+plt.xlabel('Dosis (mg/día)')
+plt.ylabel('Longitud media del diente')
+plt.legend(title='Suplemento')
+plt.grid(True)
+plt.show()
+```
+
+En el gráfico de interacción, las líneas no son paralelas, lo que sugiere una posible interacción entre la dosis y el tipo de suplemento.
+
+### 3. Realizar el ANOVA de dos vías
+
+Usaremos la librería `statsmodels` para ajustar el modelo ANOVA. La fórmula `len ~ C(supp) * C(dose)` especifica que queremos analizar la longitud (`len`) en función de los efectos principales de `supp` y `dose`, así como su interacción (`*`). `C()` se usa para tratar las variables como categóricas.
+
+```{pyodide}
+# Ajustar el modelo ANOVA de dos vías
+model = ols('len ~ C(supp) * C(dose)', data=data).fit()
+
+# Obtener la tabla ANOVA
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+```
+
+### 4. Interpretación de los resultados
+
+La tabla ANOVA nos muestra los resultados para cada factor y la interacción:
+
+-   **C(supp)** (Tipo de suplemento): El valor p es muy bajo (`< 0.001`), lo que indica que hay una diferencia significativa en la longitud del diente entre los suplementos de jugo de naranja y vitamina C.
+-   **C(dose)** (Dosis): El valor p es extremadamente bajo (`< 0.001`), lo que significa que la dosis tiene un efecto muy significativo en la longitud del diente.
+-   **C(supp):C(dose)** (Interacción): El valor p (`0.02186`) es menor que 0.05, lo que sugiere que hay una interacción estadísticamente significativa entre el tipo de suplemento y la dosis.
+
+**Conclusión**: Dado que la interacción es significativa, no debemos interpretar los efectos principales de forma aislada. El efecto de la dosis en el crecimiento de los dientes depende del tipo de suplemento utilizado. Por ejemplo, observando el gráfico, parece que a dosis bajas (0.5 y 1.0), el jugo de naranja (OJ) es más efectivo que la vitamina C (VC), pero a la dosis más alta (2.0), la diferencia es menor.
+
+### 5. Pruebas Post-Hoc (si es necesario)
+
+Cuando hay una interacción significativa, las pruebas post-hoc pueden ayudar a entender las diferencias específicas. Podemos usar la prueba de Tukey HSD con la librería `statsmodels`.
+
+```{pyodide}
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+# Creamos una nueva variable que combina los niveles de los dos factores
+data['group'] = data['supp'] + '-' + data['dose'].astype(str)
+
+# Realizamos la prueba de Tukey HSD
+tukey_result = pairwise_tukeyhsd(endog=data['len'], groups=data['group'], alpha=0.05)
+
+print(tukey_result)
+```
+
+La tabla de Tukey muestra las comparaciones por pares entre todos los grupos. Por ejemplo, podemos ver que la diferencia entre `OJ-0.5` y `VC-0.5` es significativa (`p-adj < 0.05`, `reject=True`), lo que confirma que a la dosis de 0.5, el jugo de naranja es más efectivo.

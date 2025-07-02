@@ -1,0 +1,445 @@
+---
+title: "ANOVA de dos vías en R"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+        - ez
+        - multcomp
+    render-df: gt-interactive
+engine: knitr
+---
+
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+
+# ¿Qué es el test ANOVA de dos vías?
+
+La prueba de ANOVA de dos vías se utiliza para evaluar simultáneamente el efecto de dos variables (A y B) de agrupamiento sobre una variable de respuesta.
+
+Las variables de agrupamiento también se conocen como **factores**. Las diferentes categorías (grupos) de un factor se denominan niveles. El número de niveles puede variar entre factores. Las combinaciones de niveles de factores se llaman celdas.
+
+Supongamos que tenemos un experimento con dos factores: Tipo de Suplemento (con niveles "OJ" para jugo de naranja y "VC" para vitamina C) y Dosis (con niveles 0.5, 1 y 2). La variable de respuesta es la Longitud del Diente. Aquí está cómo se vería una tabla que muestra las celdas formadas por las combinaciones de niveles de estos factores:
+
+| Tipo de Suplemento | Dosis | Longitud del Diente (ejemplo) |
+|--------------------|-------|-------------------------------|
+| OJ                 | 0.5   | 13.2                          |
+| OJ                 | 1.0   | 22.7                          |
+| OJ                 | 2.0   | 26.4                          |
+| VC                 | 0.5   | 8.2                           |
+| VC                 | 1.0   | 15.5                          |
+| VC                 | 2.0   | 23.3                          |
+
+- Factores: En este ejemplo, tenemos dos factores: "Tipo de Suplemento" y "Dosis".
+- Niveles: Cada factor tiene varios niveles. "Tipo de Suplemento" tiene dos niveles ("OJ" y "VC"), mientras que "Dosis" tiene tres niveles (0.5, 1 y 2).
+- Celdas: Cada combinación de niveles de los factores forma una celda. Por ejemplo, "OJ con dosis 0.5" es una celda.
+
+::: {.callout}
+
+- Cuando los tamaños de muestra dentro de las celdas son iguales, tenemos el llamado diseño equilibrado. En este caso, se puede aplicar el test ANOVA estándar de dos vías.
+- Cuando los tamaños de muestra dentro de cada nivel de las variables independientes no son los mismos (caso de diseños no equilibrados), el test ANOVA debe manejarse de manera diferente.
+
+:::
+
+## Hipótesis del test ANOVA de dos vías
+
+1. No hay diferencia en las medias del factor A.
+2. No hay diferencia en las medias del factor B.
+3. No hay interacción entre los factores A y B.
+
+La hipótesis alternativa para los casos 1 y 2 es: las medias no son iguales.
+
+La hipótesis alternativa para el caso 3 es: hay una interacción entre A y B.
+
+::: {.callout}
+
+## ¿Qué son las Interacciones?
+
+En el contexto del análisis de varianza (ANOVA), una **interacción** se refiere a una situación donde el efecto de un factor en la variable de respuesta depende del nivel de otro factor. Esto significa que los efectos de los factores no son simplemente aditivos, sino que la combinación de los factores tiene un efecto distinto que no se puede predecir solo a partir de los efectos individuales de cada factor.
+
+Por ejemplo, si estamos analizando el efecto de dos factores, como el tipo de suplemento y la dosis de vitamina C en la longitud del diente de cobayas, una interacción indicaría que el efecto de la dosis puede cambiar dependiendo del tipo de suplemento. Es decir, la diferencia en la longitud del diente entre dosis altas y bajas podría ser diferente para el jugo de naranja comparado con la vitamina C pura.
+
+## ¿Por qué se Usan las Interacciones en el ANOVA de Dos Vías?
+
+El ANOVA de dos vías se utiliza para:
+
+1. **Evaluar los efectos individuales** de cada factor (llamados efectos principales). Esto nos permite determinar si cada factor (tipo de suplemento **o** dosis) tiene un efecto significativo en la variable de respuesta.
+2. **Detectar interacciones** entre los factores. Esto nos permite determinar si los efectos de los factores son independientes entre sí o si interactúan de alguna manera.
+
+Las interacciones son cruciales porque pueden revelar relaciones complejas entre los factores que no serían evidentes si solo se examinaran los efectos principales. Ignorar una interacción significativa podría llevar a conclusiones incorrectas sobre cómo los factores afectan la variable de respuesta.
+
+
+## Diferencias con el ANOVA de Una Vía y la Prueba de T
+
+- **Prueba de T**: Se utiliza para comparar las medias de dos grupos. Solo puede manejar un factor con dos niveles (esencialmente una comparación entre dos grupos). No puede evaluar interacciones porque no maneja múltiples factores.
+
+- **ANOVA de Una Vía**: Este tipo de análisis se usa cuando hay un solo factor con varios niveles. No considera interacciones porque solo hay un factor. El ANOVA de una vía evalúa si hay diferencias significativas en las medias de la variable de respuesta entre los niveles de un único factor.
+
+
+- **ANOVA de Dos Vías**: Se diferencia de las anteriores porque se utiliza para analizar dos factores simultáneamente, permitiendo evaluar tanto los efectos principales de cada factor como la interacción entre ellos. Esto proporciona una visión más completa de cómo los factores afectan la variable de respuesta.
+
+## Ejemplo II de Interacción
+
+Imagina un estudio donde evaluamos el efecto de dos tratamientos diferentes (A y B) y dos métodos de administración (oral e inyectado) sobre una medida de salud. Sin interacción, podríamos decir que el tratamiento A siempre es mejor que el B, independientemente del método de administración. Sin embargo, si hay una interacción, el tratamiento A podría ser mejor solo cuando se administra oralmente, mientras que el tratamiento B podría ser más efectivo cuando se administra inyectado.
+
+## Ejemplo III de Interacción
+
+Consideremos un ejemplo donde evaluamos cómo la temperatura y la precipitación (lluvia) influyen en la probabilidad de que las personas usen paraguas. Este ejemplo ayudará a ilustrar el concepto de interacción entre estos dos factores.
+
+**Factores y Niveles**
+
+- Factor 1: Temperatura
+  - Niveles: Baja, Media, Alta
+- Factor 2: Precipitación
+  - Niveles: No Llueve, Llueve
+
+**Variable de Respuesta**
+- Uso de Paraguas: Medido como la proporción de personas que usan paraguas.
+
+**Posible Interacción**: Supongamos que realizamos un estudio y encontramos los siguientes patrones:
+
+*Temperatura Baja*
+
+- No Llueve: Pocas personas usan paraguas.
+- Llueve: Muchas personas usan paraguas.
+Temperatura Media
+
+*Temperatura Media*
+
+- No Llueve: Muy pocas personas usan paraguas.
+- Llueve: Muchas personas usan paraguas.
+
+*Temperatura Alta*
+
+- No Llueve: Casi nadie usa paraguas.
+- Llueve: Algunas personas usan paraguas, pero menos que en temperaturas bajas o medias.
+
+*Interpretación de la Interacción*
+
+En este contexto, la interacción entre temperatura y precipitación podría observarse de la siguiente manera:
+
+- Sin Interacción: Podríamos esperar que la lluvia siempre aumente el uso de paraguas, independientemente de la temperatura. Igualmente, podríamos esperar que la temperatura no afecte el uso de paraguas cuando no llueve.
+
+- Con Interacción: La interacción sugiere que el efecto de la lluvia sobre el uso de paraguas depende de la temperatura. Por ejemplo, aunque la lluvia generalmente aumenta el uso de paraguas, este efecto es más pronunciado en temperaturas bajas y medias. En temperaturas altas, aunque llueva, algunas personas podrían optar por no usar paraguas debido a que el calor hace que prefieran mojarse un poco que sentirse más incómodos bajo un paraguas.
+
+**Gráfico** para ilustrar la interacción entre temperatura y precipitación en el uso de paraguas:
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Cargar las librerías necesarias
+library(ggplot2)
+library(dplyr)
+
+# Crear un conjunto de datos simulado
+data <- data.frame(
+  Temperatura = rep(c("Baja", "Media", "Alta"), each = 2),
+  Lluvia = rep(c("No Llueve", "Llueve"), times = 3),
+  UsoParaguas = c(0.1, 0.8, 0.05, 0.7, 0.02, 0.3)
+)
+
+# Graficar el uso de paraguas en función de la temperatura y la lluvia
+ggplot(data, aes(x = Temperatura, y = UsoParaguas, fill = Lluvia)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Interacción entre Temperatura y Lluvia en el Uso de Paraguas",
+       x = "Temperatura",
+       y = "Proporción de Uso de Paraguas") +
+  scale_fill_manual(values = c("No Llueve" = "#FF9999", "Llueve" = "#9999FF")) +
+  theme_minimal()
+
+```
+
+:::
+
+# Supuestos del test ANOVA de dos vías
+
+El ANOVA de dos vías, como todos los tests ANOVA, asume que las observaciones dentro de cada celda están distribuidas normalmente y tienen varianzas iguales. 
+
+# Calcular el test ANOVA de dos vías en R: diseños equilibrados
+
+Los diseños equilibrados corresponden a la situación donde tenemos tamaños de muestra iguales dentro de los niveles de nuestras variables de agrupamiento independientes.
+
+## Datos
+
+Usaremos el conjunto de datos incorporado en R llamado `ToothGrowth`. Contiene datos de un estudio que evalúa el efecto de la vitamina C en el crecimiento dental en cobayas. El experimento se ha realizado en 60 cobayas, donde cada animal recibió uno de tres niveles de dosis de vitamina C (0.5, 1 y 2 mg/día) mediante uno de dos métodos de administración (jugo de naranja o ácido ascórbico, y codificado como VC). Se midió la longitud del diente y se muestra una muestra de los datos a continuación.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Almacena los datos en la variable my_data
+my_data <- ToothGrowth
+```
+
+
+
+## Verifica tus datos
+
+Para tener una idea de cómo se ven los datos, mostramos una muestra aleatoria de los datos usando la función `sample_n()` [en el paquete dplyr]. Primero, instala `dplyr` si no lo tienes:
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(dplyr)
+
+# Muestra una muestra aleatoria
+set.seed(1234)
+dplyr::sample_n(my_data, 10)
+
+# Verifica la estructura
+str(my_data)
+
+```
+
+
+Del resultado anterior, R considera "dose" como una variable numérica. La convertiremos en una variable de factor (es decir, variable de agrupamiento) de la siguiente manera.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Convierte dose en un factor y recodifica los niveles
+# como "D0.5", "D1", "D2"
+my_data$dose <- factor(my_data$dose, 
+                  levels = c(0.5, 1, 2),
+                  labels = c("D0.5", "D1", "D2"))
+str(my_data)
+```
+
+
+
+**Pregunta:** Queremos saber si la longitud del diente depende de `supp` y `dose`.
+
+### Genera tablas de frecuencia:
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+table(my_data$supp, my_data$dose)
+```
+
+Tenemos celdas de diseño 2X3 con los factores siendo `supp` y `dose` y 10 sujetos en cada celda. Aquí, tenemos un diseño equilibrado. En las siguientes secciones describiré cómo analizar datos de diseños equilibrados, ya que este es el caso más simple.
+
+## Visualiza tus datos
+
+Los diagramas de caja y los diagramas de línea se pueden usar para visualizar las diferencias de grupo:
+
+- Diagrama de caja para graficar los datos agrupados por las combinaciones de los niveles de los dos factores.
+- Diagrama de interacción de dos vías, que grafica la media (u otro resumen) de la respuesta para combinaciones de factores de dos vías, ilustrando así posibles interacciones.
+
+Para usar gráficos base de R lee esto: [R base graphs](https://www.r-graph-gallery.com/index.html). Aquí, usaremos el paquete R `ggpubr` para una fácil visualización de datos basada en `ggplot2`.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Diagrama de caja con múltiples grupos
+# +++++++++++++++++++++
+# Grafica longitud del diente ("len") por grupos ("dose")
+# Color del diagrama de caja por un segundo grupo: "supp"
+
+library("ggpubr")
+ggboxplot(my_data, x = "dose", y = "len", color = "supp",
+          palette = c("#00AFBB", "#E7B800"))
+
+```
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Diagramas de línea con múltiples grupos
+# +++++++++++++++++++++++
+# Grafica longitud del diente ("len") por grupos ("dose")
+# Color del diagrama de caja por un segundo grupo: "supp"
+# Añadir barras de error: mean_se
+# (otros valores incluyen: mean_sd, mean_ci, median_iqr, ....)
+
+library("ggpubr")
+ggline(my_data, x = "dose", y = "len", color = "supp",
+       add = c("mean_se", "dotplot"),
+       palette = c("#00AFBB", "#E7B800"))
+```
+
+## Calcular el test ANOVA de dos vías
+
+Queremos saber si la longitud del diente depende de `supp` y `dose`.
+
+La función R `aov()` se puede usar para responder esta pregunta. La función `summary.aov()` se utiliza para resumir el modelo de análisis de varianza.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+res.aov2 <- aov(len ~ supp + dose, data = my_data)
+
+summary(res.aov2)
+```
+
+El resultado incluye las columnas F value y Pr(>F) correspondientes al valor p del test.
+
+De la tabla ANOVA podemos concluir que tanto `supp` como `dose` son estadísticamente significativos. `dose` es la variable de factor más significativa. Estos resultados nos llevarían a creer que cambiar los métodos de administración (`supp`) o la dosis de vitamina C, impactará significativamente la longitud media del diente.
+
+El modelo ajustado anterior se llama modelo **aditivo**. Hace una suposición de que las dos variables de factor son independientes. Si crees que estas dos variables podrían interactuar para crear un efecto sinérgico, reemplaza el símbolo de más (+) por un asterisco (*), de la siguiente manera.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# ANOVA de dos vías con efecto de interacción
+# Estas dos llamadas son equivalentes
+res.aov3 <- aov(len ~ supp * dose, data = my_data)
+summary(res.aov3)
+```
+
+Se puede ver que los dos efectos principales (`supp` y `dose`) son estadísticamente significativos, así como su interacción (marcada como `supp:dose`).
+
+Nota que, en la situación donde la interacción no es significativa deberías usar el modelo aditivo.
+
+## Interpretar los resultados
+
+De los resultados del ANOVA, puedes concluir lo siguiente, basado en los valores p y un nivel de significancia de 0.05:
+
+- El valor p de `supp` es 0.000429 (significativo), lo que indica que los niveles de `supp` están asociados con una longitud del diente significativamente diferente.
+- El valor p de `dose` es < 2e-16 (significativo), lo que indica que los niveles de `dose` están asociados con una longitud del diente significativamente diferente.
+- El valor p para la interacción entre `supp*dose` es 0.02 (significativo), lo que indica que las relaciones entre `dose` y la longitud del diente dependen del método `supp`.
+
+## Calcular algunas estadísticas resumidas
+
+Calcula la media y la desviación estándar por grupos usando el paquete R `dplyr`:
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+library("dplyr")
+
+group_by(my_data, supp, dose) %>%
+  summarise(
+    count = n(),
+    mean = mean(len, na.rm = TRUE),
+    sd = sd(len, na.rm = TRUE)
+  )
+```
+
+También es posible usar la función `model.tables()` de la siguiente manera:
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+model.tables(res.aov3, type="means", se = TRUE)
+```
+
+## Comparaciones múltiples por pares entre las medias de grupos
+
+En el test ANOVA, un valor p significativo indica que algunas de las medias de grupo son diferentes, pero no sabemos qué pares de grupos son diferentes.
+
+Es posible realizar comparaciones múltiples por pares, para determinar si la diferencia de medias entre pares específicos de grupos es estadísticamente significativa.
+
+### Comparaciones múltiples de Tukey
+
+Dado que el test ANOVA es significativo, podemos calcular Tukey HSD (Diferencias Significativas Honestamente de Tukey, función R: `TukeyHSD()`) para realizar comparaciones múltiples por pares entre las medias de grupos. La función `TukeyHSD()` toma el ANOVA ajustado como argumento.
+
+No necesitamos realizar el test para la variable “supp” porque solo tiene dos niveles, los cuales ya se ha demostrado que son significativamente diferentes mediante el test ANOVA. Por lo tanto, el test Tukey HSD se realizará solo para la variable de factor “dose”.
+
+```{webr}
+#| autorun: true
+#| warning: false
+TukeyHSD(res.aov3, which = "dose")
+```
+
+
+Se puede ver del resultado, que todas las comparaciones por pares son significativas con un valor p ajustado < 0.05.
+
+### Comparaciones múltiples usando el paquete `multcomp`
+
+Es posible usar la función `glht()` [en el paquete multcomp] para realizar procedimientos de comparación múltiple para un ANOVA. `glht` significa pruebas de hipótesis lineales generales. El formato simplificado es el siguiente:
+
+```r
+glht(model, lincft)
+```
+
+- `model`: un modelo ajustado, por ejemplo, un objeto devuelto por `aov()`.
+- `lincft()`: una especificación de las hipótesis lineales a ser probadas. Las comparaciones múltiples en modelos ANOVA se especifican por objetos devueltos de la función `mcp()`.
+
+Usa `glht()` para realizar comparaciones múltiples por pares:
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(multcomp)
+
+summary(glht(res.aov2, linfct = mcp(dose = "Tukey")))
+```
+
+### Test t por pares
+
+La función `pairwise.t.test()` también se puede usar para calcular comparaciones por pares entre niveles de grupo con correcciones para pruebas múltiples.
+
+Puedes ver los métodos de ajuste disponibles en la documentación de R `?p.adjust.methods`, los cuales incluyen: `c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none")`
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+pairwise.t.test(my_data$len, my_data$dose,
+                p.adjust.method = "holm")
+```
+
+
+## Visualizar los resultados y agregar p-valores a los gráficos
+
+- Por último, podemos visualizar los resultados del ANOVA en un gráfico de caja y añadir los valores p calculados de las comparaciones múltiples por pares.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+library("ggpubr")
+
+my_comparisons <- list( c("0.5", "1"), c("1", "2"), c("0.5", "2") )
+
+ggboxplot(ToothGrowth, x = "dose", y = "len",
+          color = "dose", palette = "jco")+ 
+  stat_compare_means(method = "anova", label.y = 45) +
+  stat_compare_means(comparisons = my_comparisons, label.y = c(29, 35, 40))
+
+```
+
+
+### Gráfico de interacción
+
+- Podemos usar la librería `effects` para visualizar la interacción entre los factores. El grafico de interacción muestra cómo los efectos de un factor varían en función de los niveles de otro factor.
+- Para esto, le pasamos el modelo ANOVA con interacción (`res.aov3`) a la función `allEffects()` y luego lo graficamos con `plot()`.
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+library(effects)
+
+plot(allEffects(res.aov2)) # sin interacción
+
+plot(allEffects(res.aov3)) # con interacción
+```

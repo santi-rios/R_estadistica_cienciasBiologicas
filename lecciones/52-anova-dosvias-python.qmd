@@ -1,0 +1,85 @@
+---
+title: "ANOVA de Dos Vías con Python"
+subtitle: "Análisis de Interacciones y Efectos Principales"
+format: 
+    live-html
+        # highlight-style: github
+        # highlight-lines: true
+        # theme: solar
+toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+        - statsmodels
+---
+
+## Introducción al ANOVA de Dos Vías
+
+El ANOVA de dos vías es una técnica estadística que extiende el ANOVA de una vía para analizar cómo dos variables categóricas independientes (factores) influyen en una variable dependiente continua. Además, permite investigar si existe una interacción entre los dos factores, es decir, si el efecto de un factor depende del nivel del otro.
+
+---
+
+## Conceptos Clave
+
+- **Efectos Principales**: Miden el efecto de cada factor por separado sobre la variable dependiente.
+- **Efecto de Interacción**: Evalúa si la relación entre un factor y la variable dependiente cambia según los niveles del otro factor.
+- **Modelo Lineal**: La fórmula del modelo incluye los efectos principales y el término de interacción:
+  \[ y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 (X_1 \cdot X_2) + \epsilon \]
+  Donde \(X_1\) y \(X_2\) son los factores.
+
+---
+
+## Ejercicio Práctico en Python
+
+Realizaremos un ANOVA de dos vías para investigar cómo el tipo de tratamiento y el sexo afectan la reducción del colesterol.
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Generación de datos simulados
+np.random.seed(123)
+data = pd.DataFrame({
+    'tratamiento': np.repeat(['A', 'B', 'C'], 30),
+    'sexo': np.tile(np.repeat(['Hombre', 'Mujer'], 15), 3),
+    'reduccion_colesterol': np.concatenate([
+        np.random.normal(10, 2, 30),
+        np.random.normal(15, 2, 30),
+        np.random.normal(12, 2, 30)
+    ])
+})
+
+# Ajuste del modelo ANOVA de dos vías
+modelo = ols('reduccion_colesterol ~ C(tratamiento) + C(sexo) + C(tratamiento):C(sexo)', data=data).fit()
+anova_tabla = sm.stats.anova_lm(modelo, typ=2)
+
+print("Tabla ANOVA de Dos Vías:")
+print(anova_tabla)
+
+# Visualización de la interacción
+plt.figure(figsize=(10, 6))
+sns.pointplot(x='tratamiento', y='reduccion_colesterol', hue='sexo', data=data, dodge=True)
+plt.title('Interacción entre Tratamiento y Sexo en la Reducción del Colesterol')
+plt.xlabel('Tipo de Tratamiento')
+plt.ylabel('Reducción Media del Colesterol')
+plt.legend(title='Sexo')
+plt.grid(True)
+plt.show()
+```
+
+---
+
+## Interpretación y Discusión
+
+- **Analiza la tabla ANOVA**: ¿Son significativos los efectos principales del tratamiento y el sexo? ¿Y el efecto de interacción?
+- **Observa el gráfico de interacción**: Si las líneas no son paralelas, sugiere una interacción. ¿Cómo interpretarías la relación entre el tratamiento y el sexo en este caso?
+
+Esta lección ayuda a comprender cómo el ANOVA de dos vías puede desentrañar relaciones complejas entre múltiples factores, una herramienta esencial en la investigación biológica y de la salud.

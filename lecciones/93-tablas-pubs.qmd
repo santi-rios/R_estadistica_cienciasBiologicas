@@ -1,0 +1,199 @@
+---
+title: "Tablas para Publicación en R"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - dplyr
+        - ggpubr
+        - gt
+        - flextable
+    render-df: gt-interactive
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+En esta lección, aprenderás a crear tablas elegantes y listas para publicación en R utilizando los paquetes `gt` y `flextable`. Estos paquetes te permiten personalizar el diseño de las tablas y exportarlas a diferentes formatos para su uso en Word, PDF, o Markdown.
+
+
+## Paso 1: Preparar el entorno de trabajo
+
+Primero, necesitas instalar y cargar los paquetes necesarios. Si aún no los tienes instalados, puedes hacerlo con `install.packages()`.
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Instalar paquetes necesarios
+# install.packages(c("dplyr", "gt", "flextable"))
+
+# Cargar paquetes
+library(dplyr)
+library(gt)
+library(flextable)
+```
+
+## Paso 2: Crear una tabla con `dplyr`
+
+Supongamos que tienes un conjunto de datos y deseas resumirlo antes de presentarlo en una tabla. Usaremos `dplyr` para manipular los datos.
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Crear un conjunto de datos de ejemplo
+data <- data.frame(
+  Categoria = c("A", "A", "B", "B"),
+  Valores = c(10, 15, 20, 25)
+)
+
+# Resumir los datos
+resumen <- data %>%
+  group_by(Categoria) %>%
+  summarise(Media = mean(Valores), Suma = sum(Valores))
+
+# Tabla sin formato
+print(resumen)
+```
+
+## Paso 3: Crear una tabla con `gt`
+
+El paquete `gt` es excelente para crear tablas atractivas y listas para publicación.
+
+> Primero, cargamos los datos en una tabla `gt`. Observa que es tan fácil como usar `gt(datos)`.
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Crear una tabla usando gt
+
+gt(resumen)
+
+```
+
+> Luego, personalizamos el diseño de la tabla, como agregar un título y subtítulo.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+gt(resumen) %>%
+  tab_header(
+    title = "Resumen de Categorías",
+    subtitle = "Media y Suma de Valores por Categoría"
+  )
+```
+
+> Ahora vamos a dar formato a los números para que se vean mejor.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+gt(resumen) %>%
+  tab_header(
+    title = "Resumen de Categorías",
+    subtitle = "Media y Suma de Valores por Categoría"
+  ) %>%
+  fmt_number(
+    columns = vars(Media, Suma),
+    decimals = 2
+  ) 
+
+
+```
+
+> Finalmente, podemos guardar la tabla en diferentes formatos.
+
+- Tenemos que guardar la tabla en una variable para poder exportarla.
+- Luego, usaremos `gtsave()` para guardar la tabla como imagen o PDF. Esta función toma los siguientes argumentos: `gtsave(data, filename, path = NULL, ...)` , donde `data` es la tabla `gt` que deseas guardar, `filename` es el nombre del archivo, y `path` es la ubicación donde deseas guardar el archivo.
+
+
+```r
+
+tabla_gt <- gt(resumen) %>%
+  tab_header(
+    title = "Resumen de Categorías",
+    subtitle = "Media y Suma de Valores por Categoría"
+  ) %>%
+  fmt_number(
+    columns = vars(Media, Suma),
+    decimals = 2
+  ) 
+
+# guardar en imagen
+gtsave(tabla_gt, filename = "tabla_resumen.png")
+
+# guardar en word
+gtsave(tabla_gt, filename = "tabla_resumen.docx")
+
+```
+
+
+### Extra
+
+- Puedes aprender más del paquete `gt` en su [documentación oficial](https://gt.rstudio.com/articles/gt.html).
+
+
+## Tablas de ANOVA
+
+- Con el paquete `rsatix`, puedes realizar ANOVA y obtener tablas de los resultados de manera sencilla con dos funciones: `anova_test()` y `get_anova_table()`.
+
+### Datos
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(rstatix)
+library(datarium)
+library(tidyverse)
+
+data("selfesteem", package = "datarium")
+
+selfesteem_long <- selfesteem %>% 
+  pivot_longer(cols = starts_with("t"), names_to = "tiempo", values_to = "autoestima")
+
+head(selfesteem_long)
+```
+
+### ANOVA
+
+- Para obtener la tabla de ANOVA, solo hay que usar `get_anova_table()` dentro de la función `gt()`.
+
+```{webr}
+#| autorun: true
+#| warning: false
+res.aov <- anova_test(data = selfesteem_long, dv = autoestima, wid = id, within = tiempo)
+
+gt(get_anova_table(res.aov))
+
+# get_anova_table(res.aov)
+
+```
+
+
+- Podemos hacer lo mismo con las comparaciones post-hoc:
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Comparaciones post-hoc
+pwc <- selfesteem_long %>%
+  pairwise_t_test(autoestima ~ tiempo, p.adjust.method = "bonferroni")
+
+gt(pwc)
+
+```

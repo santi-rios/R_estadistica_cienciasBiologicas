@@ -1,0 +1,230 @@
+---
+title: "Ejercicio Práctico parte II - Estudio de Caso con Python"
+subtitle: "Evaluación de Introducción a Python y estadística"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlight-style: github
+        highlight-lines: true
+        theme: solar
+toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - vega_datasets
+        # - altair
+        # - numpy
+        # - scipy
+resources:
+    - datos
+---
+
+```{pyodide}
+#| caption: Script Limpio en un Paso
+#| autorun: true
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+oms = pd.read_csv('./datos/oms.csv')
+
+# Código de limpieza del ejercicio anterior
+oms_limpio = (
+    oms
+    .drop(columns=['iso2', 'iso3'])
+    .melt(id_vars=['pais', 'anio'], var_name='clave', value_name='casos')
+    .dropna(subset=['casos'])
+    .assign(
+        clave = lambda df: df['clave'].str.replace('nuevosrecaida', 'nuevos_recaida'),
+        sexo_edad = lambda df: df['clave'].str.split('_', expand=True)[2]
+    )
+    .assign(
+        sexo = lambda df: df['sexo_edad'].str[0],
+        edad = lambda df: df['sexo_edad'].str[1:]
+    )
+    .rename(columns={'pais': 'pais', 'anio': 'anio'})
+    .loc[:, ['pais', 'anio', 'sexo', 'edad', 'casos']]
+)
+oms_limpio['casos'] = oms_limpio['casos'].astype(int)
+oms_limpio['anio'] = oms_limpio['anio'].astype(int)
+
+```
+
+- En este ejercicio, seguiremos trabajando con el conjunto de datos de la Organización Mundial de la Salud (OMS) sobre la incidencia de enfermedades en diferentes países.
+- Si ya obtuviste los datos limpios, puedes continuar con el siguiente paso.
+- Tus datos limpios deberían verse de la siguiente manera. En este ejercicio, los datos limpios ya están cargados en la variable `oms_limpio`.
+
+```{pyodide}
+#| autorun: true
+oms_limpio.head()
+```
+
+- Con estos datos limpios, podríamos comenzar a contestar preguntas sobre nuestros datos: ¿Cuál es el país y año que más casos nuevos registró?, ¿Cuál es el país y año con más casos de recaída?, ¿Hay más casos de *tb* en hombres o mujeres?, entre otras preguntas.
+- Este tipo de preguntas se verán hasta el tema de pruebas de hipótesis, pero por ahora, nos enfocaremos en la exploración de datos y visualización. por ahora, solo queremos ver tendencias, patrones y relaciones en nuestros datos.
+- Vamos a visualizar cómo han cambiado los casos de tuberculosis en los últimos años. Nos interesa ver las tendencias por país y año.
+
+## Antes de comenzar
+
+- ¿Cuántos países hay en nuestros datos?
+
+```{pyodide}
+# exercise: examen1_11
+
+# Contar los países únicos en nuestros datos
+oms_limpio['______'].nunique()
+```
+
+::: {.callout-important collapse="true" title="Respuesta"}
+```python
+oms_limpio['pais'].nunique()
+```
+:::
+
+- Como ves, son muchos países. Para facilitar el análisis, vamos a filtrar para trabajar solo con algunos países: "Mexico", "Canada", "Bolivia", "Guatemala", "United States of America".
+
+## Exploración de datos
+
+- Vamos a filtrar y graficar los datos de los países seleccionados.
+- Nos interesa ver la **tendencia** de los casos de tuberculosis a través de los años.
+- ¿Cómo podemos ver tendencias en los datos? ¿Qué tipo de gráfico nos permitiría ver esto?
+- Sugerencia:
+  - Podríamos usar un gráfico de líneas (`lineplot`) para ver la tendencia de los casos de tuberculosis a través de los años. Es conveniente juntar el gráfico de líneas con un gráfico de puntos (`scatterplot`) para ver mejor la tendencia.
+  - ¿Qué variables usarías en los ejes `x` y `y`? ¿Qué variable usarías para el `hue` (color)?
+  - Sugerencia:
+    - En el eje `x`, podrías poner el año.
+    - En el eje `y`, podrías poner la cantidad de casos.
+    - Para el `hue`, podrías poner el país.
+- **NOTA**: Para agilizar el análisis, vamos a encadenar los métodos: tomamos los datos limpios -> filtramos los países -> graficamos.
+- Vamos a ver el primer ejemplo juntos:
+
+```{pyodide}
+#| echo: true
+paises_seleccionados = ["Mexico", "Canada", "Bolivia", "Guatemala", "United States of America"]
+
+datos_filtrados = oms_limpio[oms_limpio['pais'].isin(paises_seleccionados)]
+
+sns.lineplot(data=datos_filtrados, x='anio', y='casos', hue='pais')
+sns.scatterplot(data=datos_filtrados, x='anio', y='casos', hue='pais', legend=False)
+plt.show()
+```
+
+- ¿Cuál es el problema con el gráfico anterior?
+- Como ves, tenemos muchas observaciones por cada país y año. Esto hace que el gráfico sea difícil de interpretar.
+- ¿Qué podríamos hacer para solucionar esto?
+- Sugerencia:
+  - Podríamos agrupar los datos por país y año, y promediar los casos de tuberculosis (también podríamos sumar los casos con `.sum()`, ambos son válidos).
+  - De esta manera, tendríamos una sola observación por país y año.
+- Completa el gráfico, agrupando los datos por país y año y promediando los casos de tuberculosis:
+
+```{pyodide}
+# exercise: examen1_12
+
+# Filtrar, agrupar y graficar
+datos_agrupados = (
+    oms_limpio[oms_limpio['pais'].isin(paises_seleccionados)]
+    .groupby([______, ______])['casos']
+    .______()
+    .reset_index()
+)
+
+sns.lineplot(data=datos_agrupados, x='anio', y='casos', hue='pais')
+sns.scatterplot(data=datos_agrupados, x='anio', y='casos', hue='pais', legend=False)
+plt.show()
+```
+
+::: {.callout-important collapse="true" title="Respuesta"}
+```python
+datos_agrupados = (
+    oms_limpio[oms_limpio['pais'].isin(paises_seleccionados)]
+    .groupby(['anio', 'pais'])['casos']
+    .mean()
+    .reset_index()
+)
+
+sns.lineplot(data=datos_agrupados, x='anio', y='casos', hue='pais')
+sns.scatterplot(data=datos_agrupados, x='anio', y='casos', hue='pais', legend=False)
+plt.ylabel("Promedio de Casos")
+plt.show()
+```
+:::
+
+- ¿Qué puedes observar en el gráfico?
+- Claramente hay un país que tiene muchos más casos de tuberculosis que los demás. ¿Cuál es este país?
+
+**Respuesta:** Estados Unidos de América (United States of America).
+
+- Por último, grafica el número total de casos de tuberculosis por país. ¿Qué tipo de gráfico usarías para esto?
+- Sugerencia:
+  - Podrías usar un gráfico de barras (`barplot`) para ver el número total de casos de tuberculosis por país.
+  - En el eje `x`, podrías poner el país.
+  - En el eje `y`, podrías poner el número total de casos. Estos casos los puedes obtener sumando los casos de tuberculosis en cada país.
+
+```{pyodide}
+# exercise: examen1_13
+
+# Graficar el número total de casos de tuberculosis por país
+datos_totales = (
+    oms_limpio[oms_limpio['pais'].isin(paises_seleccionados)]
+    .groupby(______)
+    .______(______)
+    .reset_index()
+)
+
+sns.barplot(data=datos_totales, x='pais', y='casos')
+plt.xticks(rotation=45, ha='right')
+plt.show()
+```
+
+::: {.callout-important collapse="true" title="Respuesta"}
+```python
+datos_totales = (
+    oms_limpio[oms_limpio['pais'].isin(paises_seleccionados)]
+    .groupby('pais')
+    ['casos'].sum()
+    .reset_index()
+)
+
+sns.barplot(data=datos_totales, x='pais', y='casos')
+plt.xticks(rotation=45, ha='right')
+plt.ylabel("Total de Casos")
+plt.show()
+```
+:::
+
+- Sigue siendo evidente que un país tiene muchos más casos de tuberculosis que los demás.
+- Sin embargo, esto puede deberse a muchas razones:
+  - población del país: a mayor población, esperamos mayor número de casos.
+  - calidad de los servicios de salud: a mejor calidad de los servicios de salud, esperamos menor número de casos.
+  - la calidad de los datos: es posible que un país tenga un mayor registro de datos que otro. En este caso, podríamos tener un sesgo en los datos.
+  - entre otras razones.
+- En lo que queda del curso, vamos a ver cómo podemos responder a estas preguntas y cómo podemos hacer inferencias sobre nuestros datos.
+- En las siguientes lecciones, veremos cómo podemos hacer pruebas de hipótesis para responder preguntas como: ¿hay una diferencia significativa en el número de casos de tuberculosis entre hombres y mujeres?, ¿hay una diferencia significativa en el número de casos de tuberculosis entre países? Este tipo de preguntas son muy comunes en la investigación científica y en la toma de decisiones basada en datos.
+- Por ahora, sigue practicando con tus datos y familiarizándote con las funciones de `pandas` y `seaborn`. Trata de tomar datos de diferentes fuentes (preferentemente de tu tesis o trabajo) y practica lo que has aprendido en este curso: limpia tus datos, explóralos y visualízalos.
+
+
+## Extra - Gráfico Interactivo
+
+```{pyodide}
+import altair as alt
+
+datos = datos_filtrados()
+alt.Chart(datos).mark_point().encode(
+    x='anio',
+    y='casos',
+    color='pais',
+    tooltip=['pais', 'anio']
+).interactive().properties(
+  width='container',
+  height=300
+)
+``` 

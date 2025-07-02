@@ -1,0 +1,501 @@
+---
+title: "Comparing the means of more than two groups"
+subtitle: "One-way ANOVA test"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+    render-df: gt-interactive
+engine: knitr
+---
+
+-   [What is one-way ANOVA test?](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#what-is-one-way-anova-test)
+-   [Assumptions of ANOVA test](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#assumptions-of-anova-test)
+-   [How one-way ANOVA test works?](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#how-one-way-anova-test-works)
+-   [Visualize your data and compute one-way ANOVA in R](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#visualize-your-data-and-compute-one-way-anova-in-r)
+    -   [Import your data into R](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#import-your-data-into-r)
+    -   [Check your data](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#check-your-data)
+    -   [Visualize your data](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#visualize-your-data)
+    -   [Compute one-way ANOVA test](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#compute-one-way-anova-test)
+    -   [Interpret the result of one-way ANOVA tests](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#interpret-the-result-of-one-way-anova-tests)
+    -   [Multiple pairwise-comparison between the means of groups](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#multiple-pairwise-comparison-between-the-means-of-groups)
+        -   [Tukey multiple pairwise-comparisons](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#tukey-multiple-pairwise-comparisons)
+        -   [Multiple comparisons using multcomp package](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#multiple-comparisons-using-multcomp-package)
+        -   [Pairewise t-test](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#pairewise-t-test)
+    -   [Check ANOVA assumptions: test validity?](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#check-anova-assumptions-test-validity)
+        -   [Check the homogeneity of variance assumption](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#check-the-homogeneity-of-variance-assumption)
+        -   [Relaxing the homogeneity of variance assumption](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#relaxing-the-homogeneity-of-variance-assumption)
+        -   [Check the normality assumption](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#check-the-normality-assumption)
+    -   [Non-parametric alternative to one-way ANOVA test](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#non-parametric-alternative-to-one-way-anova-test)
+-   [Summary](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#summary)
+-   [See also](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#see-also)
+-   [Read more](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#read-more)
+-   [Infos](https://www.sthda.com/english/wiki/one-way-anova-test-in-r#infos)
+
+## What is one-way ANOVA test?
+
+The **one-way** **analysis of variance** (**ANOVA**), also known as _one-factor ANOVA_, is an extension of [independent two-samples **t-test**](https://www.sthda.com/english/wiki/unpaired-two-samples-t-test-in-r) for comparing means in a situation where there are more than two groups. In **one-way ANOVA**, the data is organized into several groups base on one single grouping variable (also called _factor_ variable). This tutorial describes the basic principle of the **one-way** **ANOVA test** and provides practical **anova test examples** in R software.
+
+**ANOVA test hypotheses**:
+
+-   Null hypothesis: the means of the different groups are the same
+-   Alternative hypothesis: At least one sample mean is not equal to the others.
+
+Note that, if you have only two groups, you can use [t-test](https://www.sthda.com/english/wiki/unpaired-two-samples-t-test-in-r). In this case the F-test and the t-test are equivalent.
+
+  
+![One-Way ANOVA Test](https://www.sthda.com/sthda/RDoc/images/one-way-anova-test.png)  
+
+  
+
+## Assumptions of ANOVA test
+
+Here we describe the requirement for **ANOVA test**. ANOVA test can be applied only when:
+
+  
+
+-   The observations are obtained independently and randomly from the population defined by the factor levels
+-   The data of each factor level are normally distributed.
+-   These normal populations have a common variance. (**Levene’s test** can be used to check this.)
+
+## How one-way ANOVA test works?
+
+Assume that we have 3 groups (A, B, C) to compare:
+
+1.  Compute the common variance, which is called **variance within samples** (Swithin2) or **residual variance**.
+2.  Compute the variance between sample means as follow:
+    -   Compute the mean of each group
+    -   Compute the **variance between sample means** (Sbetween2)
+3.  Produce F-statistic as the ratio of Sbetween2/Swithin2.
+
+Note that, a lower ratio (ratio < 1) indicates that there are no significant difference between the means of the samples being compared. However, a higher ratio implies that the variation among group means are significant.
+
+## Visualize your data and compute one-way ANOVA in R
+
+## Import your data into R
+
+1.  **Prepare your data** as specified here: [Best practices for preparing your data set for R](https://www.sthda.com/english/wiki/best-practices-for-preparing-your-data-set-for-r)
+    
+2.  **Save your data** in an external .txt tab or .csv files
+    
+3.  **Import your data into R** as follow:
+    
+
+```
+<span># If .txt tab file, use this</span>
+<span>my_data</span> <span>&lt;-</span> <span>read.delim</span><span>(</span><span>file.choose</span><span>(</span><span>)</span><span>)</span>
+<span># Or, if .csv file, use this</span>
+<span>my_data</span> <span>&lt;-</span> <span>read.csv</span><span>(</span><span>file.choose</span><span>(</span><span>)</span><span>)</span>
+```
+
+Here, we’ll use the built-in R data set named _PlantGrowth_. It contains the weight of plants obtained under a control and two different treatment conditions.
+
+```
+<span>my_data</span> <span>&lt;-</span> <span>PlantGrowth</span>
+```
+
+## Check your data
+
+To have an idea of what the data look like, we use the the function **sample\_n**()\[in **dplyr** package\]. The **sample\_n**() function randomly picks a few of the observations in the data frame to print out:
+
+```
+<span># Show a random sample</span>
+<span>set.seed</span><span>(</span><span>1234</span><span>)</span>
+<span>dplyr</span><span>:</span><span>:</span><span>sample_n</span><span>(</span><span>my_data</span>, <span>10</span><span>)</span>
+```
+
+```
+   weight group
+19   4.32  trt1
+18   4.89  trt1
+29   5.80  trt2
+24   5.50  trt2
+17   6.03  trt1
+1    4.17  ctrl
+6    4.61  ctrl
+16   3.83  trt1
+12   4.17  trt1
+15   5.87  trt1
+```
+
+In R terminology, the column “group” is called factor and the different categories (“ctr”, “trt1”, “trt2”) are named factor levels. **The levels are ordered alphabetically**.
+
+```
+<span># Show the levels</span>
+<span>levels</span><span>(</span><span>my_data</span><span>$</span><span>group</span><span>)</span>
+```
+
+```
+[1] "ctrl" "trt1" "trt2"
+```
+
+If the levels are not automatically in the correct order, re-order them as follow:
+
+```
+<span>my_data</span><span>$</span><span>group</span> <span>&lt;-</span> <span>ordered</span><span>(</span><span>my_data</span><span>$</span><span>group</span>,
+                         <span>levels</span> <span>=</span> <span>c</span><span>(</span><span>"ctrl"</span>, <span>"trt1"</span>, <span>"trt2"</span><span>)</span><span>)</span>
+```
+
+It’s possible to compute summary statistics (mean and sd) by groups using the **dplyr** package.
+
+-   Compute summary statistics by groups - count, mean, sd:
+
+```
+<span>library</span><span>(</span><span>dplyr</span><span>)</span>
+<span>group_by</span><span>(</span><span>my_data</span>, <span>group</span><span>)</span> <span>%&gt;%</span>
+  <span>summarise</span><span>(</span>
+    <span>count</span> <span>=</span> <span>n</span><span>(</span><span>)</span>,
+    <span>mean</span> <span>=</span> <span>mean</span><span>(</span><span>weight</span>, <span>na.rm</span> <span>=</span> <span>TRUE</span><span>)</span>,
+    <span>sd</span> <span>=</span> <span>sd</span><span>(</span><span>weight</span>, <span>na.rm</span> <span>=</span> <span>TRUE</span><span>)</span>
+  <span>)</span>
+```
+
+```
+Source: local data frame [3 x 4]
+   group count  mean        sd
+  (fctr) (int) (dbl)     (dbl)
+1   ctrl    10 5.032 0.5830914
+2   trt1    10 4.661 0.7936757
+3   trt2    10 5.526 0.4425733
+```
+
+## Visualize your data
+
+-   To use R base graphs read this: [R base graphs](https://www.sthda.com/english/wiki/r-base-graphs). Here, we’ll use the [**ggpubr** R package](https://www.sthda.com/english/wiki/ggpubr-r-package-ggplot2-based-publication-ready-plots) for an easy ggplot2-based data visualization.
+    
+-   Install the latest version of ggpubr from GitHub as follow (recommended):
+    
+
+```
+<span># Install</span>
+<span>if</span><span>(</span><span>!</span><span>require</span><span>(</span><span>devtools</span><span>)</span><span>)</span> <span>install.packages</span><span>(</span><span>"devtools"</span><span>)</span>
+<span>devtools</span><span>:</span><span>:</span><span>install_github</span><span>(</span><span>"kassambara/ggpubr"</span><span>)</span>
+```
+
+-   Or, install from CRAN as follow:
+
+```
+<span>install.packages</span><span>(</span><span>"ggpubr"</span><span>)</span>
+```
+
+-   Visualize your data with ggpubr:
+
+```
+<span># Box plots</span>
+<span># ++++++++++++++++++++</span>
+<span># Plot weight by group and color by group</span>
+<span>library</span><span>(</span><span>"ggpubr"</span><span>)</span>
+<span>ggboxplot</span><span>(</span><span>my_data</span>, <span>x</span> <span>=</span> <span>"group"</span>, <span>y</span> <span>=</span> <span>"weight"</span>, 
+          <span>color</span> <span>=</span> <span>"group"</span>, <span>palette</span> <span>=</span> <span>c</span><span>(</span><span>"#00AFBB"</span>, <span>"#E7B800"</span>, <span>"#FC4E07"</span><span>)</span>,
+          <span>order</span> <span>=</span> <span>c</span><span>(</span><span>"ctrl"</span>, <span>"trt1"</span>, <span>"trt2"</span><span>)</span>,
+          <span>ylab</span> <span>=</span> <span>"Weight"</span>, <span>xlab</span> <span>=</span> <span>"Treatment"</span><span>)</span>
+```
+
+![One-way ANOVA Test in R](https://www.sthda.com/sthda/RDoc/figure/statistics/one-way-anova-box-plot-1.png)
+
+```
+<span># Mean plots</span>
+<span># ++++++++++++++++++++</span>
+<span># Plot weight by group</span>
+<span># Add error bars: mean_se</span>
+<span># (other values include: mean_sd, mean_ci, median_iqr, ....)</span>
+<span>library</span><span>(</span><span>"ggpubr"</span><span>)</span>
+<span>ggline</span><span>(</span><span>my_data</span>, <span>x</span> <span>=</span> <span>"group"</span>, <span>y</span> <span>=</span> <span>"weight"</span>, 
+       <span>add</span> <span>=</span> <span>c</span><span>(</span><span>"mean_se"</span>, <span>"jitter"</span><span>)</span>, 
+       <span>order</span> <span>=</span> <span>c</span><span>(</span><span>"ctrl"</span>, <span>"trt1"</span>, <span>"trt2"</span><span>)</span>,
+       <span>ylab</span> <span>=</span> <span>"Weight"</span>, <span>xlab</span> <span>=</span> <span>"Treatment"</span><span>)</span>
+```
+
+![One-way ANOVA Test in R](https://www.sthda.com/sthda/RDoc/figure/statistics/one-way-anova-box-plot-2.png)
+
+If you still want to use R base graphs, type the following scripts:
+
+```
+<span># Box plot</span>
+<span>boxplot</span><span>(</span><span>weight</span> <span>~</span> <span>group</span>, <span>data</span> <span>=</span> <span>my_data</span>,
+        <span>xlab</span> <span>=</span> <span>"Treatment"</span>, <span>ylab</span> <span>=</span> <span>"Weight"</span>,
+        <span>frame</span> <span>=</span> <span>FALSE</span>, <span>col</span> <span>=</span> <span>c</span><span>(</span><span>"#00AFBB"</span>, <span>"#E7B800"</span>, <span>"#FC4E07"</span><span>)</span><span>)</span>
+<span># plotmeans</span>
+<span>library</span><span>(</span><span>"gplots"</span><span>)</span>
+<span>plotmeans</span><span>(</span><span>weight</span> <span>~</span> <span>group</span>, <span>data</span> <span>=</span> <span>my_data</span>, <span>frame</span> <span>=</span> <span>FALSE</span>,
+          <span>xlab</span> <span>=</span> <span>"Treatment"</span>, <span>ylab</span> <span>=</span> <span>"Weight"</span>,
+          <span>main</span><span>=</span><span>"Mean Plot with 95% CI"</span><span>)</span> 
+```
+
+## Compute one-way ANOVA test
+
+We want to know if there is any significant difference between the average weights of plants in the 3 experimental conditions.
+
+The R function **aov**() can be used to answer to this question. The function **summary.aov**() is used to summarize the analysis of variance model.
+
+```
+<span># Compute the analysis of variance</span>
+<span>res.aov</span> <span>&lt;-</span> <span>aov</span><span>(</span><span>weight</span> <span>~</span> <span>group</span>, <span>data</span> <span>=</span> <span>my_data</span><span>)</span>
+<span># Summary of the analysis</span>
+<span>summary</span><span>(</span><span>res.aov</span><span>)</span>
+```
+
+```
+            Df Sum Sq Mean Sq F value Pr(&gt;F)  
+group        2  3.766  1.8832   4.846 0.0159 *
+Residuals   27 10.492  0.3886                 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+The output includes the columns _F value_ and _Pr(>F)_ corresponding to the p-value of the test.
+
+## Interpret the result of one-way ANOVA tests
+
+As the p-value is less than the significance level 0.05, we can conclude that there are significant differences between the groups highlighted with “\*" in the model summary.
+
+## Multiple pairwise-comparison between the means of groups
+
+In one-way ANOVA test, a significant p-value indicates that some of the group means are different, but we don’t know which pairs of groups are different.
+
+It’s possible to perform multiple pairwise-comparison, to determine if the mean difference between specific pairs of group are statistically significant.
+
+### Tukey multiple pairwise-comparisons
+
+As the ANOVA test is significant, we can compute **Tukey HSD** (Tukey Honest Significant Differences, R function: **TukeyHSD**()) for performing multiple pairwise-comparison between the means of groups.
+
+The function **TukeyHD**() takes the fitted ANOVA as an argument.
+
+```
+<span>TukeyHSD</span><span>(</span><span>res.aov</span><span>)</span>
+```
+
+```
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+Fit: aov(formula = weight ~ group, data = my_data)
+$group
+            diff        lwr       upr     p adj
+trt1-ctrl -0.371 -1.0622161 0.3202161 0.3908711
+trt2-ctrl  0.494 -0.1972161 1.1852161 0.1979960
+trt2-trt1  0.865  0.1737839 1.5562161 0.0120064
+```
+
+-   **diff**: difference between means of the two groups
+-   **lwr**, **upr**: the lower and the upper end point of the confidence interval at 95% (default)
+-   **p adj**: p-value after adjustment for the multiple comparisons.
+
+It can be seen from the output, that only the difference between trt2 and trt1 is significant with an adjusted p-value of 0.012.
+
+### Multiple comparisons using multcomp package
+
+It’s possible to use the function **glht**() \[in **multcomp** package\] to perform multiple comparison procedures for an ANOVA. **glht** stands for general linear hypothesis tests. The simplified format is as follow:
+
+```
+<span>glht</span><span>(</span><span>model</span>, <span>lincft</span><span>)</span>
+```
+
+-   **model**: a fitted model, for example an object returned by **aov**().
+-   **lincft**(): a specification of the linear hypotheses to be tested. Multiple comparisons in ANOVA models are specified by objects returned from the function **mcp**().
+
+Use glht() to perform multiple pairwise-comparisons for a one-way ANOVA:
+
+```
+<span>library</span><span>(</span><span>multcomp</span><span>)</span>
+<span>summary</span><span>(</span><span>glht</span><span>(</span><span>res.aov</span>, <span>linfct</span> <span>=</span> <span>mcp</span><span>(</span><span>group</span> <span>=</span> <span>"Tukey"</span><span>)</span><span>)</span><span>)</span>
+```
+
+```
+
+     Simultaneous Tests for General Linear Hypotheses
+Multiple Comparisons of Means: Tukey Contrasts
+Fit: aov(formula = weight ~ group, data = my_data)
+Linear Hypotheses:
+                 Estimate Std. Error t value Pr(&gt;|t|)  
+trt1 - ctrl == 0  -0.3710     0.2788  -1.331    0.391  
+trt2 - ctrl == 0   0.4940     0.2788   1.772    0.198  
+trt2 - trt1 == 0   0.8650     0.2788   3.103    0.012 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+(Adjusted p values reported -- single-step method)
+```
+
+### Pairewise t-test
+
+The function **pairewise.t.test**() can be also used to calculate pairwise comparisons between group levels with corrections for multiple testing.
+
+```
+<span>pairwise.t.test</span><span>(</span><span>my_data</span><span>$</span><span>weight</span>, <span>my_data</span><span>$</span><span>group</span>,
+                 <span>p.adjust.method</span> <span>=</span> <span>"BH"</span><span>)</span>
+```
+
+```
+
+    Pairwise comparisons using t tests with pooled SD 
+data:  my_data$weight and my_data$group 
+     ctrl  trt1 
+trt1 0.194 -    
+trt2 0.132 0.013
+P value adjustment method: BH 
+```
+
+The result is a table of p-values for the pairwise comparisons. Here, the p-values have been adjusted by the Benjamini-Hochberg method.
+
+## Check ANOVA assumptions: test validity?
+
+The ANOVA test assumes that, the data are normally distributed and the variance across groups are homogeneous. We can check that with some diagnostic plots.
+
+### Check the homogeneity of variance assumption
+
+The **residuals versus fits plot** can be used to check the homogeneity of variances.
+
+In the plot below, there is no evident relationships between residuals and fitted values (the mean of each groups), which is good. So, we can assume the homogeneity of variances.
+
+```
+<span># 1. Homogeneity of variances</span>
+<span>plot</span><span>(</span><span>res.aov</span>, <span>1</span><span>)</span>
+```
+
+![One-way ANOVA Test in R](https://www.sthda.com/sthda/RDoc/figure/statistics/one-way-anova-residuals-vs-fits-1.png)
+
+Points 17, 15, 4 are detected as outliers, which can severely affect normality and homogeneity of variance. It can be useful to remove outliers to meet the test assumptions.
+
+It’s also possible to use **Bartlett’s test** or **Levene’s test** to check the **homogeneity of variances**.
+
+We recommend **Levene’s test**, which is less sensitive to departures from normal distribution. The function **leveneTest**() \[in **car** package\] will be used:
+
+```
+<span>library</span><span>(</span><span>car</span><span>)</span>
+<span>leveneTest</span><span>(</span><span>weight</span> <span>~</span> <span>group</span>, <span>data</span> <span>=</span> <span>my_data</span><span>)</span>
+```
+
+```
+Levene's Test for Homogeneity of Variance (center = median)
+      Df F value Pr(&gt;F)
+group  2  1.1192 0.3412
+      27               
+```
+
+From the output above we can see that the p-value is not less than the significance level of 0.05. This means that there is no evidence to suggest that the variance across groups is statistically significantly different. Therefore, we can assume the homogeneity of variances in the different treatment groups.
+
+### Relaxing the homogeneity of variance assumption
+
+The classical one-way ANOVA test requires an assumption of equal variances for all groups. In our example, the homogeneity of variance assumption turned out to be fine: the Levene test is not significant.
+
+How do we save our ANOVA test, in a situation where the homogeneity of variance assumption is violated?
+
+An alternative procedure (i.e.: **Welch one-way test**), that does not require that assumption have been implemented in the function **oneway.test**().
+
+-   **ANOVA test with no assumption of equal variances**
+
+```
+<span>oneway.test</span><span>(</span><span>weight</span> <span>~</span> <span>group</span>, <span>data</span> <span>=</span> <span>my_data</span><span>)</span>
+```
+
+-   **Pairwise t-tests with no assumption of equal variances**
+
+```
+<span>pairwise.t.test</span><span>(</span><span>my_data</span><span>$</span><span>weight</span>, <span>my_data</span><span>$</span><span>group</span>,
+                 <span>p.adjust.method</span> <span>=</span> <span>"BH"</span>, <span>pool.sd</span> <span>=</span> <span>FALSE</span><span>)</span>
+```
+
+### Check the normality assumption
+
+**Normality plot of residuals**. In the plot below, the quantiles of the residuals are plotted against the quantiles of the normal distribution. A 45-degree reference line is also plotted.
+
+The normal probability plot of residuals is used to check the assumption that the residuals are normally distributed. It should approximately follow a straight line.
+
+```
+<span># 2. Normality</span>
+<span>plot</span><span>(</span><span>res.aov</span>, <span>2</span><span>)</span>
+```
+
+![One-way ANOVA Test in R](https://www.sthda.com/sthda/RDoc/figure/statistics/one-way-anova-normality-plot-1.png)
+
+As all the points fall approximately along this reference line, we can assume normality.
+
+The conclusion above, is supported by the **Shapiro-Wilk test** on the ANOVA residuals (W = 0.96, p = 0.6) which finds no indication that normality is violated.
+
+```
+<span># Extract the residuals</span>
+<span>aov_residuals</span> <span>&lt;-</span> <span>residuals</span><span>(</span><span>object</span> <span>=</span> <span>res.aov</span> <span>)</span>
+<span># Run Shapiro-Wilk test</span>
+<span>shapiro.test</span><span>(</span><span>x</span> <span>=</span> <span>aov_residuals</span> <span>)</span>
+```
+
+```
+
+    Shapiro-Wilk normality test
+data:  aov_residuals
+W = 0.96607, p-value = 0.4379
+```
+
+## Non-parametric alternative to one-way ANOVA test
+
+Note that, a non-parametric alternative to one-way ANOVA is **Kruskal-Wallis** **rank sum test**, which can be used when ANNOVA assumptions are not met.
+
+```
+<span>kruskal.test</span><span>(</span><span>weight</span> <span>~</span> <span>group</span>, <span>data</span> <span>=</span> <span>my_data</span><span>)</span>
+```
+
+```
+
+    Kruskal-Wallis rank sum test
+data:  weight by group
+Kruskal-Wallis chi-squared = 7.9882, df = 2, p-value = 0.01842
+```
+
+## Summary
+
+  
+
+1.  Import your data from a .txt tab file: _my\_data <- read.delim(file.choose())_. Here, we used _my\_data <- PlantGrowth_.
+2.  Visualize your data: _ggpubr::ggboxplot(my\_data, x = “group”, y = “weight”, color = “group”)_
+3.  Compute one-way ANOVA test: _summary(aov(weight ~ group, data = my\_data))_
+4.  Tukey multiple pairwise-comparisons: _TukeyHSD(res.aov)_
+
+## See also
+
+-   Analysis of variance (ANOVA, parametric):
+    -   [One-Way ANOVA Test in R](https://www.sthda.com/english/wiki/one-way-anova-test-in-r)
+    -   [Two-Way ANOVA Test in R](https://www.sthda.com/english/wiki/two-way-anova-test-in-r)
+    -   [MANOVA Test in R: Multivariate Analysis of Variance](https://www.sthda.com/english/wiki/manova-test-in-r-multivariate-analysis-of-variance)
+-   [Kruskal-Wallis Test in R (non parametric alternative to one-way ANOVA)](https://www.sthda.com/english/wiki/kruskal-wallis-test-in-r)
+
+## Read more
+
+-   (Quick-R: ANOVA/MANOVA)\[[http://www.statmethods.net/stats/anova.html](http://www.statmethods.net/stats/anova.html)\]
+-   (Quick-R: (M)ANOVA Assumptions)\[[http://www.statmethods.net/stats/anovaAssumptions.html](http://www.statmethods.net/stats/anovaAssumptions.html)\]
+-   (R and Analysis of Variance)\[[http://personality-project.org/r/r.guide/r.anova.html](http://personality-project.org/r/r.guide/r.anova.html)
+
+## Infos
+
+This analysis has been performed using **R software** (ver. 3.2.4).
+
+  
+
+Enjoyed this article? I’d be very grateful if you’d help it spread by emailing it to a friend, or sharing it on Twitter, Facebook or Linked In.
+
+Show me some love with the like buttons below... Thank you and please don't forget to share and comment below!!
+
+  
+
+  
+
+## Recommended for You!
+
+  
+
+ **Get involved :**  
+  Click to **follow us** on [Facebook](https://www.facebook.com/1570814953153056) : [](https://www.facebook.com/1570814953153056)    
+  **Comment this article** by clicking on "Discussion" button (top-right position of this page)

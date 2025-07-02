@@ -1,0 +1,237 @@
+---
+title: "Gráficos Avanzados en R"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+        - ez
+        - multcomp
+    render-df: gt-interactive
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+En esta presentación veremos algunos ejemplos de gráficos avanzados en R:
+
+## Combinar múltiples gráficos con ggplot:
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(ggplot2)
+
+# Con facet_wrap
+ggplot(iris, aes(Sepal.Length, Sepal.Width)) + 
+  geom_point() + facet_wrap(~Species)
+
+ggplot(diamonds, aes(price)) + 
+  geom_histogram(bins=20, color="black", fill="yellow") + 
+  scale_x_log10()
+
+```
+
+## Gráfico *lollipop*
+
+- Vamos a crear un gráfico de *lollipop* con los datos de `gapminder` para representa la distribución de países por continente para el año 2007.
+- Esta es una alternativa a los gráficos de barras.
+
+```{webr}
+#| autorun: true
+#| warning: false
+#Cargar los paquetes
+library(ggplot2)
+library(gapminder)
+library(dplyr)
+
+# se emplea el operador pipe para 
+# pasar y filtrar los datos
+
+gapminder %>% 
+  filter(year==2007) %>% 
+  group_by(continent) %>%
+  count() %>% 
+ggplot(aes(x=continent, y=n)) +
+  # crear segmentos
+  geom_segment( aes(x=reorder(continent, -n), 
+                    xend=continent, y=0, yend=n),
+                color="royalblue4", alpha = 0.5) +
+  #crear puntos
+  geom_point(color="royalblue4", size=4) +
+  labs(y="Número de países",
+       x="Continente")+
+  theme_minimal()
+
+```
+
+## Dumbbell plot
+
+- Este tipo de gráfico es útil para comparar dos puntos en el tiempo. 
+- Es una alternativa a los gráficos de líneas:
+
+```{webr}
+#| autorun: true
+#| warning: false
+library(ggplot2)
+library(gapminder)
+library(dplyr)
+library(tidyr)
+
+
+gapminder %>% 
+  filter(continent=="Americas" & year==2007 | 
+           continent=="Americas" & year==1952) %>%
+  select(country, year, lifeExp) %>% 
+  pivot_wider(names_from = year, values_from = lifeExp) %>% 
+ggplot() +
+  geom_segment( aes(x=reorder(country, -`2007`), 
+                    xend=country, y=`1952`, yend=`2007`),
+                color="grey") +
+  geom_point( aes(x=country, y=`1952`, color="1952"),  size=3) +
+  geom_point( aes(x=country, y=`2007`,color="2007"),  size=3 ) +
+  coord_flip()+
+  scale_color_manual(values = c(`1952` = "#f1a340",
+                                `2007`= "#998ec3"))+
+  labs(color="Año",x="",y="Esperanza de vida al nacer")+ 
+  theme_minimal() + theme(legend.position = 'bottom')
+
+```
+
+## Treemap
+
+- Los *treemap* muestran la distribución de los datos en un solo periodo de tiempo usando rectángulos para identificar qué observaciones componen los grupos y subgrupos.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+#Se cargan los paquetes
+
+library(ggplot2)
+library(gapminder)
+library(treemap)
+library(treemapify)
+library(dplyr)
+
+
+gapminder %>% 
+  filter(year==2007) %>%
+ggplot(aes(area = pop, label = country)) +
+  geom_treemap(fill = "royalblue4") +
+geom_treemap_text(colour = "white", place = "centre")+
+  theme_minimal() + theme(legend.position = 'bottom')
+
+```
+
+
+## Waffle plot
+
+- Los gráficos de waffle son otra alternativa para mostrar la composición de los datos en un solo período de tiempo. Cada observación está representada por un cuadrado, y el color de su área corresponde al grupo del que hace parte.
+
+```{webr}
+#| autorun: true
+#| warning: false
+#Se cargan los paquetes
+library(gapminder)
+library(dplyr)
+library(ggplot2)
+# install.packages("waffle")
+library(waffle)
+library(scales)
+
+datos.waffle <- gapminder %>% 
+  filter(year==2007) %>% 
+  group_by(continent) %>%
+  count()
+
+datos.waffle %>%
+ggplot(aes(fill = continent, values=n)) +
+  geom_waffle(colour="grey", na.rm = TRUE)+
+  scale_fill_manual(values = c("#7fc97f","#beaed4",
+                               "#fdc086","#ffff99","#386cb0"))+
+  scale_y_continuous(breaks= pretty_breaks())+
+    scale_x_continuous(breaks= pretty_breaks())+
+  labs(fill="Continente")+
+  theme_minimal()+ theme(legend.position = 'bottom')
+
+```
+
+El gráfico de waffle tambien puede ser útil par mostrar la evolución de la composición. Por ejemplo:
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Se crea la base de datos
+datos.wafle.pob <- gapminder %>% 
+  group_by(continent, year) %>% 
+  summarise(pop= sum(pop)) %>% 
+  filter(year %in% c(1957, 1967, 1977, 1987, 1997, 2007))
+ 
+# Se crea la visualización
+datos.wafle.pob %>% 
+ggplot(aes(fill = continent, values = pop)) +
+  geom_waffle(color = "white", size = 1.125, n_rows = 10, 
+              flip = TRUE, na.rm = TRUE, 
+              make_proportional = TRUE) +
+  facet_wrap(~year, ncol = 3) +
+  scale_x_continuous(breaks= pretty_breaks())+
+  scale_y_continuous(breaks= pretty_breaks())+
+  scale_fill_manual(values = c("#7fc97f","#beaed4",
+                               "#fdc086","#ffff99","#386cb0"))+
+  coord_equal() +
+  theme_void()+
+  labs(fill="Continente") +
+  theme(legend.position = 'bottom')
+```
+
+Otra forma interesante de emplear los gráficos de waffle para mostrar la evolución de composición:
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Se crea la base de datos
+library(dplyr)
+datos.storms <- storms %>% 
+                filter(year >= 2010) %>% 
+                 count(year, status) 
+ 
+# Se crea la visualización
+datos.storms %>% 
+            ggplot(aes(fill = status, values = n)) +
+            geom_waffle(color = "white", size = 0.15, 
+                        n_rows = 10, flip = TRUE, na.rm = TRUE) +
+            facet_wrap(~year, nrow = 1, strip.position = "bottom") +
+            scale_x_discrete() + 
+            scale_y_continuous(breaks= pretty_breaks())+
+            ggthemes::scale_fill_tableau(name=NULL) +
+            coord_equal() +
+            labs(x = "Año", y = "Número de eventos") +
+             theme_minimal() +
+             theme(legend.position = 'bottom', 
+                   panel.grid = element_blank(), 
+                   axis.ticks.y = element_line())  +
+            guides(fill = guide_legend(reverse = TRUE, 
+                                       nrow = 3))
+```
+
+## Recursos
+
+- Puedes revisar más gráficas en estas ligas:
+  - [R Graph Gallery](https://r-graph-gallery.com/ggplot2-package.html)
+  - [R Graph Catalog](https://shiny.srvanderplas.com/r-graph-catalog/)
+  - [Shiny Apps Gallery](https://shinyapps.org)

@@ -1,0 +1,536 @@
+---
+title: "Estimación e Inferencia Estadística"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: lux
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - ggpubr
+    render-df: gt-interactive
+engine: knitr
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+        - scipy
+resources:
+    - datos
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+## Inferencia Estadística
+
+La inferencia estadística se refiere al conjunto de operaciones que realizamos sobre los datos para obtener **estimaciones** y declaraciones de **incertidumbre** sobre predicciones y parámetros de algún proceso o población subyacente. Desde una perspectiva matemática, estas declaraciones de incertidumbre probabilística se derivan sobre la base de un modelo de probabilidad asumido para los datos observados. En esta sección, cubrimos los conceptos básicos de la modelización probabilística, estimación, sesgo y varianza, y la interpretación de las inferencias y errores estadísticos en el trabajo aplicado. Además, introducimos el tema de la incertidumbre en la inferencia estadística y por qué es un error utilizar pruebas de hipótesis o significancia estadística para atribuir certeza a datos ruidosos.
+
+
+## Muestras y Poblaciones
+
+En biología, a menudo se desea hacer inferencias sobre una **población**, que se define como el conjunto de todas las posibles observaciones de interés. Es importante aclarar que en este contexto hablamos de una **población estadística**, no necesariamente de una población biológica. Las observaciones que recolectamos de la población forman una **muestra**, y el número de observaciones en la muestra se denomina **tamaño de muestra**, generalmente simbolizado como $n$.
+
+- Las características que medimos en la muestra se llaman **estadísticos** (por ejemplo, la media muestral).
+- Las características de la población se llaman **parámetros** (por ejemplo, la media poblacional).
+
+El método básico para recolectar observaciones en una muestra se llama **muestreo aleatorio simple**, donde cada observación tiene la misma probabilidad de ser seleccionada. Por ejemplo, asignar un número a cada rata en un corral y seleccionar una muestra usando una tabla de números aleatorios. Sin embargo, en la práctica, rara vez realizamos un muestreo completamente aleatorio en biología, confiando a menudo en el **muestreo fortuito** por razones prácticas.
+
+El objetivo es siempre tomar la muestra de manera que no cree sesgo a favor de ninguna observación.
+
+#### Definición de la Población
+
+Es fundamental definir claramente la población al inicio de cualquier estudio, incluyendo los límites **espaciales y temporales** de dicha población, ya que nuestras inferencias estadísticas estarán restringidas a estos límites. Si, por ejemplo, recolectamos datos de una población de animales en una ubicación específica en diciembre de 1996, nuestras inferencias se limitarán a esa ubicación y período de tiempo. No podemos inferir directamente lo que sucederá en otros lugares o momentos, aunque podríamos especular o hacer predicciones.
+
+#### Muestreo Aleatorio y Estimación de Parámetros
+
+El principal motivo para realizar un muestreo aleatorio de una población bien definida es usar los **estadísticos muestrales** (por ejemplo, la media o la varianza de la muestra) para **estimar los parámetros poblacionales** (por ejemplo, la media o la varianza de la población). Los parámetros poblacionales no pueden medirse directamente debido al tamaño de las poblaciones, que suelen ser demasiado grandes para una medición práctica.
+
+Es importante recordar que los parámetros poblacionales se consideran valores fijos pero **desconocidos**, por lo que no son variables aleatorias y no tienen distribuciones de probabilidad. Los **estadísticos muestrales**, en cambio, sí son variables aleatorias, ya que sus valores dependen del experimento de muestreo. Por lo tanto, tienen distribuciones de probabilidad, llamadas **distribuciones de muestreo**.
+
+## Tipos de Estimadores
+
+Existen dos tipos principales de estimación:
+
+1. **Estimación puntual**: Proporciona un único valor que estima el parámetro poblacional. Por ejemplo, la **media** de una muestra se usa como una estimación puntual de la media poblacional.
+
+2. **Estimación por intervalo**: Proporciona un *rango* de valores que probablemente contengan el parámetro poblacional con una probabilidad conocida. Un ejemplo común es el **intervalo de confianza**, que indica un rango de valores dentro del cual es probable que se encuentre el parámetro verdadero con una cierta confianza (por ejemplo, 95%).
+
+### Ejemplos en R: Estimación Puntual e Intervalo de Confianza
+
+A continuación, se muestran ejemplos en R para calcular una estimación puntual (media muestral) y un intervalo de confianza para la media poblacional. 
+
+***Estimación Puntual de la Media***
+
+- Primero, generamos una muestra aleatoria de 100 observaciones con una media de 50 y una desviación estándar de 10.
+- Luego, calculamos la **media muestral**, que es una estimación puntual de la media poblacional. Esto se hace con la función `mean()` en R.
+
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Cargar librerías necesarias
+library(tidyverse)
+
+# Crear un conjunto de datos de ejemplo
+set.seed(123)
+datos <- tibble(valor = rnorm(100, mean = 50, sd = 10))
+
+# Calcular la media muestral (estimación puntual)
+media_muestral <- mean(datos$valor)
+media_muestral
+```
+
+
+
+## Python
+
+```{pyodide}
+#| autorun: true
+#| warning: false
+
+# Cargar librerías necesarias
+import numpy as np
+import pandas as pd
+
+# Crear un conjunto de datos de ejemplo
+np.random.seed(123)
+datos = pd.DataFrame({'valor': np.random.normal(loc=50, scale=10, size=100)})
+
+# Calcular la media muestral (estimación puntual)
+media_muestral = datos['valor'].mean()
+print(media_muestral)
+```
+
+:::
+
+En este código:
+- Generamos una muestra aleatoria de 100 observaciones con una media de 50 y una desviación estándar de 10.
+- Calculamos la **media muestral**, que es una estimación puntual de la media poblacional.
+
+***Intervalo de Confianza para la Media***
+
+- Utilizamos una prueba t para calcular el **intervalo de confianza** para la media de los datos con un nivel de confianza del 95%. El intervalo se obtiene con la función `t.test()` en R y luego se extrae el intervalo de confianza con la función `$conf.int`.
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+#| autorun: true
+
+# Crear un conjunto de datos de ejemplo
+set.seed(123)
+datos <- tibble(valor = rnorm(100, mean = 50, sd = 10))
+
+# Calcular el intervalo de confianza al 95% para la media
+t_test <- t.test(datos$valor)
+intervalo_confianza <- t_test$conf.int
+intervalo_confianza
+```
+
+
+## Python
+
+```{pyodide}
+#| autorun: true
+
+# Crear un conjunto de datos de ejemplo
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+np.random.seed(123)
+datos = pd.DataFrame({'valor': np.random.normal(loc=50, scale=10, size=100)})
+
+# Calcular el intervalo de confianza al 95% para la media
+t_test = stats.ttest_1samp(datos['valor'], popmean=50)
+intervalo_confianza = stats.t.interval(0.95, len(datos['valor'])-1, loc=datos['valor'].mean(), scale=stats.sem(datos['valor']))
+print(intervalo_confianza)
+```
+
+:::
+
+En este código:
+- Utilizamos una prueba t para calcular el **intervalo de confianza** para la media de los datos con un nivel de confianza del 95%.
+- El resultado `intervalo_confianza` nos proporciona el rango dentro del cual se espera que esté la media poblacional con un 95% de confianza.
+
+::: {.callout-tip}
+En las próximas lecciones, vamos a calcular y visualizar los estimadores puntuales y de intervalos de manera directa con las librerías ggpubr y ggplot2 en R. 
+:::
+
+### Resumen hasta ahora
+
+- La **estimación** es una parte fundamental de la inferencia estadística y nos permite hacer afirmaciones sobre parámetros poblacionales a partir de muestras. 
+- Existen dos tipos principales de estimación: la **estimación puntual**, que nos da un único valor como mejor estimación del parámetro, y la **estimación por intervalo**, que proporciona un rango de valores dentro del cual es probable que se encuentre el parámetro verdadero, acompañado de una medida de incertidumbre.
+- Vamos a ver ahora el Error Estándar de la Media, la cuál es una medida de la variabilidad en la media muestral que se utiliza mucho en los análisis estadísticos.
+
+
+## Error estándar de la media
+
+### Error estándar de la media muestral
+
+El **error estándar de la media** nos informa sobre la variabilidad en la media muestral. En términos simples, cuantifica **cuánto varía** la media de una muestra al estimar la media poblacional. Se le llama "error" porque describe la **incertidumbre** o el error que cometemos al utilizar la media muestral ($(\bar{y}$)) para estimar el verdadero valor de la media poblacional ($(\mu$)).
+
+El error estándar de la media se calcula como:
+
+$$ \text{Error estándar} = \frac{s}{\sqrt{n}} $$
+
+Donde:
+
+- $s$ es la desviación estándar de la muestra.
+- $n$ es el tamaño de la muestra.
+
+::: {.callout-important}
+
+El **error estándar** nos da una idea de cómo cambiarían las medias muestrales si repitiéramos el proceso de muestreo varias veces. Si el error estándar es **grande**, las medias de las diferentes muestras variarán mucho entre sí, lo que sugiere que es menos probable que una media muestral individual esté cerca de la verdadera media poblacional. Por otro lado, si el error estándar es **pequeño**, las medias muestrales serán más consistentes entre sí, lo que nos da más confianza en que la media muestral es una buena estimación de la media poblacional.
+
+Si observas la fórmula para calcular el Error Estándar, verás que es inversamente proporcional a la raíz cuadrada del tamaño de la muestra. Esto significa que, a medida que aumenta el tamaño de la muestra, el error estándar disminuye, lo que indica que las medias muestrales son más consistentes y se acercan más a la media poblacional.
+:::
+
+#### Graficar el Error Estándar en R
+
+::: {.panel-tabset group="language"}
+
+## R
+
+- Para visualizar el error estándar, podemos usar *gráficos* que muestren la media y el error estándar para diferentes grupos o condiciones. 
+- Esto nos permite comparar visualmente las medias y la incertidumbre asociada con cada una.
+- La forma más fácil de hacer esto, es con el paquete `ggpubr`.
+- Vamos a usar los datos `ToothGrowth` de R, que contienen la longitud de los dientes de conejos tratados con diferentes dosis de vitamina C.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# ToothGrowth
+data("ToothGrowth")
+head(ToothGrowth)
+```
+
+- Primero, grafiquemos SOLO la media de `len` (longitud de los dientes) para cada dosis de vitamina C (`dose`).
+- Especificamos el tipo de gráfico con `ggline()` y agregamos la media y un gráfico de dispersión (datos individuales) con `add = c("mean", "jitter")`.
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Cargar librerías necesarias
+library(ggpubr)
+
+ggline(ToothGrowth, x = "dose", y = "len", 
+       add = c("mean", "jitter"))
+```
+
+- Ahora, agreguemos el **error estándar** a la gráfica anterior.
+- Observa que simplementre usamos `mean_se` en lugar de `mean` para agregar la media y el error estándar de la media a la gráfica.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+ggline(ToothGrowth, x = "dose", y = "len", 
+       add = c("mean_se", "jitter"))
+```
+
+
+- Ahora, si especificamos algún color para agrupar los datos por `supp` (tipo de suplemento), podemos ver cómo cambia la longitud de los dientes con diferentes dosis de vitamina C y tipos de suplemento.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+ggline(ToothGrowth, x = "dose", y = "len", 
+       add = c("mean_se", "jitter"),
+       color = "supp", palette = "jco" 
+       )
+```
+
+- Si quisieramos un gráfico de barras, escribiríamos el siguiente código.
+- Observa que usamos `ggbarplot()` en lugar de `ggline()` para crear un gráfico de barras.
+- El argumento position = `position_dodge(0.8)` se utiliza para separar las barras de diferentes grupos.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+ggbarplot(ToothGrowth, x = "dose", y = "len", 
+          add = c("mean_se", "jitter"),
+          color = "supp", palette = "jco",
+          position = position_dodge(0.8))
+```
+
+
+## Python
+
+Graficar el Error Estándar en Python
+Para visualizar el error estándar en Python, podemos usar seaborn y matplotlib, que ofrecen una gran flexibilidad para crear gráficos estadísticos. Usaremos el mismo conjunto de datos ToothGrowth.
+
+Primero, necesitamos cargar los datos en un DataFrame de pandas.
+
+```{pyodide}
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Cargar el conjunto de datos ToothGrowth
+tooth_growth = pd.read_csv('./datos/ToothGrowth.csv')
+
+# Convertir la columna 'dose' a categórica para un mejor manejo en los gráficos
+tooth_growth['dose'] = tooth_growth['dose'].astype('category')
+
+print(tooth_growth.head())
+``` 
+
+
+1. Gráfico de Líneas con Media y Puntos Individuales
+Este es el equivalente al primer gráfico de ggline que muestra la media y los puntos dispersos (jitter).
+
+
+
+```{pyodide}
+plt.figure(figsize=(8, 6))
+
+# Gráfico de líneas para la media
+sns.lineplot(data=tooth_growth, x='dose', y='len', marker='o', errorbar=None, estimator='mean')
+
+# Gráfico de dispersión para los puntos individuales con jitter
+sns.stripplot(data=tooth_growth, x='dose', y='len', jitter=True, alpha=0.5, color='black')
+
+plt.title('Longitud del Diente por Dosis de Vitamina C')
+plt.xlabel('Dosis')
+plt.ylabel('Longitud del Diente')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+
+2. Gráfico de Líneas con Error Estándar
+Ahora, agregamos las barras de error estándar. seaborn puede calcular y mostrar un intervalo de confianza (por defecto al 95%), que está directamente relacionado con el error estándar. Para mostrar específicamente el error estándar, podemos calcularlo y añadirlo con plt.errorbar.
+
+
+```{pyodide}
+plt.figure(figsize=(8, 6))
+
+# Gráfico de líneas con el intervalo de confianza del 95% (comportamiento por defecto)
+sns.lineplot(data=tooth_growth, x='dose', y='len', marker='o', err_style='bars', errorbar=('ci', 95))
+
+# Gráfico de dispersión para los puntos individuales
+sns.stripplot(data=tooth_growth, x='dose', y='len', jitter=True, alpha=0.5, color='black')
+
+plt.title('Longitud del Diente por Dosis (con Intervalo de Confianza)')
+plt.xlabel('Dosis')
+plt.ylabel('Longitud del Diente')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+
+
+3. Gráfico de Líneas Agrupado por Suplemento
+Este es el equivalente al gráfico de ggline que agrupa los datos por el tipo de suplemento (supp).
+
+```{pyodide}
+plt.figure(figsize=(10, 6))
+
+# Gráfico de líneas agrupado por 'supp'
+sns.lineplot(data=tooth_growth, x='dose', y='len', hue='supp', marker='o', err_style='bars', errorbar=('ci', 95))
+
+# Gráfico de dispersión para los puntos individuales
+sns.stripplot(data=tooth_growth, x='dose', y='len', hue='supp', jitter=True, dodge=True, alpha=0.5)
+
+plt.title('Longitud del Diente por Dosis y Tipo de Suplemento')
+plt.xlabel('Dosis')
+plt.ylabel('Longitud del Diente')
+plt.legend(title='Suplemento')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+
+4. Gráfico de Barras Agrupado con Error Estándar
+Finalmente, aquí está el equivalente al ggbarplot. Usamos sns.barplot que automáticamente calcula y muestra la media y el intervalo de confianza.
+
+
+```{pyodide}
+plt.figure(figsize=(10, 7))
+
+# Gráfico de barras agrupado por 'supp'
+sns.barplot(data=tooth_growth, x='dose', y='len', hue='supp', errorbar=('ci', 95))
+
+# Superponer los puntos individuales para mayor detalle
+sns.stripplot(data=tooth_growth, x='dose', y='len', hue='supp', jitter=True, dodge=True, alpha=0.5, palette='dark:0.3')
+
+plt.title('Longitud del Diente por Dosis y Tipo de Suplemento')
+plt.xlabel('Dosis')
+plt.ylabel('Longitud del Diente')
+plt.legend(title='Suplemento')
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.show()
+```
+
+Como puedes ver, seaborn ofrece una sintaxis muy directa y declarativa para crear gráficos estadísticos complejos, similar a ggplot2 y ggpubr en R.
+
+:::
+
+### Intervalos de confianza para la media poblacional
+
+Un **intervalo de confianza** es una estimación por intervalo que proporciona un rango de valores que probablemente contengan el parámetro poblacional, en este caso, la media poblacional ($\mu$). 
+
+::: {.callout-note}
+La **interpretación** más común de un intervalo de confianza del 95% es que, si realizáramos el muestreo y el cálculo del intervalo muchas veces, el 95% de los intervalos generados contendrían el verdadero valor de la media poblacional.
+:::
+
+
+Es crucial entender que un intervalo de confianza **no** es una declaración probabilística sobre la media poblacional. El parámetro poblacional $\mu$ es **fijo pero desconocido**, por lo que el intervalo de confianza no dice que hay un 95% de probabilidad de que $\mu$ esté dentro del intervalo calculado. En su lugar, lo que este intervalo refleja es que **el proceso** utilizado para calcularlo generará intervalos que contienen $\mu$ el 95% de las veces si repitiéramos el procedimiento de muestreo muchas veces con muestras diferentes.
+
+Como resumen, **Antelman (1997)** describe un intervalo de confianza como "un intervalo generado por un procedimiento que proporciona intervalos correctos el 95% del tiempo".
+
+
+#### gráficos de intervalo de confianza en R
+
+- También podemos visualizar los intervalos de confianza en un gráfico para comparar las medias y la incertidumbre asociada.
+- Usaremos los mismos datos `ToothGrowth` de R para este ejemplo.
+- Con el paquete `ggpubr`, podemos usar `ggerrorplot()` para crear gráficos de intervalo de confianza.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+ggerrorplot(ToothGrowth, x = "dose", y = "len",
+ add = c("mean_ci", "jitter"), 
+ ci = 0.95 # Nivel de confianza al 95%
+ )
+```
+
+
+## Grados de libertad (df)
+
+El concepto de **grados de libertad** es fundamental en muchas pruebas estadísticas, pero a menudo se malinterpreta. En términos simples, los grados de libertad se refieren al número de observaciones en una muestra que son **libres de variar** cuando se estima un parámetro. Por ejemplo, si ya conocemos la media muestral, entonces solo $n-1$ observaciones pueden variar libremente, ya que la última observación está determinada por la media y las demás observaciones.
+
+En general, los grados de libertad se calculan como:
+
+$$ \text{df} = n - p $$
+
+Donde:
+- $n$ es el número de observaciones.
+- $p$ es el número de parámetros estimados.
+
+Por ejemplo, cuando estimamos la varianza muestral, ya hemos calculado la media, por lo que solo $n-1$ observaciones son libres de variar.
+
+***Ejemplo Práctico***:
+
+Si tienes una muestra de 5 números y conoces la suma total de ellos, solo 4 de esos números pueden ser elegidos libremente. El quinto número está fijado por la necesidad de que la suma total se mantenga constante. Por lo tanto, en este caso, hay 4 grados de libertad.
+
+- Primero, calcula la media de la muestra: $(10 + 12 + 15 + 13 + 14) / 5 = 12.8$.
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+#| autorun: true
+
+# Muestra de datos
+muestra <- c(10, 12, 15, 13, 14)
+
+# Calcular la media
+media <- mean(muestra)
+print(media)
+```
+
+Ahora vamos a calcular la Varianza
+
+- Para calcular la varianza de la muestra, normalmente restamos la media de cada observación, elevamos al cuadrado esos valores, sumamos esos cuadrados, y luego dividimos por el número de observaciones menos 1 (n - 1), que son los grados de libertad.
+- ¿Por qué n - 1? Porque estamos utilizando la media de la muestra en lugar de la media verdadera de la población, lo que introduce un sesgo. Dividir por n - 1 corrige este sesgo, haciendo que la varianza calculada sea un estimador imparcial de la varianza poblacional.
+
+```{webr}
+#| autorun: true
+
+# Calcular la varianza usando n - 1
+varianza <- sum((muestra - media)^2) / (length(muestra) - 1)
+print(varianza)
+
+```
+
+
+Considera que si ya conoces la media de la muestra, solo 4 de los valores originales pueden variar libremente. El quinto valor está determinado por la necesidad de que la suma total de los valores sea consistente con la media calculada. Esto es lo que se refleja al usar n - 1 en el cálculo de la varianza.
+
+
+
+> Por lo general, las funciones de R calculan los grados de libertad automáticamente, por lo que no es necesario hacerlo manualmente. Sin embargo, es útil comprender el concepto de grados de libertad y por qué se utilizan en las pruebas estadísticas. Por ejemplo:
+- La función var() de R automáticamente utiliza n - 1 como el divisor, lo que refleja el uso de los grados de libertad en el cálculo de la varianza muestral.
+
+```{webr}
+#| autorun: true
+# Calcular la varianza usando la función var() de R
+varianza_r <- var(muestra)
+print(varianza_r)
+```
+
+
+## Python
+
+El concepto de grados de libertad es idéntico. Si tienes una muestra de 5 números y conoces su media, solo 4 de ellos pueden variar libremente.
+
+Primero, calculamos la media de la muestra.
+
+
+```{pyodide}
+import numpy as np
+
+# Muestra de datos en una lista de Python
+muestra_lista = [10, 12, 15, 13, 14]
+
+# Es más conveniente usar un array de NumPy para cálculos numéricos
+muestra = np.array(muestra_lista)
+
+# Calcular la media
+media = np.mean(muestra)
+print(f"La media es: {media}")
+```
+
+Ahora, calculamos la varianza muestral.
+En Python, al igual que en R, restamos la media de cada observación, elevamos al cuadrado, sumamos los resultados y dividimos por n-1 (los grados de libertad).
+
+```{pyodide}
+# Calcular la varianza usando n - 1 (manualmente)
+# (len(muestra) - 1) es el equivalente a los grados de libertad
+varianza_manual = np.sum((muestra - media)**2) / (len(muestra) - 1)
+print(f"La varianza calculada manualmente es: {varianza_manual}")
+```
+
+La razón para dividir entre n-1 es la misma: estamos usando la media de la muestra como una estimación de la media poblacional, y esto corrige el sesgo, dándonos un estimador insesgado de la varianza poblacional.
+
+
+> De forma similar a la función var() de R, NumPy tiene la función np.var() para calcular la varianza. Sin embargo, es muy importante saber que, por defecto, np.var() calcula la varianza poblacional (divide entre n).
+
+Para calcular la varianza muestral (dividiendo entre n-1), debes especificar el argumento ddof=1 (Delta Degrees of Freedom).
+
+
+
+```{pyodide}
+# Calcular la varianza muestral usando la función de NumPy
+# ddof=1 significa que el divisor será n - 1 en lugar de n
+varianza_numpy = np.var(muestra, ddof=1)
+print(f"La varianza calculada con np.var(ddof=1) es: {varianza_numpy}")
+```
+
+Como puedes ver, el resultado de np.var(muestra, ddof=1) es idéntico al cálculo manual, y es el equivalente directo de la función var() de R.
+
+
+:::

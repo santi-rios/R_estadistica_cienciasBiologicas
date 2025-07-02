@@ -1,0 +1,107 @@
+---
+title: "Regresión Lineal Simple con Python"
+subtitle: "Conceptos Clave de Variables"
+format: 
+    live-html
+        # highlight-style: github
+        # highlight-lines: true
+        # theme: solar
+toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+        - statsmodels
+---
+
+## Introducción
+
+La regresión lineal simple es una técnica estadística que modela la relación entre dos variables continuas mediante una ecuación lineal. Este método es útil para predecir los valores de una variable dependiente basada en los valores de una variable independiente.
+
+Es fundamental comprender que la mayoría de las pruebas estadísticas comunes (como la correlación, la prueba t y el ANOVA) son en realidad casos especiales de modelos lineales. Esta simplicidad subyacente significa que, en lugar de aprender muchas pruebas como herramientas independientes, podemos entenderlas a través de la ecuación fundamental \( y = \beta_0 + \beta_1x \). Este enfoque no solo simplifica el aprendizaje, sino que también fomenta una comprensión más profunda de las relaciones entre variables y los supuestos paramétricos que comparten estas pruebas.
+
+---
+
+## Conceptos Clave
+
+-   **Modelo de Regresión Lineal Simple:**
+    -   Representado por la ecuación \( y = \beta_0 + \beta_1x + \epsilon \), donde:
+    -   \( y \) es la variable dependiente (resultado).
+    -   \( x \) es la variable independiente (predictora).
+    -   \( \beta_0 \) es la intersección (ordenada en el origen).
+    -   \( \beta_1 \) es la pendiente del modelo.
+    -   \( \epsilon \) es el término de error.
+
+-   **Interpretación:**
+    -   \( \beta_1 \) indica el cambio en la variable dependiente por cada unidad de cambio en la variable independiente.
+    -   El objetivo es minimizar la suma de los cuadrados de las diferencias entre los valores observados y los valores predichos.
+
+---
+
+## Ejercicio Práctico en Python
+
+Veamos cómo ajustar un modelo de regresión lineal simple utilizando un conjunto de datos simulado con `numpy` y `statsmodels`.
+
+```{pyodide}
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Simulación de datos
+np.random.seed(123)
+horas_estudio = np.random.normal(loc=5, scale=1.5, size=100)
+calificacion_examen = 50 + 8 * horas_estudio + np.random.normal(loc=0, scale=5, size=100)
+
+# Crear un DataFrame de pandas
+df = pd.DataFrame({'horas_estudio': horas_estudio, 'calificacion_examen': calificacion_examen})
+
+# Ajuste del modelo de regresión lineal simple
+modelo = smf.ols('calificacion_examen ~ horas_estudio', data=df).fit()
+
+# Resumen del modelo
+print(modelo.summary())
+
+# Coeficientes del modelo
+print(f"\nIntercepto (beta_0): {modelo.params['Intercept']:.4f}")
+print(f"Pendiente (beta_1): {modelo.params['horas_estudio']:.4f}")
+
+# Visualización de los resultados
+plt.figure(figsize=(10, 6))
+sns.regplot(x='horas_estudio', y='calificacion_examen', data=df, 
+            line_kws={"color": "red"}, scatter_kws={"color": "blue"})
+plt.title("Regresión Lineal: Horas de Estudio vs Calificación")
+plt.xlabel("Horas de Estudio")
+plt.ylabel("Calificación")
+plt.legend(['Línea de Regresión'])
+plt.show()
+```
+
+---
+
+## La Regresión Lineal como Base de Otras Pruebas Estadísticas
+
+La belleza de los modelos lineales es que unifican muchos conceptos estadísticos que a menudo se enseñan por separado. Entender esto puede simplificar enormemente el aprendizaje de la estadística.
+
+-   **Prueba t (t-test):** Una prueba t se puede considerar un modelo lineal donde la variable independiente (`x`) es categórica con solo dos niveles (por ejemplo, "Grupo de Tratamiento" vs. "Grupo de Control"). El modelo predice la variable dependiente (`y`) basándose en el grupo al que pertenece cada observación.
+
+-   **ANOVA:** De manera similar, un ANOVA es un modelo lineal donde la variable independiente (`x`) es categórica pero con más de dos niveles (o grupos). El modelo evalúa si las medias de la variable dependiente son diferentes entre estos grupos.
+
+-   **Correlación:** La prueba de correlación de Pearson está directamente relacionada con la regresión lineal simple. El coeficiente de correlación (`r`) es una versión estandarizada de la pendiente (\( \beta_1 \)) del modelo de regresión. Ambos miden la fuerza y la dirección de la relación lineal entre dos variables.
+
+Al ver estas pruebas como variantes de un modelo lineal, los supuestos subyacentes (como la normalidad de los residuos y la homogeneidad de las varianzas) se vuelven más fáciles de entender, ya que se derivan del propio modelo lineal.
+
+---
+
+## Reflexión y Discusión
+
+-   Observa la pendiente y el intercepto del modelo: ¿Qué te dicen sobre la relación entre las horas de estudio y las calificaciones?
+-   Analiza cómo la línea de regresión se ajusta a los datos. ¿Qué sugiere este modelo sobre el poder predictivo de las horas de estudio respecto a las calificaciones de los estudiantes?
+-   Piensa en cómo podrías formular una prueba t o un ANOVA como un modelo lineal. ¿Cuál sería tu variable `x` y tu variable `y` en cada caso?
+
+Esta lección proporciona una comprensión práctica de la regresión lineal simple en Python, permitiendo a los estudiantes capturar y analizar relaciones lineales entre variables y utilizar estos modelos predictivos en escenarios del mundo real.

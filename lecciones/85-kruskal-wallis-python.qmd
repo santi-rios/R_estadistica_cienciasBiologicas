@@ -1,0 +1,338 @@
+---
+title: "Test de Kruskal-Wallis en Python"
+author: "Traducido y adaptado de R por un asistente de IA"
+format: live-html
+pyodide: 
+    packages: 
+        - numpy
+        - pandas
+        - matplotlib
+        - seaborn
+        - pingouin
+---
+
+## ¿Qué es el Test de Kruskal-Wallis?
+
+El test de Kruskal-Wallis es una **prueba no paramétrica** utilizada para determinar si hay diferencias significativas entre **tres o más grupos** en una variable continua. Es la alternativa no paramétrica al ANOVA de una vía cuando:
+
+- Los datos no siguen una distribución normal
+- Las varianzas no son homogéneas entre grupos
+- Los tamaños de muestra son pequeños
+
+### Características del Test
+
+- **No asume normalidad**: Funciona con distribuciones asimétricas
+- **Basado en rangos**: Utiliza los rangos de los datos en lugar de los valores originales
+- **Robusto**: Menos sensible a valores atípicos que el ANOVA
+
+## Hipótesis del Test de Kruskal-Wallis
+
+- **H₀**: Las medianas de todos los grupos son iguales
+- **H₁**: Al menos una de las medianas es diferente
+
+*Nota*: Técnicamente, el test compara las distribuciones de los rangos, pero comúnmente se interpreta en términos de medianas.
+
+## Ejemplo Práctico: Crecimiento Dental en Cobayas
+
+Usaremos un conjunto de datos que evalúa el efecto de la vitamina C en el crecimiento dental en cobayas, con tres niveles de dosis: 0.5, 1.0 y 2.0 mg/día.
+
+### 1. Cargar librerías y datos
+
+```{pyodide}
+#| echo: false
+#| output: false
+import micropip
+await micropip.install(['pandas', 'numpy', 'scipy', 'seaborn', 'matplotlib', 'pingouin'])
+```
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+import scipy.stats as stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pingouin as pg
+from scipy.stats import kruskal
+from scipy import stats as scipy_stats
+
+# Cargar datos de ToothGrowth (similar a R)
+# Simulamos datos similares al dataset ToothGrowth de R
+np.random.seed(42)
+
+# Crear datos simulados basados en ToothGrowth
+dose_05 = np.random.normal(10, 4, 20)  # Dosis 0.5
+dose_10 = np.random.normal(19, 4, 20)  # Dosis 1.0  
+dose_20 = np.random.normal(26, 4, 20)  # Dosis 2.0
+
+# Crear DataFrame
+my_data = pd.DataFrame({
+    'len': np.concatenate([dose_05, dose_10, dose_20]),
+    'dose': ['D0.5'] * 20 + ['D1'] * 20 + ['D2'] * 20
+})
+
+# Convertir dose a categórica con orden
+my_data['dose'] = pd.Categorical(my_data['dose'], 
+                                categories=['D0.5', 'D1', 'D2'], 
+                                ordered=True)
+
+print("Primeras filas del dataset:")
+print(my_data.head(10))
+print(f"\nEstructura del dataset:")
+print(f"Filas: {len(my_data)}")
+print(f"Columnas: {list(my_data.columns)}")
+print(f"\nNiveles de dosis: {my_data['dose'].cat.categories.tolist()}")
+```
+
+### 2. Estadísticas Descriptivas
+
+```{pyodide}
+# Estadísticas por grupo
+estadisticas = my_data.groupby('dose')['len'].agg([
+    ('count', 'count'),
+    ('media', 'mean'),
+    ('mediana', 'median'),
+    ('desv_std', 'std'),
+    ('min', 'min'),
+    ('max', 'max')
+]).round(3)
+
+print("Estadísticas descriptivas por grupo:")
+print(estadisticas)
+```
+
+### 3. Visualización de los Datos
+
+```{pyodide}
+# Configurar el estilo de los gráficos
+plt.style.use('default')
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Boxplot
+sns.boxplot(x='dose', y='len', data=my_data, 
+            palette=['#1f77b4', '#ff7f0e', '#2ca02c'], ax=axes[0])
+axes[0].set_title('Distribución de la longitud del diente por dosis')
+axes[0].set_xlabel('Dosis')
+axes[0].set_ylabel('Longitud del diente')
+
+# Violin plot para mostrar mejor la distribución
+sns.violinplot(x='dose', y='len', data=my_data, 
+               palette=['#1f77b4', '#ff7f0e', '#2ca02c'], ax=axes[1])
+axes[1].set_title('Distribución detallada por dosis')
+axes[1].set_xlabel('Dosis')
+axes[1].set_ylabel('Longitud del diente')
+
+plt.tight_layout()
+plt.show()
+```
+
+### 4. Verificación de Supuestos
+
+Antes de decidir entre ANOVA paramétrico y Kruskal-Wallis, verificaremos los supuestos:
+
+```{pyodide}
+# Prueba de normalidad por grupo (Shapiro-Wilk)
+print("Pruebas de normalidad por grupo (Shapiro-Wilk):")
+print("H₀: Los datos siguen una distribución normal")
+print("H₁: Los datos no siguen una distribución normal\n")
+
+for dose in my_data['dose'].cat.categories:
+    grupo_data = my_data[my_data['dose'] == dose]['len']
+    stat, p_value = stats.shapiro(grupo_data)
+    print(f"Grupo {dose}:")
+    print(f"  Estadístico: {stat:.4f}")
+    print(f"  p-valor: {p_value:.4f}")
+    print(f"  {'✓ Normal' if p_value > 0.05 else '✗ No normal'} (α = 0.05)\n")
+```
+
+```{pyodide}
+# Prueba de homogeneidad de varianzas (Levene)
+grupos = [my_data[my_data['dose'] == dose]['len'] for dose in my_data['dose'].cat.categories]
+stat_levene, p_levene = stats.levene(*grupos)
+
+print("Prueba de homogeneidad de varianzas (Levene):")
+print("H₀: Las varianzas son iguales en todos los grupos")
+print("H₁: Al menos una varianza es diferente")
+print(f"Estadístico: {stat_levene:.4f}")
+print(f"p-valor: {p_levene:.4f}")
+print(f"{'✓ Varianzas homogéneas' if p_levene > 0.05 else '✗ Varianzas heterogéneas'} (α = 0.05)")
+```
+
+### 5. Test de Kruskal-Wallis
+
+```{pyodide}
+# Realizar el test de Kruskal-Wallis
+# Separar los datos por grupo
+grupo_05 = my_data[my_data['dose'] == 'D0.5']['len']
+grupo_1 = my_data[my_data['dose'] == 'D1']['len']
+grupo_2 = my_data[my_data['dose'] == 'D2']['len']
+
+# Aplicar el test
+h_stat, p_value = kruskal(grupo_05, grupo_1, grupo_2)
+
+print("Test de Kruskal-Wallis:")
+print("="*40)
+print("H₀: Las medianas de todos los grupos son iguales")
+print("H₁: Al menos una mediana es diferente")
+print(f"\nEstadístico H: {h_stat:.4f}")
+print(f"p-valor: {p_value:.4f}")
+print(f"Grados de libertad: {len(my_data['dose'].cat.categories) - 1}")
+
+# Interpretación
+alpha = 0.05
+if p_value < alpha:
+    print(f"\n✓ CONCLUSIÓN:")
+    print(f"p-valor ({p_value:.4f}) < α ({alpha})")
+    print("Rechazamos H₀: Hay evidencia significativa de diferencias entre grupos.")
+else:
+    print(f"\n✗ CONCLUSIÓN:")
+    print(f"p-valor ({p_value:.4f}) ≥ α ({alpha})")
+    print("No rechazamos H₀: No hay evidencia suficiente de diferencias entre grupos.")
+```
+
+### 6. Comparaciones Post-Hoc
+
+Si el test de Kruskal-Wallis es significativo, realizamos comparaciones por pares:
+
+```{pyodide}
+# Comparaciones post-hoc con corrección de Bonferroni
+from scipy.stats import mannwhitneyu
+from itertools import combinations
+
+if p_value < 0.05:
+    print("\nComparaciones post-hoc (Mann-Whitney U con corrección de Bonferroni):")
+    print("="*60)
+    
+    grupos_datos = {
+        'D0.5': grupo_05,
+        'D1': grupo_1, 
+        'D2': grupo_2
+    }
+    
+    # Todas las comparaciones por pares
+    comparaciones = list(combinations(grupos_datos.keys(), 2))
+    n_comparaciones = len(comparaciones)
+    alpha_corregido = 0.05 / n_comparaciones  # Corrección de Bonferroni
+    
+    print(f"Número de comparaciones: {n_comparaciones}")
+    print(f"α corregido (Bonferroni): {alpha_corregido:.4f}\n")
+    
+    for grupo1, grupo2 in comparaciones:
+        stat, p_val = mannwhitneyu(grupos_datos[grupo1], grupos_datos[grupo2], 
+                                  alternative='two-sided')
+        
+        significativo = "✓ Significativo" if p_val < alpha_corregido else "✗ No significativo"
+        
+        print(f"{grupo1} vs {grupo2}:")
+        print(f"  U-statistic: {stat:.1f}")
+        print(f"  p-valor: {p_val:.4f}")
+        print(f"  {significativo}")
+        print()
+```
+
+### 7. Visualización de Resultados
+
+```{pyodide}
+# Crear un gráfico que muestre los resultados del test
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+# Boxplot con información estadística
+box_plot = sns.boxplot(x='dose', y='len', data=my_data, 
+                      palette=['#1f77b4', '#ff7f0e', '#2ca02c'], ax=ax1)
+ax1.set_title(f'Test de Kruskal-Wallis\nH = {h_stat:.3f}, p = {p_value:.4f}')
+ax1.set_xlabel('Dosis')
+ax1.set_ylabel('Longitud del diente')
+
+# Agregar líneas horizontales para mostrar medianas
+for i, dose in enumerate(my_data['dose'].cat.categories):
+    mediana = my_data[my_data['dose'] == dose]['len'].median()
+    ax1.hlines(mediana, i-0.4, i+0.4, colors='red', linestyles='--', linewidth=2)
+
+# Gráfico de medianas con intervalos de confianza
+medianas = my_data.groupby('dose')['len'].median()
+q1 = my_data.groupby('dose')['len'].quantile(0.25)
+q3 = my_data.groupby('dose')['len'].quantile(0.75)
+
+x_pos = range(len(medianas))
+ax2.errorbar(x_pos, medianas, yerr=[medianas - q1, q3 - medianas], 
+             fmt='o', capsize=5, capthick=2, markersize=8)
+ax2.set_xticks(x_pos)
+ax2.set_xticklabels(medianas.index)
+ax2.set_title('Medianas con Rango Intercuartílico')
+ax2.set_xlabel('Dosis')
+ax2.set_ylabel('Mediana de longitud del diente')
+ax2.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+```
+
+### 8. Comparación con ANOVA Paramétrico
+
+Para fines educativos, comparemos con ANOVA de una vía:
+
+```{pyodide}
+# ANOVA de una vía para comparación
+from scipy.stats import f_oneway
+
+f_stat, p_anova = f_oneway(grupo_05, grupo_1, grupo_2)
+
+print("Comparación de métodos:")
+print("="*40)
+print(f"Kruskal-Wallis: H = {h_stat:.4f}, p = {p_value:.4f}")
+print(f"ANOVA una vía:  F = {f_stat:.4f}, p = {p_anova:.4f}")
+print()
+
+if p_value < 0.05 and p_anova < 0.05:
+    print("✓ Ambos tests son significativos - conclusiones consistentes")
+elif p_value >= 0.05 and p_anova >= 0.05:
+    print("✓ Ambos tests no son significativos - conclusiones consistentes")
+else:
+    print("⚠ Los tests difieren - considerar supuestos y robustez")
+```
+
+### 9. Tamaño del Efecto
+
+```{pyodide}
+# Calcular eta cuadrado para Kruskal-Wallis (equivalente no paramétrico)
+n = len(my_data)
+k = len(my_data['dose'].cat.categories)
+eta_squared = (h_stat - k + 1) / (n - k)
+
+print(f"Tamaño del efecto (η² para Kruskal-Wallis): {eta_squared:.4f}")
+
+# Interpretación del tamaño del efecto
+if eta_squared < 0.01:
+    interpretacion = "efecto muy pequeño"
+elif eta_squared < 0.06:
+    interpretacion = "efecto pequeño"
+elif eta_squared < 0.14:
+    interpretacion = "efecto mediano"
+else:
+    interpretacion = "efecto grande"
+
+print(f"Interpretación: {interpretacion}")
+```
+
+## Cuándo Usar Kruskal-Wallis vs ANOVA
+
+**Usa Kruskal-Wallis cuando:**
+- Los datos no siguen una distribución normal
+- Las varianzas no son homogéneas
+- Tienes datos ordinales
+- Hay valores atípicos extremos
+- Los tamaños de muestra son pequeños
+
+**Usa ANOVA cuando:**
+- Los datos siguen una distribución normal
+- Las varianzas son homogéneas
+- Quieres mayor poder estadístico
+- Los tamaños de muestra son grandes
+
+## Resumen de la Metodología
+
+1. **Explorar los datos**: Estadísticas descriptivas y visualización
+2. **Verificar supuestos**: Normalidad (Shapiro-Wilk) y homogeneidad (Levene)
+3. **Elegir el test**: Kruskal-Wallis si se violan supuestos del ANOVA
+4. **Interpretar resultados**: Estadístico H y p-valor
+5. **Comparaciones post-hoc**: Si el test principal es significativo
+6. **Evaluar tamaño del efecto**: Magnitud práctica de las diferencias

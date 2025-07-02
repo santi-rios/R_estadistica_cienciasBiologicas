@@ -1,0 +1,196 @@
+---
+title: "Gráficos para comparar medias"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: superhero
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - tidyverse
+        - ggpubr
+        - car
+    render-df: gt-interactive
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+A continuación, vamos a ver cómo comparar medias de diferentes grupos con gráficos. Para ello, vamos a utilizar el paquete `ggpubr` que nos permite hacer comparaciones de medias de manera sencilla y visual.
+
+## Datos
+
+- Vamos a trabajar con el conjunto de datos `ToothGrowth` que contiene información sobre el crecimiento de dientes de 60 cobayos. Estos cobayos fueron asignados a uno de tres tratamientos diferentes: dosis de vitamina C (0.5, 1, 2) y medimos la longitud de los dientes de los cobayos después de 60 días.
+- El conjunto de datos tiene tres variables:
+  - `len`: longitud de los dientes de los cobayos.
+  - `supp`: tipo de suplemento (VC o OJ).
+  - `dose`: dosis de vitamina C (0.5, 1, 2).
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Cargar librerías
+library(ggpubr)
+
+# Cargar datos y guardar en variable df
+data("ToothGrowth")
+df <- ToothGrowth
+
+# Mostrar nuestros datos
+df
+```
+
+Existen muchos tipos de gráficos que nos permiten comparar medias, algunos de los más comunes son:
+
+- Box plots: gráficos de caja y bigotes, útiles para comparar medias de diferentes grupos, visualizando la distribución de los datos. También se pueden añadir puntos individuales para visualizar cada observación del conjunto de datos. Por último, también permite visualizar valores atípicos o outliers. 
+- Violin plots: gráficos de violín, útiles para comparar medias de diferentes grupos, visualizando la distribución de los datos. También se pueden añadir box plots dentro de los violines para visualizar la mediana, cuartiles y valores atípicos. Son preferibles a los box plots cuando se tienen muchos datos/grupos y se quiere visualizar la densidad de todos los datos.
+- Bar plots: gráficos de barras, útiles para comparar medias de diferentes grupos, visualizando la media y el error estándar de cada grupo. También se pueden añadir barras de error para visualizar la variabilidad de los datos. Son preferibles a los box plots cuando se tienen pocos datos/grupos y se quiere visualizar la media y la variabilidad de los datos. 
+- Line plots: gráficos de líneas, útiles para comparar medias de diferentes grupos, visualizando la media y el error estándar de cada grupo. Son preferibles cuando se quiere visualizar la tendencia de los datos a lo largo del tiempo o de una variable continua.
+
+
+##  Box plots and violin plots
+
+- vamos a usar la función `ggboxplot()` para crear un box plot y la función `ggviolin()` para crear un violin plot (ambas del paquete `ggpubr`).
+  - Nota que  podemos decirle a R que utilice una función de un paquete en particular con la notación `::` (por ejemplo, `ggpubr::ggboxplot()`). Esto es útil cuando dos paquetes tienen funciones con el mismo nombre y queremos especificar cuál queremos usar.
+- En el box plot, vamos a cambiar el color de los contornos de las cajas por grupos de dosis y vamos a añadir puntos jitter y cambiar la forma de los puntos por grupos de dosis.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+
+ p <- ggpubr::ggboxplot(df, x = "dose", y = "len",
+                color = "dose", # cambiar color de los contornos de las cajas por grupos de dosis
+                palette =c("#00AFBB", "#E7B800", "#FC4E07"), # cambiar colores de las cajas
+                add = "jitter", # añadir puntos individuales
+                shape = "dose" # cambiar la forma de los puntos por grupos de dosis
+                )
+ p
+```
+
+- En este gráfico, podemos ver que la longitud de los dientes de los cobayos aumenta con la dosis de vitamina C.
+- El siguiente paso es añadir p-valores a nuestro gráfico para comparar las medias de los diferentes grupos. Para ello, vamos a usar la función `stat_compare_means()` del paquete `ggpubr`.
+  - Para añadir p-valores a nuestro gráfico, necesitamos especificar las comparaciones que queremos hacer. En este caso, vamos a comparar las medias de los grupos 0.5, 1 y 2. Esto se guarda en la variable `my_comparisons`. Nota que las comparaciones se hacen en el orden en el que se especifican (por ejemplo, la primera comparación es entre los grupos 0.5 y 1, la segunda comparación es entre los grupos 1 y 2, y la tercera comparación es entre los grupos 0.5 y 2).
+  - Para añadir los p-valores al gráfico, usamos la función `stat_compare_means()` y especificamos las comparaciones que queremos hacer con el argumento `comparisons = my_comparisons`. 
+  - Luego, especificamos el método que queremos usar para calcular los p-valores con el argumento `method = "t.test"`. En este caso, vamos a usar la prueba t de Student para hacer las 3 comparaciones. Idealmente, deberíamos ajustar los p-valores para múltiples comparaciones, pero por simplicidad, no lo haremos en este primer caso.
+  - Por último, para obtener los p-valores en el gráfico como asteríscos en lugar del valor exacto, usamos el argumento `aes(label = after_stat(p.signif))`.
+
+::: {.callout-important}
+Por convención, los p-valores se representan con asteríscos en los gráficos. Los asteríscos representan el nivel de significancia de la comparación de medias: 
+
+- * p < 0.05
+- ** p < 0.01 
+- *** p < 0.001
+- Algunos consideran un cuarto nivel **** p < 0.0001, pero en otros casos solaente se usan los tres primeros niveles.
+
+*Si el p-valor es mayor a 0.05, no se añade ningún asterísco al gráfico*.
+:::
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+my_comparisons <- list( c("0.5", "1"), c("1", "2"), c("0.5", "2") )
+
+p + stat_compare_means(comparisons = my_comparisons, method = "t.test", aes(label = after_stat(p.signif)))
+```
+
+Ahora, vamos a hacer lo mismo, pero con un gráfico de violín. En este caso, vamos a cambiar el color de relleno de los violines por grupos de dosis y vamos a añadir un box plot con relleno blanco.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+ggviolin(df, x = "dose", y = "len", fill = "dose",
+         palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+         add = "boxplot", add.params = list(fill = "white"))+
+  stat_compare_means(comparisons = my_comparisons, method = "t.test", label = "p.signif")
+
+```
+
+bar plots
+
+Bar plots
+Demo data set
+
+Load and prepare data:
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Load data
+data("mtcars")
+dfm <- mtcars
+# Convert the cyl variable to a factor
+dfm$cyl <- as.factor(dfm$cyl)
+# Add the name colums
+dfm$name <- rownames(dfm)
+# Inspect the data
+head(dfm[, c("name", "wt", "mpg", "cyl")])
+```
+
+
+## Gráficos de barras y de líneas
+
+- Vamos a usar la función `ggbarplot()` para crear un gráfico de barras y la función `ggline()` para crear un gráfico de líneas (ambas del paquete `ggpubr`).
+- En ambos gráficos, vamos a representar la media y el error estándar.
+
+```{webr}	
+#| autorun: true
+#| warning: false
+
+ggbarplot(df, x = "dose", y = "len", fill = "dose",
+         palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+         add = "mean_se")+
+  stat_compare_means(comparisons = my_comparisons, method = "t.test", label = "p.signif")
+
+```
+
+```{webr}	
+#| autorun: true
+#| warning: false
+
+ggline(df, x = "dose", y = "len", 
+         add = "mean_se")+
+  stat_compare_means(comparisons = my_comparisons, 
+                                  method = "t.test", 
+                                  label = "p.signif")
+```
+
+::: {.callout-note}
+## Graficar más de un factor
+
+- Para comparar medias de más de un factor, podemos usar gráficos de barras o de líneas con dos factores (por ejemplo, dosis y tipo de suplemento).
+- Para hacer esto, podemos usar la función `facet.by` de la función `ggbarplot()` o `ggline()` y especificar el factor por el que queremos dividir el gráfico.
+- En este caso, vamos a comparar las medias de los grupos de dosis y tipo de suplemento.
+- Nota que también podemos añadir p-valores a los gráficos de barras y de líneas con dos factores. En este caso, como estamos comparando dos grupos de suplemento en cada dosis, no especificamos las comparaciones y R hace las comparaciones automáticamente (por ejemplo, compara los grupos VC y OJ en cada dosis, es decir una prueba de t en cada caso). 
+:::
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+ggline(df, 
+          x = "supp", 
+          y = "len", 
+          add = "mean_se",
+          facet.by = "dose", 
+          ) +
+  stat_compare_means( 
+                     method = "t.test", 
+                     label = "p.signif")
+
+```

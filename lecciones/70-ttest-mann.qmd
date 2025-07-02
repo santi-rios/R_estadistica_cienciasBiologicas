@@ -1,0 +1,326 @@
+---
+title: "Pruebas t para Muestras Independientes y el Test de Mann-Whitney"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html:
+        highlightStyle: github
+        highlightLines: true
+        theme: journal
+toc: true
+sidebar: false
+webr:
+    packages: 
+        - datos
+        - dplyr
+        - tidyr
+        - ggplot2
+    render-df: gt-interactive
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+## **Introducción a las Pruebas para Comparar Dos Medias**
+
+Hasta ahora, hemos explorado cómo comparar medias que provienen de una misma muestra (prueba t de una muestra) o de dos muestras relacionadas (prueba t pareada). En esta lección, nos centraremos en **comparar las medias de dos grupos independientes**. Este tipo de comparación es común en estudios de investigación, donde queremos determinar si hay diferencias significativas entre dos grupos en una variable de interés.
+
+Cuando comparamos las medias de dos grupos independientes (independientes significa que las observaciones en un grupo no están relacionadas con las observaciones en el otro grupo), podemos utilizar dos pruebas comunes:
+
+- **Prueba t para dos muestras independientes**: Evalúa si las medias de dos grupos son significativamente diferentes.
+- **Test de Mann-Whitney U**: Es una alternativa no paramétrica a la prueba t de dos muestras independientes, que compara las distribuciones de dos grupos basándose en los rangos de los datos.
+
+Ambas pruebas pueden entenderse como **modelos lineales simples** que predicen la diferencia entre las medias de los grupos. En el caso de la prueba t, se utiliza el valor original de la variable, mientras que en el test de Mann-Whitney, se utilizan los **rangos** de los valores.
+
+---
+
+## **Puntos clave**
+
+1. **Prueba t para dos muestras independientes como modelo lineal**: El modelo lineal en este caso predice la media de la variable dependiente ($(y$)) para cada grupo. La variable independiente ($(x$)) es un **indicador** que toma el valor de 0 o 1 dependiendo de a qué grupo pertenece la observación. Esto se conoce como **codificación dummy** y se refiere a la conversión de variables categóricas en variables numéricas. Por ejemplo, si tenemos una variable `sexo` con dos categorías (`masculino` y `femenino`), podemos codificarla como `0` y `1` para usarla en un modelo lineal, donde 0 representa `masculino` y 1 representa `femenino`.
+
+Ecuación lineal del modelo de la prueba t para muestras independientes:
+   $$
+   y_i = \beta_0 + \beta_1 \cdot x_i
+   $$
+   
+   - Si $(x_i = 0$), entonces $(y_i = \beta_0$), es decir, la media del primer grupo.
+   - Si $(x_i = 1$), entonces $(y_i = \beta_0 + \beta_1$), que es la media del segundo grupo.
+
+   La hipótesis nula ($(H_0$)) es que no hay diferencia entre las medias de los grupos ($(\beta_1 = 0$)).
+
+2. **Test de Mann-Whitney U como modelo lineal**: Similar a la prueba t, pero en lugar de los valores originales de $(y$), se utilizan los **rangos** de $(y$):
+
+   $$
+   \text{rango}(y_i) = \beta_0 + \beta_1 \cdot x_i
+   $$
+
+
+
+3. **Codificación dummy**: Es una técnica que se utiliza para convertir variables categóricas en variables numéricas para que puedan ser utilizadas en modelos lineales. Por lo general, no tenemos que preocuparnos por la codificación dummy ya que R y otros programas estadísticos la realizan automáticamente cuando ajustamos modelos lineales con variables categóricas. Sin embargo, a continuación se proporciona una explicación más detallada sobre la codificación dummy para una mejor comprensión.
+
+::: {.callout}
+## Más sobre codificación dummy
+
+La **codificación dummy** es una técnica que se utiliza en los **modelos lineales** (como la regresión lineal, ANOVA, etc.) cuando tienes **variables categóricas** y necesitas convertirlas en una forma que el modelo pueda entender. Los modelos lineales solo pueden trabajar con variables numéricas, por lo que las **variables categóricas** (como colores, tipos de tratamiento, géneros, etc.) deben ser transformadas en **números**.
+
+### ¿Qué es una variable categórica?
+Una **variable categórica** es aquella que tiene diferentes categorías o niveles, pero no tiene un orden numérico natural. Por ejemplo, piensa en una variable llamada `tratamiento` que tiene tres niveles:
+
+- `tratamiento = A`
+- `tratamiento = B`
+- `tratamiento = C`
+
+La ecuación del modelo lineal no puede trabajar directamente con estas categorías porque no son números. Es aquí donde entra la **codificación dummy**.
+
+### ¿Qué es la codificación dummy?
+La **codificación dummy** convierte una variable categórica en una serie de **variables binarias (0 o 1)**. Cada nueva variable dummy indica la **presencia o ausencia** de una categoría específica. Esto permite al modelo lineal hacer los cálculos necesarios para entender la influencia de las diferentes categorías.
+
+### Ejemplo sencillo de codificación dummy
+
+Supongamos que tienes una variable categórica llamada `tratamiento` con tres niveles: `A`, `B` y `C`. Al aplicar la codificación dummy, se crean dos nuevas variables (porque el tercer nivel se usa como referencia), por ejemplo:
+
+- **tratamientoB**: Será 1 si el tratamiento es B, y 0 si no lo es.
+- **tratamientoC**: Será 1 si el tratamiento es C, y 0 si no lo es.
+
+La categoría **A** será la **categoría de referencia** (o categoría base), es decir, cuando ambas variables dummy (`tratamientoB` y `tratamientoC`) sean 0, eso implicará que el tratamiento es A.
+
+La codificación se vería así:
+
+| tratamiento | tratamientoB | tratamientoC |
+|-------------|---------------|---------------|
+| A           | 0             | 0             |
+| B           | 1             | 0             |
+| C           | 0             | 1             |
+| A           | 0             | 0             |
+| C           | 0             | 1             |
+| B           | 1             | 0             |
+
+### ¿Cómo se interpreta en un modelo lineal?
+Si usas esta codificación dummy en una **regresión lineal**, el modelo ajustará una ecuación lineal que incluirá estas variables dummy. Supongamos que el modelo ajustado es algo así:
+
+$$
+y = \beta_0 + \beta_1 \cdot tratamientoB + \beta_2 \cdot tratamientoC
+$$
+
+Donde:
+
+- $(\beta_0$) es el valor esperado de $(y$) cuando el tratamiento es **A** (la categoría de referencia).
+- $(\beta_1$) es el **cambio en $(Y$)** cuando el tratamiento es **B** en comparación con el tratamiento **A**.
+- $(\beta_2$) es el **cambio en $(Y$)** cuando el tratamiento es **C** en comparación con el tratamiento **A**.
+
+### Ejemplo de interpretación:
+- Si $(\beta_1 = 5$), entonces el valor esperado de $(y$) es 5 unidades mayor cuando el tratamiento es **B** en comparación con el tratamiento **A**.
+- Si $(\beta_2 = -3$), entonces el valor esperado de $(y$) es 3 unidades menor cuando el tratamiento es **C** en comparación con el tratamiento **A**.
+
+### ¿Por qué se necesita una categoría de referencia?
+La categoría de referencia (en este ejemplo, el tratamiento A) actúa como un **punto de comparación**. El modelo estima los efectos de las demás categorías (B y C) **en relación con la categoría de referencia**. Si no se fijara una categoría de referencia, habría redundancia en los datos (colinealidad), lo que haría imposible ajustar el modelo.
+
+### Resumen:
+
+- La **codificación dummy** transforma una variable categórica en varias variables binarias (0 o 1).
+- Se necesita una **categoría de referencia** para evitar redundancia en el modelo.
+- Los coeficientes asociados a las variables dummy indican la **diferencia** entre cada categoría y la categoría de referencia en términos de la variable de respuesta.
+
+### Ejemplo en R:
+
+Supongamos que tienes una variable categórica `tratamiento` con niveles `A`, `B`, y `C`. En R, si ajustas un modelo lineal:
+
+```r
+# Datos de ejemplo
+tratamiento <- factor(c("A", "B", "C", "A", "C", "B"))
+y <- c(10, 15, 7, 12, 9, 14)
+
+# Ajustar el modelo lineal
+modelo <- lm(y ~ tratamiento)
+
+# Ver los coeficientes
+summary(modelo)
+```
+
+En el output, verás algo como:
+
+```
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   11.000      2.000   5.500  0.0123 *  
+tratamientoB   4.000      2.828   1.414  0.2165    
+tratamientoC  -3.000      2.828  -1.061  0.3660  
+```
+
+Aquí:
+
+- El **Intercept** (11.000) es la media de `y` para la categoría de referencia (**A**).
+- El coeficiente de `tratamientoB` (4.000) indica que el valor promedio de `y` es 4 unidades mayor para el tratamiento **B** en comparación con el tratamiento **A**.
+- El coeficiente de `tratamientoC` (-3.000) indica que el valor promedio de `y` es 3 unidades menor para el tratamiento **C** en comparación con el tratamiento **A**.
+
+### Conclusión:
+La **codificación dummy** es una forma sencilla de incluir variables categóricas en un modelo lineal. Te permite evaluar cómo cambian las respuestas en relación con una categoría de referencia, proporcionando una forma clara de interpretar el efecto de cada categoría en el resultado del modelo.
+:::
+
+---
+
+## **Ejemplo en R: Comparación de Dos Medias**
+
+Regresando a nuestro tema principal, vamos a realizar una comparación de dos medias utilizando la prueba t para dos muestras independientes y el test de Mann-Whitney U. 
+
+#### **Paso 1: Datos**
+
+Tenemos el siguiente conjunto de datos con dos grupos independientes (en la variable `grupo`), donde queremos comparar las medias de `y` entre los dos grupos.
+
+```{webr}
+#| include: false
+
+# Cargar librerías necesarias
+library(tidyverse)
+
+# Función para generar datos normales con media y desviación estándar conocidas
+rnorm_fixed <- function(N, mu = 0, sd = 1) {
+  scale(rnorm(N)) * sd + mu
+}
+
+# Generar datos para dos grupos
+N <- 20  # Número de puntos por grupo
+t_independientes <- data.frame(
+  grupo = rep(c(0, 1), each = N),
+  y = c(rnorm_fixed(N, 0.32, 0.3), rnorm_fixed(N, 1.3, 0.32))
+)
+
+```
+
+
+```{webr}
+#| edit: false
+#| runbutton: false
+#| warning: false
+
+t_independientes
+```
+
+#### **Paso 2: Visualización de la Prueba t para Dos Muestras Independientes**
+
+- Creamos una gráfica que muestra las medias de los dos grupos.
+- En este gráfico, observamos la media del grupo 1 (x = 0) y  grupo 2 (x = 1). La línea roja representa la diferencia entre las medias de los dos grupos y corresponde a la pendiente del modelo lineal.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Gráfico de la prueba t para dos muestras independientes
+ggplot(t_independientes, aes(x = grupo, y = y)) + 
+  stat_summary(fun.y = mean, geom = "errorbar", aes(ymax = ..y.., ymin = ..y.., color = 'something'), lwd = 2) +
+  geom_segment(x = -10, xend = 10, y = 0.3, yend = 0.3, lwd = 2, aes(color = 'beta_0')) + 
+  geom_segment(x = 0, xend = 1, y = 0.3, yend = 1.3, lwd = 2, aes(color = 'beta_1')) + 
+  scale_color_manual(name = NULL, values = c("blue", "red", "darkblue"), labels = c(bquote(beta[0] * " (media grupo 1)"), bquote(beta[1] * " (pendiente = diferencia)"), bquote(beta[0] + beta[1] %.% 1 * " (media grupo 2)"))) +
+  labs(title = 'Prueba t para dos muestras independientes')
+
+
+```
+
+#### **Paso 3: Prueba t**
+
+Podemos realizar la prueba t de dos muestras independientes utilizando la función `t.test()`. También podemos obtener el mismo resultado utilizando un modelo lineal con codificación dummy. De nuevo, no te preocupes por el código, lo importante es entender que la prueba t y el modelo lineal **son lo mismo**. 
+
+- Ahora, el output de la prueba t nos da dos medias (grupo 0=x=0.32 y grupo 1=y=1.30). El modelo lineal nos da la pendiente (diferencia entre las medias), que es 0.98 (`1.30 - 0.32`).
+- El valor p de la prueba t es `3.494e-12`, lo que indica que la diferencia entre las medias es significativa. El valor p de la pendiente en el modelo lineal es el mismo y también indica significancia.
+- **NOTA**: el modelo lineal también nos da el coeficiente del intercepto. Muchas veces, este coeficiente no es relevante ya que solo indica la media del grupo de referencia (la mayoría de las veces nos interesa la diferencia entre las medias). El valor p del intercepto también se ignora en muchos casos ya que no es relevante para la comparación de medias.
+
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Prueba t para dos muestras independientes con t.test
+t_test_result <- t.test(t_independientes$y[t_independientes$grupo == 0], t_independientes$y[t_independientes$grupo == 1], var.equal = TRUE)
+
+# Modelo lineal equivalente con codificación dummy
+t_independientes$group <- ifelse(t_independientes$grupo == 1, 1, 0)
+lm_result <- lm(y ~ group, data = t_independientes)
+
+# Mostrar resultados
+t_test_result
+# Resumen del modelo lineal
+summary(lm_result)
+```
+
+#### **Paso 4:  Test de Mann-Whitney U**
+
+El test de Mann-Whitney U se puede realizar con la función `wilcox.test()`, y nuevamente podemos obtener el mismo resultado con un modelo lineal aplicado a los **rangos** de los valores.
+- De nuevo, en este caso los valores p no son idénticos, pero ambos indican significancia en la diferencia entre los grupos.
+
+```{webr}
+#| autorun: true
+#| warning: false
+
+# Test de Mann-Whitney U con wilcox.test
+mann_whitney_result <- wilcox.test(t_independientes$y[t_independientes$grupo == 0], 
+                                   t_independientes$y[t_independientes$grupo == 1])
+
+# Modelo lineal equivalente con rangos
+t_independientes$ranked_y <- rank(t_independientes$y)  # Asignar rangos a la variable y
+t_independientes$grupo <- as.factor(t_independientes$grupo)  # Asegurarse de que "grupo" sea un factor
+
+# Ajustar el modelo lineal
+lm_mann_whitney <- lm(ranked_y ~ grupo, data = t_independientes)
+
+# Mostrar resultados
+mann_whitney_result
+# Resumen del modelo lineal
+summary(lm_mann_whitney)
+
+```
+
+
+::: {.callout-note}
+La razón por la que se usa la función **`wilcox.test()`** para realizar un test de **Mann-Whitney U** es porque **ambos tests están relacionados**, y la función **`wilcox.test()`** en R puede realizar **dos tipos de pruebas**:
+
+1. **Prueba de Wilcoxon de rangos con signo (Wilcoxon signed-rank test)**: Se utiliza para comparar **muestras pareadas** o una sola muestra contra un valor hipotético.
+2. **Prueba de Mann-Whitney U (Mann-Whitney-Wilcoxon test)**: Se utiliza para comparar **dos grupos independientes**.
+
+La función **`wilcox.test()`** es versátil y puede realizar **ambas pruebas** (Wilcoxon signed-rank y Mann-Whitney U). Cuando se le proporcionan **dos conjuntos de datos independientes**, la función automáticamente realiza el **test de Mann-Whitney U**.
+
+#### Ejemplo de uso de `wilcox.test()` para Mann-Whitney U:
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Dos grupos independientes
+grupo1 <- c(5, 7, 9, 10, 15)
+grupo2 <- c(6, 8, 14, 16, 18)
+
+# Test de Mann-Whitney U
+wilcox.test(grupo1, grupo2)
+```
+
+En este ejemplo, como estás comparando **dos grupos independientes** (`grupo1` y `grupo2`), R interpretará que deseas realizar el **test de Mann-Whitney U** y no el test de Wilcoxon de rangos con signo.
+
+### ¿Cómo sabe R cuándo hacer un test de Wilcoxon o un test de Mann-Whitney?
+
+- Si proporcionas **una sola muestra** o especificas el argumento `paired = TRUE`, entonces `wilcox.test()` realizará el **Wilcoxon signed-rank test** (para muestras pareadas o una muestra contra un valor).
+  
+- Si proporcionas **dos muestras independientes**, `wilcox.test()` realizará el **test de Mann-Whitney U**.
+
+### Ejemplo de Wilcoxon signed-rank test (muestras pareadas):
+
+```{webr}
+#| autorun: true
+#| warning: false
+# Dos muestras pareadas
+antes <- c(5, 6, 7, 8, 9)
+despues <- c(6, 7, 8, 9, 10)
+
+# Test de Wilcoxon de rangos con signo (muestras pareadas)
+wilcox.test(antes, despues, paired = TRUE)
+```
+
+Aquí, al usar el argumento `paired = TRUE`, le indicas a R que realice el **Wilcoxon signed-rank test** para comparar muestras pareadas.
+
+:::
+
+---
+
+
+

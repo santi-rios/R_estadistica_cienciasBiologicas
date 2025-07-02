@@ -1,0 +1,96 @@
+---
+title: "Correlación de Pearson y Spearman con Python"
+subtitle: "Midiendo la Fuerza de Asociación entre Variables"
+format: 
+    live-html
+        # highlight-style: github
+        # highlight-lines: true
+        # theme: solar
+toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - numpy
+        - scipy
+        - seaborn
+        - matplotlib
+---
+
+## Introducción
+
+La correlación es una medida estadística que expresa la extensión en la que dos variables están relacionadas linealmente (Pearson) o monótonamente (Spearman). Es una herramienta fundamental para entender cómo se mueven juntas las variables.
+
+---
+
+## Conceptos Clave
+
+- **Correlación de Pearson (r)**: Mide la fuerza y dirección de una relación *lineal* entre dos variables continuas. El coeficiente varía de -1 (correlación lineal negativa perfecta) a +1 (correlación lineal positiva perfecta). Un valor de 0 indica que no hay relación lineal.
+
+- **Correlación de Spearman (ρ o rho)**: Mide la fuerza y dirección de una relación *monótona* entre dos variables. No requiere que la relación sea lineal. Funciona con los rangos de los datos, lo que la hace robusta a los valores atípicos y adecuada para datos no normales.
+
+- **Hipótesis Nula (H₀)**: En el contexto de la correlación, la hipótesis nula es que no existe relación entre las variables (el coeficiente de correlación es 0).
+
+---
+
+## Ejercicio Práctico en Python
+
+Calcularemos y visualizaremos las correlaciones de Pearson y Spearman para dos conjuntos de datos: uno con una relación lineal y otro con una relación monótona no lineal.
+
+```{pyodide}
+import pandas as pd
+import numpy as np
+from scipy import stats
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Generación de datos
+np.random.seed(42)
+# Datos con relación lineal
+x_lineal = np.linspace(0, 10, 100)
+y_lineal = 2 * x_lineal + np.random.normal(0, 2, 100)
+
+# Datos con relación monótona no lineal
+x_monotona = np.linspace(0, 10, 100)
+y_monotona = x_monotona**2 + np.random.normal(0, 5, 100)
+
+# Calcular correlaciones
+pearson_r, pearson_p = stats.pearsonr(x_lineal, y_lineal)
+spearman_rho, spearman_p = stats.spearmanr(x_lineal, y_lineal)
+
+print("Datos Lineales:")
+print(f"Correlación de Pearson: r={pearson_r:.4f}, p-valor={pearson_p:.4f}")
+print(f"Correlación de Spearman: rho={spearman_rho:.4f}, p-valor={spearman_p:.4f}")
+
+pearson_r_mono, pearson_p_mono = stats.pearsonr(x_monotona, y_monotona)
+spearman_rho_mono, spearman_p_mono = stats.spearmanr(x_monotona, y_monotona)
+
+print("\nDatos Monótonos No Lineales:")
+print(f"Correlación de Pearson: r={pearson_r_mono:.4f}, p-valor={pearson_p_mono:.4f}")
+print(f"Correlación de Spearman: rho={spearman_rho_mono:.4f}, p-valor={spearman_p_mono:.4f}")
+
+# Visualización
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+sns.scatterplot(x=x_lineal, y=y_lineal, ax=ax1)
+ax1.set_title(f'Relación Lineal\nPearson r={pearson_r:.2f}, Spearman rho={spearman_rho:.2f}')
+ax1.set_xlabel('X')
+ax1.set_ylabel('Y')
+
+sns.scatterplot(x=x_monotona, y=y_monotona, ax=ax2)
+ax2.set_title(f'Relación Monótona No Lineal\nPearson r={pearson_r_mono:.2f}, Spearman rho={spearman_rho_mono:.2f}')
+ax2.set_xlabel('X')
+ax2.set_ylabel('Y')
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## Interpretación y Discusión
+
+- **Para los datos lineales**: Observa que tanto Pearson como Spearman dan coeficientes altos y similares. ¿Por qué crees que ocurre esto?
+- **Para los datos monótonos no lineales**: Compara los coeficientes. La correlación de Spearman es más alta que la de Pearson. ¿Qué te dice esto sobre la capacidad de cada prueba para capturar diferentes tipos de relaciones?
+
+Esta lección ilustra la importancia de elegir la medida de correlación correcta según la naturaleza de la relación entre las variables, una habilidad clave en el análisis de datos exploratorio.
