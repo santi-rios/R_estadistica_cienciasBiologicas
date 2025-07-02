@@ -5,10 +5,10 @@ sidebar: false
 webr:
     packages: 
         - dplyr
-# pyodide: 
-#     packages: 
-#         - scikit-learn
-#         - pandas
+pyodide: 
+    packages: 
+        - numpy
+        - pandas
 #         - matplotlib
 #         - seaborn
 #         - statsmodels
@@ -170,9 +170,10 @@ datos_tipos_variables = pd.DataFrame({
 ```
 
 
-```{webr}
-
-head(datos_tipos_variables)
+```{pyodide}
+import pandas as pd
+df = pd.DataFrame(datos_tipos_variables)
+print(df.head())
 
 ```
 
@@ -209,7 +210,7 @@ str(datos_tipos_variables)
 
 
 ```{pyodide}
-str(datos_tipos_variables)
+print(df.dtypes)
 ```
 
 :::
@@ -271,7 +272,7 @@ datos_tipos_variables %>% glimpse()
 ## Python
 
 ```{pyodide}
-df.info(datos_tipos_variables)
+df.info()
 ```
 
 :::
@@ -301,7 +302,7 @@ sapply(datos_tipos_variables, class)
 
 ```{pyodide}
 
-datos_tipos_variables.dtypes
+df.dtypes
 ```
 
 :::
@@ -347,7 +348,7 @@ str(datos_nuevos)
 # Cambiar la variable ID a categoría
 # Creamos una copia para no modificar el dataframe original
 
-datos_nuevos = datos_tipos_variables.copy()
+datos_nuevos = df.copy()
 datos_nuevos['ID'] = datos_nuevos['ID'].astype('category')
 
 datos_nuevos.info()
@@ -403,30 +404,31 @@ if (identical(typeof(caracter), "character")) {
 
 
 ```{pyodide}
-#| exercise: eval_variables_ex3
+#| exercise: eval_variables_ex3py
 
 # Crear una variable de carácter
-caracter <- "______"
+caracter = "______"
 
 print(caracter)
 
 # Verificamos el tipo de dato
-typeof(caracter)
+type(caracter)
 ```
 
 El tipo de dato debería ser `character`. Si el estudiante ha hecho todo correctamente, la salida de `typeof(caracter)` será `"character"`.
 
 
-```{webr}
-#| exercise: eval_variables_ex3
+```{pyodide}
+#| exercise: eval_variables_ex3py
 #| check: true
 
-# Evaluamos si la variable es de tipo 'character'
-if (identical(typeof(caracter), "character")) {
-  list(correct = TRUE, message = "¡Correcto! La variable es de tipo carácter.")
-} else {
-  list(correct = FALSE, message = "Incorrecto. Asegúrate de que la variable sea de tipo carácter.")
-}
+feedback = None
+# Evaluamos si la variable es de tipo 'str'
+if isinstance(caracter, str):
+  feedback = {"correct": True, "message": "¡Buen trabajo! Has creado correctamente una variable de tipo string."}
+else:
+  feedback = {"correct": False, "message": "La variable no es de tipo string. Asegúrate de poner texto entre comillas."}
+feedback
 ```
 
 :::
@@ -439,6 +441,10 @@ En este ejercicio, los estudiantes deben crear una **variable numérica** y veri
 
 1. Reemplaza el guion bajo (`______`) por un número para crear una variable numérica.
 2. Corre el código para verificar que el tipo de dato sea correcto.
+
+::: {.panel-tabset group="language"}
+
+## R
 
 ```{webr}
 #| exercise: eval_vars_ex4
@@ -470,6 +476,38 @@ if (identical(class(numerica), "numeric")) {
 }
 ```
 
+## Python
+
+```{pyodide}
+#| exercise: eval_vars_ex4py
+
+# Crear una variable numérica
+numerica = ______
+
+print(numerica)
+
+# Verificamos el tipo de dato
+type(numerica)
+
+```
+
+El tipo de dato debería ser `numeric`. Si el estudiante ha hecho todo correctamente, la salida de `typeof(numerica)` y `class(numerica)` será `"double"` o `"numeric"`.
+
+
+```{pyodide}
+#| exercise: eval_vars_ex4py
+#| check: true
+
+feedback = None
+# Evaluamos si la variable es de tipo 'int'
+if isinstance(numerica, int):
+  feedback = {"correct": True, "message": "¡Buen trabajo! Has creado correctamente una variable de tipo integer."}
+else:
+  feedback = {"correct": False, "message": "La variable no es de tipo integer."}
+feedback
+```
+
+:::
 
 ### Explicación:
 

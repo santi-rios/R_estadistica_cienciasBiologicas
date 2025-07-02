@@ -1,0 +1,310 @@
+---
+title: "Ejercicio I Visualización y Distribución de Datos con Python"
+format:
+  live-html:
+    toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+        - gapminder
+resources:
+    - datos
+---
+
+## Introducción
+
+- En este ejercicio vamos a realizar gráficos utilizando `seaborn` y `matplotlib`.
+
+Recordemos lo siguiente:
+
+> Un gráfico es un *mapeo* de variables de *datos* a atributos *estéticos* de objetos *geométricos*.
+
+Aunque la "gramática de los gráficos" es una conceptualización de `ggplot2` en R, sus principios son útiles para construir visualizaciones de forma estructurada en cualquier lenguaje. Tiene *tres componentes principales*:
+
+1.  **Datos (_data_):** el `DataFrame` de `pandas` que contiene las variables que queremos graficar.
+2.  **Geometría (_geometry_):** el tipo de objeto que compone el gráfico. Por ejemplo: puntos, líneas y barras. En `seaborn`, esto se elige con la función de trazado (ej. `scatterplot()`, `lineplot()`).
+3.  **Estética (_aesthetic_):** atributos de la geometría. Por ejemplo, la posición en los ejes `x` e `y`, el `color`, la `forma` y el `tamaño`. Cada atributo se puede asignar a una columna de nuestro `DataFrame`.
+
+## Ejemplo de la gramática en un gráfico
+
+Vamos a ver un ejemplo de estos componentes en un gráfico. Para ello, vamos a utilizar el paquete `gapminder`, que contiene datos de desarrollo mundial.
+
+Primero, necesitamos instalar las librerías necesarias.
+```python
+# | echo: true
+pip install pandas gapminder seaborn matplotlib
+```
+
+Ahora, carguemos los datos y veámoslos. Para ver los datos de `gapminder`, carga los datos en un DataFrame y luego utiliza el método `.head()` para ver los primeros registros, `.describe()` para un resumen estadístico, o `.info()` para ver la estructura.
+```{pyodide}
+#| min-lines: 2
+import pandas as pd
+
+# Read the CSV file into a pandas DataFrame
+# Cargar los datos
+df = pd.read_csv('./datos/gap_minder.tsv', sep='t')
+
+
+# Ver las primeras filas
+df.head()
+```
+
+Como puedes ver, los datos de `gapminder` contienen información sobre la esperanza de vida (`lifeExp`), el PIB per cápita (`gdpPercap`) y la población (`pop`) de varios países a lo largo del tiempo.
+
+### Veamos un gráfico a través de la gramática de los gráficos.
+
+El siguiente gráfico está realizado con los datos de `gapminder`. Intentemos reconocer qué variables y secciones corresponden a la gramática de gráficos:
+```{pyodide}
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.scatterplot(data=df, 
+                x="gdpPercap", y="lifeExp", 
+                hue="continent", 
+                size="pop",
+                sizes=(20, 200)) # Controla el rango de tamaños de los puntos
+plt.show()
+```
+
+Mirando el código y el gráfico, podemos identificar que:
+
+*   **Datos:** el DataFrame `df` se asigna al parámetro `data`.
+*   **Estética:** el eje `x` representa la variable `gdpPercap`, el eje `y` representa `lifeExp`, el `color` (o `hue`) representa `continent` y el `tamaño` (`size`) representa la población (`pop`).
+*   **Geometría:** generamos un gráfico de puntos, como indica la función `scatterplot()`.
+
+### Cambiemos algunas propiedades
+
+Supongamos que queremos cambiar los ejes del gráfico. ¿Cómo cambiarías el código anterior para que el eje `x` represente la esperanza de vida y el eje `y` el PIB per cápita?
+```{pyodide}
+#| exercise: grafico_puntos
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.scatterplot(data=df, 
+                x=______, y=______, 
+                hue="continent", 
+                size="pop",
+                sizes=(20, 200))
+plt.show()
+```
+
+::: {.callout-note collapse="true" title="Hint"}
+Recuerda que los ejes están representados por los parámetros `x` (horizontal) e `y` (vertical). Los valores deben ser los nombres de las columnas como cadenas de texto.
+:::
+
+::: {.callout-tip collapse="true" title="Solución"}
+
+```{pyodide}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.scatterplot(data=df, 
+                x="lifeExp", y="gdpPercap", 
+                hue="continent", 
+                size="pop",
+                sizes=(20, 200))
+plt.show()
+```
+
+:::
+
+¡Bien hecho!
+
+Además del gráfico de puntos (`scatterplot`), `seaborn` ofrece otros tipos de gráficos, como gráficos de líneas, de barras o histogramas.
+
+¿Cómo te parece que pueden llamarse las funciones para los gráficos de líneas y de barras en `seaborn`?
+
+<details>
+<summary>Respuesta</summary>
+<strong>¡Buen trabajo si pensaste en `lineplot()` y `barplot()`!</strong> Esas son las funciones para gráficos de líneas y de barras, respectivamente.
+</details>
+
+## Gráfico de líneas
+
+Vamos a realizar otros gráficos utilizando los datos en `gapminder`. Para generar el gráfico de líneas, vamos a ver la evolución de la población de México. Los gráficos de líneas son útiles para mostrar la evolución de una variable a lo largo del tiempo.
+
+Primero, filtra los datos de `gapminder` para obtener solo los datos de México y guárdalos en un nuevo DataFrame llamado `mex_df`. Utiliza el método `.head()` para ver los primeros registros.
+```{pyodide}
+#| exercise: vis_datos_mex
+mex_df = df[df['______'] == '______']
+mex_df.head()
+```
+
+::: {.callout-note collapse="true" title="Hint"}
+Recuerda que el nombre del país es `Mexico` y que la columna que contiene el nombre del país es `country`.
+:::
+
+::: {.callout-tip collapse="true" title="Solución"}
+
+```{pyodide}
+mex_df = df[df['country'] == 'Mexico']
+mex_df.head()
+```
+
+:::
+
+Ahora, a partir de los datos de México, crea un gráfico de línea (`lineplot()`) donde se muestre en el eje `x` los años y en el `y` la población.
+```{pyodide}
+#| exercise: grafico_lineas
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.lineplot(data=______, 
+             x=______, y=______)
+plt.show()
+```
+
+::: {.callout-note collapse="true" title="Hint"}
+- El DataFrame se llama `mex_df`.
+- La variable que contiene los años se llama `year`.
+- La variable que contiene la población se llama `pop`.
+:::
+
+::: {.callout-tip collapse="true" title="Solución"}
+
+```{pyodide}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.lineplot(data=mex_df, 
+             x="year", y="pop")
+plt.show()
+```
+
+:::
+
+### Hagamos un gráfico de barras
+
+En `seaborn`, `barplot()` es ideal cuando tienes una variable para el eje x (categórica) y otra para la altura de la barra en el eje y (numérica). Esto es similar a `geom_col()` de `ggplot2`.
+
+Si solo tuvieras una variable categórica y quisieras contar sus ocurrencias, usarías `countplot()`, que es similar a `geom_bar()`.
+
+Vamos a transformar el gráfico anterior a barras. Ya que tenemos la población (`pop`) para cada año (`year`), usaremos `barplot()`.
+```{pyodide}
+#| exercise: grafico_barras
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.barplot(data=______, 
+            x=______, y=______)
+plt.show()
+```
+
+::: {.callout-note collapse="true" title="Hint"}
+Los parámetros son los mismos que en el `lineplot` anterior.
+:::
+
+::: {.callout-tip collapse="true" title="Solución"}
+
+```{pyodide}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.barplot(data=mex_df, 
+            x="year", y="pop")
+plt.show()
+```
+
+:::
+
+### Hagamos un gráfico de área
+
+`Seaborn` no tiene una función directa para gráficos de área como `geom_area()`, pero podemos usar `matplotlib` para esto con la función `fill_between()`.
+
+Modifica el siguiente código para generar un gráfico de áreas que nos muestre los años en el eje `x` y la población en el eje `y`.
+```{pyodide}
+#| exercise: grafico_areas
+import matplotlib.pyplot as plt
+
+plt.fill_between(mex_df['______'], mex_df['______'])
+plt.xlabel('Año')
+plt.ylabel('Población')
+plt.title('Población de México a lo largo del tiempo')
+plt.show()
+```
+
+::: {.callout-note collapse="true" title="Hint"}
+Necesitas pasar la columna `year` como el primer argumento (eje x) y la columna `pop` como el segundo (eje y).
+:::
+
+::: {.callout-tip collapse="true" title="Solución"}
+
+```{pyodide}
+import matplotlib.pyplot as plt
+
+plt.fill_between(mex_df['year'], mex_df['pop'])
+plt.xlabel('Añ')
+plt.ylabel('Población')
+plt.title('Población de México a lo largo del tiempo')
+plt.show()
+```
+
+:::
+
+## Visualizar Distribución Normal
+
+- Recuerda que la distribución normal tiene 2 parámetros: la media ($mu$) y la desviación estándar ($sigma$).
+
+Para visualizarla en Python, usamos `numpy` para generar los datos y `seaborn` o `matplotlib` para graficar.
+
+Escribe el código de Python necesario para simular y graficar los valores de una distribución normal estándar (media=0, desviación estándar=1) usando `numpy.random.normal()` y `seaborn.histplot`.
+```{pyodide}
+#| exercise: distribucion_normal
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Simular 1000 datos de una distribución normal
+# con media 0 y desviación estándar 1
+datos = np.random.normal(loc=______, scale=______, size=1000)
+
+# Graficar la distribución
+sns.histplot(datos, kde=True) # kde=True añade una línea de densidad
+plt.title("Distribución Normal Estándar")
+plt.xlabel("Valor")
+plt.ylabel("Frecuencia")
+plt.show()
+```
+
+::: {.callout-note collapse="true" title="Hint"}
+La media se especifica con el parámetro `loc` y la desviación estándar con `scale`. Para una distribución normal estándar, ambos son 0 y 1 respectivamente.
+:::
+
+::: {.callout-tip collapse="true" title="Solución"}
+
+```{pyodide}
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Simular 1000 datos de una distribución normal
+# con media 0 y desviación estándar 1
+datos = np.random.normal(loc=0, scale=1, size=1000)
+
+# Graficar la distribución
+sns.histplot(datos, kde=True) # kde=True añade una línea de densidad
+plt.title("Distribución Normal Estándar")
+plt.xlabel("Valor")
+plt.ylabel("Frecuencia")
+plt.show()
+```
+
+:::
+
+## Fuentes
+
+Esperamos que esta pequeña introducción a los gráficos en Python te sea de utilidad. A continuación te dejamos una serie de materiales que pueden resultar muy útiles para continuar aprendiendo:
+
+-   [Galería de ejemplos de Seaborn](https://seaborn.pydata.org/examples/index.html)
+-   [Tutorial de visualización de datos de Seaborn](https://seaborn.pydata.org/tutorial/introduction.html)
+-   [Galería de Matplotlib](https://matplotlib.org/stable/gallery/index.html)
+-   [Guía de uso de Pandas](https://pandas.pydata.org/docs/user_guide/index.html)
+
+## Licencia
+
+Este curso se comparte bajo la licencia [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/deed.es_ES) y fue realizado por [Yanina Bellini Saibene](https://yabellini.netlify.app/), modificado por Santiago Garcia y traducido a Python por un asistente de IA.

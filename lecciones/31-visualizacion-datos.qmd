@@ -1,0 +1,409 @@
+---
+title: "Ejercicio I Visualización y Distribución de Datos"
+format: live-html
+sidebar: false
+webr:
+  packages:
+  - ggplot2
+  - gapminder
+  - dplyr
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+```{webr}
+#| include: false
+Mex <- gapminder %>%
+  filter(country == 'Mexico')
+```
+
+## Introducción
+
+- En este ejercicio vamos a realizar gráficos utilizando ggplot.
+
+Recordemos lo siguiente: 
+
+> Un gráfico es un *mapeo* de variables de *datos* a atributos *estéticos* de objetos *geométricos*. 
+
+Tiene *tres componentes principales*:
+
+1. *Datos (_data_*, en inglés): el conjunto de datos compuesto por variables que mapeamos.
+
+2. *Geometría (_geom_*, por _geometry_ en inglés): el objeto geométrico en cuestión. Se refiere al tipo de objeto que compone el gráfico, por ejemplo: puntos, líneas y barras.
+
+3. *Estética (aes*, por _aesthetic_ en inglés): atributos estéticos del objeto geométrico. Por ejemplo, posición x,  y, color, forma y tamaño. Cada atributo estético se puede asignar a una variable en nuestro conjunto de datos.
+
+## Ejemplo de la gramática en un gráfico
+
+Vamos a ver un ejemplo de estos componentes en un gráfico, para ello vamos a utilizar el paquete `gapminder` que ya instalamos y cargamos por ti en este ejercicio.
+
+Para ver los datos de `gapminder`, escribe `gapminder` en el bloque de código que aparece abajo y luego haz click en el botón _"Run Code"_. También puedes usar la función `head()` para ver los primeros registros de los datos, o `summary()` para obtener un resumen de los datos, o `str()` para ver la estructura de los datos.
+
+
+```{webr}
+#| min-lines: 2
+
+
+```
+
+Como ver, los datos de `gapminder` contienen información sobre la esperanza de vida (`lifeExp`), el PIB per cápita (`gdpPercap`) y la población de varios países a lo largo del tiempo. `pop` es la población, `continent` es el continente al que pertenece el país y `year` es el año de la observación.
+
+
+### Veamos un gráfico a través de la gramática de los gráficos.
+
+El siguiente gráfico está realizado con los datos de `gapminder`, intentemos reconocer que variables y secciones corresponden a la gramática de gráficos:
+
+```{webr}
+#| edit: false
+#| runbutton: false
+#| min-lines: 2
+ggplot(data = gapminder, 
+       aes(x = gdpPercap, y = lifeExp, 
+                     color = continent, 
+                     size = pop)) +
+    geom_point()
+
+```
+
+
+Mirando el código y el gráfico, podemos indentificar que:
+
+* Datos: el *nombre del conjunto de datos* (gapminder) se asigna al atributo `data`
+* Estética: el eje `x` representa la variable `gdpPercap`, el eje `y` representa la variable `lifeExp`, el `color` (o `colour`) representa la variable `continent` y el tamaño (`size`) representa la variable población.
+* Geometría: generamos un gráfico de puntos, como indica la función `geom_point()`
+
+
+### Cambiemos algunas propiedades
+
+Supongamos que queremos cambiar los ejes del gráfico, ¿cómo cambiarías el código anterior para lograr ese cambio? Por ejemplo, ¿cómo cambiarías los ejes para que el eje x represente ela esperanza de vida  y el eje `y` el PIB per capita?
+
+```{webr}
+#| exercise: grafico_puntos
+
+ggplot(data = gapminder, 
+       aes(______, 
+                     color = continent, 
+                     size = pop))+
+    geom_point()
+
+```
+
+::: { .hint exercise="grafico_puntos"}
+::: { .callout-note collapse="false"}
+## Hint 1
+
+Recuerda que los ejes están representados por las letras x (horizontal) e y (vertical)
+
+:::
+:::
+
+::: { .solution exercise="grafico_puntos" }
+::: { .callout-tip collapse="true"}
+## Solucion:
+
+```r
+ggplot(data = gapminder, 
+       aes(x = lifeExp, y = gdpPercap, 
+                     color = continent, 
+                     size = gdpPercap)) +
+    geom_point()
+```
+
+:::
+:::
+
+
+
+Bien hecho!
+
+Además del gráfico de puntos, indicado en el código anterior por `geom_point()`, tenemos otros tipos de gráficos, por ejemplo gráficos de líneas, de barras, de áreas o histogramas.  
+
+
+¿Cómo te parece que pueden llamarse las geometrías para los gráficos de lineas y de barras?
+
+
+```{webr}
+#| edit: false
+#| output: false
+#| define:
+#|   - do_respuesta
+
+do_respuesta <- function(respuesta) {
+  if (respuesta == "geom_line() y geom_bar()") {
+    return("<strong>Buen trabajo!</strong> `geom_line()` es para gráficos de líneas y `geom_bar()` es para gráficos de barras.")
+  } else {
+    return("<em>Vuelve a intentar</em>. En general a la palabra `geom_` se le agrega el nombre de la geometría en Inglés.")
+  }
+}
+
+```
+
+```{ojs}
+//| echo: false
+viewof respuesta = Inputs.radio(
+  [ "geom_line() y geom_bar()", "geom_linea(), geom_sup()", "geom_area(), geom_histogram()", "geom_line(), geom_area()", "Ninguna de las anteriores"],
+  { value: "Ninguna de las anteriores", label: "Marca tu respuesta", class: "vertical-radio" }
+);
+
+html`${await do_respuesta(respuesta)}`
+```
+
+## Gráfico de lineas
+
+Vamos a realizar otros gráficos utilizando los datos en `gapminder`.  Para generar el gráfico de lineas, vamos a ver la evolución de la población de México en la serie de datos disponible. Los gráficos de líneas son útiles para mostrar la evolución de una variable a lo largo del tiempo.
+
+Primero, filtra los datos de `gapminder` para obtener solo los datos de México y guárdalos en un nuevo dataset llamado `Mex`. Utiliza la función `head()` para ver los primeros registros de `Mex`. Para filtrar adecuadamente a México, NO utilices acentos en el nombre del país, pero si el nombre en mayúsculas (`Mexico`).
+
+
+```{webr}
+#| exercise: vis_datos_mex
+
+Mex <- ______ %>%
+  ______(______ == '______')
+
+head(______)
+```
+
+::: { .hint exercise="vis_datos_mex"}
+::: { .callout-note collapse="false"}
+
+## Hint 1
+
+Recuerda que el nombre del país es `Mexico` y que la variable que contiene el nombre del país es `country`.
+
+También recuerda la función `filter()`
+
+:::
+:::
+
+::: { .solution exercise="vis_datos_mex" }
+::: { .callout-note collapse="false"}
+
+```r
+Mex <- gapminder %>%
+  filter(country == 'Mexico')
+
+head(Mex)
+```
+
+:::
+:::
+
+
+Ahora, a partir de los datos de México, cre un gráfico de recta (`geom_line()`) donde se muestre en el eje x los años y en el y la población.
+
+```{webr}
+#| exercise: grafico_lineas
+
+ggplot(data = ________, 
+       mapping = aes(x = _______, y = ________)) +
+    geom_line()
+
+
+```
+
+::: { .hint exercise="grafico_lineas"}
+::: { .callout-note collapse="false"}
+## Hint 1
+
+- El dataset se llama Mex
+- La variable que contiene los años se llama year
+- La variable que contiene la población se llama pop
+
+:::
+:::
+
+::: { .solution exercise="grafico_lineas" }
+::: { .callout-tip collapse="true"}
+## Solucion:
+
+
+```r
+ggplot(data = Mex,                    #<1>
+       mapping = aes(x = year, y = pop)) +  #<2>
+    geom_line()
+
+```
+1. Pasa el conjunto de datos `Mex` a la capa de datos (data).
+2. Mapea las variables `year` a al eje x y `pop` al eje y.
+
+:::
+:::
+
+### Hagamos un gráfico de barras
+
+Hay dos formas de hacer un gráfico de barras en `ggplot2`, una forma es utilizando `geom_bar()` y otra es utilizando `geom_col()`.
+
+
+* `geom_bar()` : utilizamos esta geometría cuando *no tenemos* una variable que contenga el cálculo de la cantidad o frecuencia de la variable categórica que queremos gráficar. Solo asignameros la variable categorica al eje x y ggplot realizará cálculo del valor del eje y por nosotros.
+
+* `geom_col()` : utilizamos esta geometría cuando *tenemos* en nuestro set de datos una variable con el cálculo de la cantidad o frecuencia de la variable categórica que queremos graficar. Vamos a usar la estética *del eje y* y le asignaremos *la variable que tiene esa cantidad*.
+
+Vamos a transformar el gráfico anterior a barras.  ¿Cómo realizarias este cambio?, ¿cuál de las dos opciones de geometrías utilizarías? 
+
+
+```{webr} 
+#| exercise: grafico_barras
+
+ggplot(data = ______, 
+       mapping = aes(x = year, y = pop)) +
+    geom_______()
+
+```
+
+::: { .hint exercise="grafico_barras"}
+::: { .callout-note collapse="false"}
+## Hint 1
+
+La variable pop ya contiene la cantidad de la población calculada.
+
+Recuerda que geom_bar solo asigna una variable categórica, mientras que geom_col podemos asignar otra variable al eje y.
+:::
+:::
+
+::: { .solution exercise="grafico_barras" }
+::: { .callout-tip collapse="true"}
+## Solucion:
+
+```r
+
+ggplot(data = Mex,                      #<1>
+       mapping = aes(x = year, y = pop)) +.   #<2>
+    geom_col()                                #<3>
+    
+
+
+```
+1. Pasa el conjunto de datos `Mex` a la capa de datos (data).
+2. Mapea las variables `year` a al eje x y `pop` al eje y.
+3. Utilizamos `geom_col()` porque ya contamos con una variable que tiene calculada la cantidad que queremos representar 
+
+:::
+:::
+
+
+### Hagamos un gráfico de área
+
+Vamos a transformar el gráfico anterior a áreas.
+
+Modifica el siguiente código para generar un gráfico de áreas que nos muestre los años en el eje x y la población en el eje y.
+
+```{webr} 
+#| exercise: grafico_areas
+
+ggplot(data = Mex, 
+       mapping = aes(x = year, y = pop)) +
+    geom_______()
+
+
+```
+
+
+::: { .hint exercise="grafico_areas"}
+::: { .callout-note collapse="false"}
+## Hint 1
+
+Recuerda que el nombre de la geometría es la palabra en inglés, en linea es geom_line(), en barras es geom_bar(), para área es geom_ ...
+
+:::
+:::
+
+::: { .solution exercise="grafico_areas" }
+::: { .callout-tip collapse="true"}
+## Solucion:
+
+```r
+ggplot(data = Mex, 
+       mapping = aes(x = year, y = pop)) +
+    geom_area()                               #<1>
+
+```
+
+1. Utilizamos `geom_area()` para generar el gráfico de áreas.
+
+:::
+:::
+
+## Visualizar Distribución Normal
+
+- Recuerda que la distribución normal tiene 2 parámetros, la media $\mu$ y la desviación estándar $\sigma$.
+
+
+Para una distribución normal estandarizada, la media es 0, $\mu =$
+`{ojs} meanTgl` y la desviación estándar es 1, $\sigma =$ `{ojs} sdTgl`, como se observa en el siguiente gráfico de densidad:
+
+```{ojs}
+//| echo: false
+import {Tangle} from "@mbostock/tangle"
+
+// Setup Tangle reactive inputs
+viewof mean = Inputs.input(0);
+viewof sd = Inputs.input(1);
+meanTgl = Inputs.bind(Tangle({min: -5, max: 5, minWidth: "1em", step: 0.1}), viewof mean);
+sdTgl = Inputs.bind(Tangle({min: 0, minWidth: "1em", step: 0.01}), viewof sd);
+
+// draw plot in R
+draw_plot(mean, sd)
+```
+
+::: {.cell edit='false' define='draw_plot'}
+```{webr}
+#| edit: false
+#| output: false
+#| define:
+#|   - draw_plot
+draw_plot <- function(mean, sd) {
+  x <- seq(-5, 5, length = 100)
+  y <- dnorm(x, mean = mean, sd = sd)
+  plot(x, y, type = "l", lwd = 2, ylim = c(0,1))
+}
+```
+:::
+
+Escribe el código de R necesario para simular los valores de la distribución normal estandarizada (arriba) usando la función `dnorm()`. Cuando estés listo, haz click en el botón _"Run Code"_ para ver el gráfico. Recuerda que `dnorm()` toma como argumentos el vector de valores (en este caso, `x`) y los parámetros que definen a la distribución normal.
+
+```{webr}
+#| exercise: tangle
+#| input:
+#|  - mean
+#|  - sd
+#| caption: Plot Normal Distribution
+x <- seq(-5, 5, length = 100) # generar valores para el eje x
+
+y <- dnorm(______) # generar valores para y con distribución normal
+
+plot(x, y, type = "l", lwd = 2, ylim = c(0,1)) # graficar los valores como una línea
+```
+
+::: {.solution exercise="tangle"}
+**Solution**:
+
+```{webr}
+#| exercise: tangle
+#| solution: true
+x <- seq(-5, 5, length = 100)                                 # <1>
+y <- dnorm(x, mean = ${mean}, sd = ${sd})                     # <2>
+plot(x, y, type = "l", lwd = 2, ylim = c(0,1))                # <3>
+```
+1. Generar valores para el eje x.
+2. Genera valores para y con distribución normal usando la función `dnorm()`, con media ${mean} y desviación estándar ${sd}.
+3. los valores se grafican como una línea (`type = "l"`).
+:::
+
+## Fuentes
+
+Esperamos que esta pequeña introducción a los gráficos en R te sea de utilidad.  A continuación te dejamos una serie de materiales que pueden resultar muy útiles para continuar aprendiendo y en los cuales basamos este tutorial.
+
+-  [Guía rápida en Español de ggplot2](https://github.com/rstudio/cheatsheets/raw/master/translations/spanish/ggplot2.pdf)
+
+- [RStudio primers en visualización de datos (en Inglés)](https://rstudio.cloud/learn/primers)
+
+- [Capítulo de Visualización de A ModernDive into R and the tidyverse. Chester Ismay and Albert Y. Kim, Foreword by Kelly S. McConville. November 25, 2019 (en Inglés)](https://moderndive.com/2-viz.html)
+
+- [The R Graph Gallery](https://www.r-graph-gallery.com/)
+
+
+## Licencia
+
+Este curso se comparte bajo la licencia [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/deed.es_ES) y fue realizado por [Yanina Bellini Saibene](https://yabellini.netlify.app/) y modificado por Santiago Garcia.

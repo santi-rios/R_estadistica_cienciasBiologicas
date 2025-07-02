@@ -1,0 +1,77 @@
+---
+title: "Medidas de Dispersión con Python"
+subtitle: "Media, moda, mediana, varianza, desviación estándar y rango intercuartílico"
+format:
+  live-html:
+    toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - matplotlib
+        - seaborn
+        - scipy
+---
+
+## Medidas de Dispersión
+
+Las medidas de dispersión nos informan sobre la variabilidad de un conjunto de datos.
+
+- **Rango:** Diferencia entre el valor máximo y mínimo.
+- **Varianza:** Mide la dispersión promedio de los datos respecto a la media.
+- **Desviación estándar:** Raíz cuadrada de la varianza; mide la dispersión en las mismas unidades que los datos.
+- **Rango Intercuartílico (IQR):** Diferencia entre el tercer y primer cuartil; mide la dispersión en la mitad central de los datos.
+
+## Ejercicio Práctico en Python
+
+Usarás un conjunto de datos simulado para calcular estas medidas y visualizar resultados.
+
+```{pyodide}
+#| exercise: medidas_dispersion
+#| exercise.setup:
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# Generar un conjunto de datos simulado
+np.random.seed(123)
+datos = np.round(np.random.normal(loc=50, scale=10, size=100), 1)  # Datos simulados
+
+# Calcular medidas de tendencia central
+media = np.mean(datos)
+mediana = np.median(datos)
+# SciPy's mode returns a ModeResult object with the mode value and its count
+moda_resultado = stats.mode(datos)
+moda = moda_resultado.mode
+
+# Calcular medidas de dispersión
+rango_min = np.min(datos)
+rango_max = np.max(datos)
+varianza = np.var(datos, ddof=1)  # ddof=1 for sample variance
+desviacion_estandar = np.std(datos, ddof=1) # ddof=1 for sample standard deviation
+
+# Presentar los resultados
+print(f"Media: {media}")
+print(f"Mediana: {mediana}")
+print(f"Moda: {moda}")
+print(f"Rango: Min: {rango_min}, Max: {rango_max}")
+print(f"Varianza: {varianza:.2f}")
+print(f"Desviación Estándar: {desviacion_estandar:.2f}")
+
+# Visualización de los datos
+plt.hist(datos, bins=20, color="lightblue", edgecolor='black', alpha=0.7)
+plt.title("Distribución de Datos Simulados")
+plt.xlabel("Valores")
+plt.ylabel("Frecuencia")
+plt.axvline(media, color="red", linewidth=2, linestyle="--", label=f'Media: {media:.2f}')
+plt.axvline(mediana, color="green", linewidth=2, linestyle="--", label=f'Mediana: {mediana:.2f}')
+plt.legend()
+plt.show()
+
+```
+
+## Reflexión y Discusión
+
+- Analiza las medidas calculadas: ¿Cómo se comparan la media y la mediana en tus datos simulados? ¿Qué sugiere esto sobre la simetría de la distribución?
+- Considera el rango, la varianza y la desviación estándar: ¿Qué te indican estas medidas sobre la dispersión de los datos?
+
+Esta lección interactiva te ofrece una comprensión práctica de cómo las medidas de tendencia central y dispersión describen y resumen las características esenciales de un conjunto de datos. Estas herramientas son críticas para cualquier análisis estadístico, permitiendo una comprensión profunda y fundamentada de los datos bajo estudio.

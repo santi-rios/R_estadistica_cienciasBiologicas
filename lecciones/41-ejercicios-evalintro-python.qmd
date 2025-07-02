@@ -1,0 +1,318 @@
+---
+title: "Ejercicio Práctico - Estudio de Caso con Python"
+subtitle: "Evaluación de Introducción a Python y estadística"
+author:
+  - name: "Mtro. Santiago Ríos"
+    email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+format: 
+    live-html
+        # highlight-style: github
+        # highlight-lines: true
+        # theme: solar
+toc: true
+sidebar: false
+pyodide: 
+    packages: 
+        - pandas
+        - matplotlib
+        - seaborn
+        - numpy
+        - scipy
+resources:
+    - datos
+---
+
+## Introducción
+
+Para concluir la sección de introducción, integremos todo lo aprendido para abordar un problema práctico. Usaremos el conjunto de datos `oms` del paquete `datos`. Este dataset incluye información sobre la `tuberculosis` (*TB*), desglosada por año, país, edad, género y método de diagnóstico. Estos datos provienen del Informe de Tuberculosis de la Organización Mundial de la Salud 2014.
+
+Este dataset contiene mucha información epidemiológica, solo que tiene un detalle muy importante: los datos están muy "sucios". Para limpiarlos y explorarlos, necesitamos aplicar todo lo que hemos aprendido.
+
+El *objetivo* es que puedas limpiar, explorar, visualizar y describir el dataset `oms` para obtener información relevante sobre la tuberculosis en el mundo. En la vida real, los datos que obtenemos rara vez están limpios y listos para ser analizados. Por lo tanto, es fundamental que sepas cómo limpiarlos y explorarlos para obtener información valiosa.
+
+## Preparación
+
+Primero, vamos a cargar el dataset y a explorar su estructura.
+
+```{pyodide}
+#| caption: Importar datos
+#| autorun: true
+# envir: myenv
+# setup: true
+
+import pandas as pd
+import numpy as np
+
+oms = pd.read_csv('./datos/oms.csv')
+# Visualizar las primeras filas del DataFrame
+# oms.head()
+```
+
+¿Qué problemas observas con este dataset? Observa que tiene:
+- Columnas redundantes.
+- Variables con nombres poco descriptivos.
+- Valores faltantes (`NaN`).
+
+Si no sabemos qué significan las variables, es imposible analizar los datos. En `pandas`, podemos usar el método `.info()` para obtener un resumen de la estructura del DataFrame.
+
+```{pyodide}
+# exercise: examen1_1
+# envir: myenv
+
+# Obtén información sobre el DataFrame oms
+______.info()
+```
+
+::: {.hint exercise="examen1_1"}
+Usa el nombre del DataFrame seguido de `.info()`.
+:::
+
+::: {.solution exercise="examen1_1"}
+```python
+oms.info()
+```
+:::
+
+## Limpiar datos
+
+A partir de la descripción del dataset, podemos ver distintos problemas. Vamos a limpiar los datos por partes.
+
+- Existen 3 variables que se refieren a `país` (`country`, `iso2`, `iso3`). Vamos a quitar 2 de estas 3 variables (`iso2`, `iso3`).
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_2
+
+# Elimina las columnas 'iso2' e 'iso3'
+oms_2 = oms.drop(columns=[______, ______])
+
+oms_2.head() # Verificamos que se haya hecho correctamente
+```
+
+::: {.hint exercise="examen1_2"}
+Recuerda el método `.drop()` de pandas.
+:::
+
+::: {.solution exercise="examen1_2"}
+```python
+oms_2 = oms.drop(columns=['iso2', 'iso3'])
+oms_2.head()
+```
+:::
+
+- Después, tenemos una variable que indica año (`year`). Explora qué tipo de variable es y conviértela a una variable de tipo `category`.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_3
+
+# Convierte la columna 'year' a tipo 'category'
+oms_3 = oms_2.assign(year = oms_2['year'].astype(______))
+
+oms_3.info() # Verificamos el cambio
+```
+
+::: {.hint exercise="examen1_3"}
+Usa el método `.astype()` para cambiar el tipo de dato.
+:::
+
+::: {.solution exercise="examen1_3"}
+```python
+oms_3 = oms_2.assign(year = oms_2['year'].astype('category'))
+oms_3.info()
+```
+:::
+
+- Ahora, tenemos que solucionar el mayor problema de estos datos: las `56` columnas restantes son redundantes. Todas representan la cuenta de casos de *TB*. Podemos reestructurar estas columnas a un formato largo usando `melt()`.
+
+::: {layout-ncol="2"}
+![](https://i.imgur.com/52PlC5i.png)
+![](https://i.imgur.com/fT3fTWS.png)
+:::
+
+- Para juntar y agrupar, usaremos la función `melt()` de `pandas`.
+- El reto es juntar las `56` variables. La forma más fácil es especificar las columnas que queremos mantener fijas (`id_vars`).
+- Al correr el siguiente código, deberías tener un dataframe con 4 columnas: `country`, `year`, `clave` y `casos`.
+- **Ojo**: en este paso, también vamos a eliminar las filas con valores faltantes con el método `.dropna()`.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_4
+
+# Reestructura el DataFrame de formato ancho a largo
+oms_4 = oms_3.melt(
+    id_vars=[______, ______], 
+    var_name="clave", 
+    value_name="casos"
+).dropna(subset=["casos"])
+
+
+oms_4.head() # Verificamos que se haya hecho correctamente
+```
+
+::: {.hint exercise="examen1_4"}
+Las columnas que no se "derriten" son `country` y `year`.
+:::
+
+::: {.solution exercise="examen1_4"}
+```python
+oms_4 = oms_3.melt(
+    id_vars=["country", "year"], 
+    var_name="clave", 
+    value_name="casos"
+).dropna(subset=["casos"])
+
+oms_4.head()
+```
+:::
+
+- Ahora, pon atención en los nombres de la columna `clave`. Estos nombres son poco descriptivos. Vamos a limpiarlos.
+- Si revisas la estructura de los datos, verás que los nombres de las columnas `clave` siguen ciertos patrones.
+- Cuando tienen las siguientes letras, significan lo siguiente:
+    - `recaida` se refiere a casos reincidentes
+    - `ep` se refiere a tuberculosis extra pulmonar
+    - `fpp` se refiere a casos de tuberculosis pulmonar que se pueden detectar mediante examen de frotis pulmonar (frotis pulmonar positivo)
+    - La letra que aparece después del último `_` se refiere al `sexo` de los pacientes (`m` o `f`).
+    - Los `números` finales se refieren al grupo de `edad`.
+- Idealmente, queremos que estos patrones se conviertan en variables separadas.
+
+- Para empezar, observa que hay casos donde tenemos el patrón `nuevosrecaida` en lugar de `nuevos_recaida`. Vamos a corregirlo.
+- Usaremos el accesor `.str` de pandas y su método `replace()`.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_5
+
+# Reemplaza 'nuevosrecaida' por 'nuevos_recaida'
+oms_5 = oms_4.copy() # Creamos una copia para evitar SettingWithCopyWarning
+oms_5["clave"] = oms_5["clave"].str.replace(______, ______)
+
+oms_5.head() # Verificamos que se haya hecho correctamente
+```
+
+::: {.solution exercise="examen1_5"}
+```python
+oms_5 = oms_4.copy()
+oms_5["clave"] = oms_5["clave"].str.replace("nuevosrecaida", "nuevos_recaida")
+oms_5.head()
+```
+:::
+
+- Ahora, vamos a separar la columna `clave` en varias columnas usando el separador `_`.
+- Usaremos el método `.str.split()` con `expand=True`.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_6
+
+# Separa la columna 'clave' en 'nuevos', 'tipo' y 'sexo_edad'
+oms_6 = oms_5.copy()
+oms_6[['nuevos', 'tipo', 'sexo_edad']] = oms_6['clave'].str.split(______, expand=True)
+
+oms_6.head() # Verificamos que se haya hecho correctamente
+```
+
+::: {.solution exercise="examen1_6"}
+```python
+oms_6 = oms_5.copy()
+oms_6[['nuevos', 'tipo', 'sexo_edad']] = oms_6['clave'].str.split('_', expand=True)
+oms_6.head()
+```
+:::
+
+- A continuación podemos eliminar las columnas `nuevos` y `clave` que ya no necesitamos.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_7
+
+oms_7 = oms_6.drop(columns=[______, ______])
+
+oms_7.head() # Verificamos que se haya hecho correctamente
+```
+
+::: {.hint exercise="examen1_7"}
+Recuerda el método `drop()`.
+:::
+
+::: {.solution exercise="examen1_7"}
+```python
+oms_7 = oms_6.drop(columns=['nuevos', 'clave'])
+oms_7.head()
+```
+:::
+
+- Para separar la columna `sexo_edad` en `sexo` y `edad`, podemos usar slicing con el accesor `.str`.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_8
+
+oms_8 = oms_7.copy()
+oms_8['sexo'] = oms_8['sexo_edad'].str[______]
+oms_8['edad'] = oms_8['sexo_edad'].str[______]
+oms_8 = oms_8.drop(columns=['sexo_edad'])
+
+oms_8.head() # Verificamos que se haya hecho correctamente
+```
+
+::: {.solution exercise="examen1_8"}
+```python
+oms_8 = oms_7.copy()
+oms_8['sexo'] = oms_8['sexo_edad'].str[0]
+oms_8['edad'] = oms_8['sexo_edad'].str[1:]
+oms_8 = oms_8.drop(columns=['sexo_edad'])
+oms_8.head()
+```
+:::
+
+## Todo en un solo paso...
+
+- Una vez que entiendes cómo funcionan los métodos, puedes encadenarlos para hacer todo en un solo paso.
+- Esto es útil y muy común en `pandas`.
+
+```{pyodide}
+#| envir: myenv
+#| exercise: examen1_9
+
+oms_limpio = (oms
+    .drop(columns=[______, ______])
+    .melt(id_vars=['country', 'year'], var_name='clave', value_name='casos')
+    .dropna(subset=['casos'])
+    .assign(
+        clave = lambda df: df['clave'].str.replace('nuevosrecaida', 'nuevos_recaida'),
+        nuevos = lambda df: df['clave'].str.split('_', expand=True)[0],
+        tipo = lambda df: df['clave'].str.split('_', expand=True)[1],
+        sexo_edad = lambda df: df['clave'].str.split('_', expand=True)[2]
+    )
+    .drop(columns=['clave', 'nuevos'])
+    .assign(
+        sexo = lambda df: df['sexo_edad'].str[0],
+        edad = lambda df: df['sexo_edad'].str[1:]
+    )
+    .drop(columns=['sexo_edad'])
+)
+
+oms_limpio # Verificamos que se haya hecho correctamente
+```
+
+::: {.callout}
+- Una vez que ejecutas el código completo, ¿cuánto tiempo tardó en limpiar estos 70,000 datos?
+- ¿Cuánto tiempo te hubiera tomado hacerlo a mano o en Excel?
+- La eficiencia de `pandas` es una de las razones por las que es tan popular en la ciencia de datos.
+- Además, es menos propenso a errores, en especial si construyes tu código de forma ordenada y sistemática.
+- Aunque al principio puede ser complicado, con la práctica, te volverás más rápido y eficiente en el manejo de datos.
+- Imagina que tienes que hacer esto con 100 datasets. ¿Cuánto tiempo te ahorrarías?
+:::
+
+Si todo va bien hasta ahora, deberías de tener un dataset similar a este. En el siguiente ejercicio exploraremos estos datos limpios.
+
+```{pyodide}
+#| envir: myenv
+#| echo: true
+oms_limpio.head()
+```
