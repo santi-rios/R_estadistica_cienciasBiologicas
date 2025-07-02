@@ -1,0 +1,55 @@
+---
+title: "Primera lección con R"
+subtitle: "Aprende a programar y estadística con R"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+::: {.panel-tabset}
+
+## Introduccion
+{{< revealjs file="../lecciones/50-regresion-lineal-python.html" height="500px">}}
+{{< revealjs file="../lecciones/50-regresion-lineal.html" height="500px">}}
+{{< revealjs file="../lecciones/51-ancova.html" height="500px">}}
+{{< revealjs file="../lecciones/51-ancova-python.html" height="500px">}}
+{{< revealjs file="../lecciones/52-anova-dosvias-python.html" height="500px">}}
+{{< revealjs file="../lecciones/52-anova-dosvias.html" height="500px">}}
+{{< revealjs file="../lecciones/53-anova-kruska.html" height="500px">}}
+{{< revealjs file="../lecciones/53-anova-kruskal-wallis-python.html" height="500px">}}
+{{< revealjs file="../lecciones/54-corr-plottip-R.html" height="500px">}}
+{{< revealjs file="../lecciones/54-correlacion-python.html" height="500px">}}
+{{< revealjs file="../lecciones/55-chic-cuadrada.html" height="500px">}}
+{{< revealjs file="../lecciones/60-a-lineales-intro.html" height="500px">}}
+{{< revealjs file="../lecciones/60-lineales-corrintro.html" height="500px">}}
+{{< revealjs file="../lecciones/61-lineales-correlacion.html" height="500px">}}
+{{< revealjs file="../lecciones/62-lineales-resumen.html" height="500px">}}
+{{< revealjs file="../lecciones/63-lineales-supuestos.html" height="500px">}}
+{{< revealjs file="../lecciones/70-c-pruebas-hipotesis.html" height="500px">}}
+{{< revealjs file="../lecciones/70-a-estimacion-inferencia.html" height="500px">}}
+{{< revealjs file="../lecciones/70-ttest-mann.html" height="500px">}}
+{{< revealjs file="../lecciones/70-ttest-mann-python.html" height="500px">}}
+{{< revealjs file="../lecciones/70-b-pruebahipotesis-intro.html" height="500px">}}
+{{< revealjs file="../lecciones/71-ttest-wilcoxon-python.html" height="500px">}}
+{{< revealjs file="../lecciones/71-ttest-wilcoxon.html" height="500px">}}
+{{< revealjs file="../lecciones/72-anova-1.html" height="500px">}}
+{{< revealjs file="../lecciones/73-anova-2vias.html" height="500px">}}
+{{< revealjs file="../lecciones/74-anova-medidasrep.html" height="500px">}}
+{{< revealjs file="../lecciones/75-fundamentos-anova-python.html" height="500px">}}
+{{< revealjs file="../lecciones/76-anova-dosvias-python.html" height="500px">}}
+{{< revealjs file="../lecciones/77-anova-medidas-repetidas-python.html" height="500px">}}
+{{< revealjs file="../lecciones/78-visualizacion-anova-python.html" height="500px">}}
+{{< revealjs file="../lecciones/79-errores-tipo1.html" height="500px">}}
+{{< revealjs file="../lecciones/80-comparar-2medias.html" height="500px">}}
+{{< revealjs file="../lecciones/81-comparar-3kruka.html" height="500px">}}
+{{< revealjs file="../lecciones/82-comparar-3medias.html" height="500px">}}
+{{< revealjs file="../lecciones/83-no-parametrico.html" height="500px">}}
+{{< revealjs file="../lecciones/84-comparar-2medias-python.html" height="500px">}}
+{{< revealjs file="../lecciones/84-normalidad-correcciones.html" height="500px">}}
+{{< revealjs file="../lecciones/85-kruskal-wallis-python.html" height="500px">}}
+{{< revealjs file="../lecciones/86-anova-una-via-python.html" height="500px">}}
+:::
+
+
+{{< revealjs file="../lecciones/14.2-histogramas-personalizados-python.html" height="500px">}}

@@ -1,0 +1,57 @@
+---
+title: "Primera lección con R"
+subtitle: "Aprende a programar y estadística con R"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+::: {.panel-tabset}
+
+
+## Importar
+
+{{< revealjs file="../lecciones/10-datos-importar.html" height="500px">}}
+
+## Tipo de Datos
+
+{{< revealjs file="../lecciones/11-tipo-datos.html" height="500px">}}
+
+## Limpieza
+
+### R-dplyr
+
+{{< revealjs file="../lecciones/12-dplyr-ejercicio.html" height="500px">}}
+
+{{< revealjs file="../lecciones/12-dplyr-resumen.html" height="500px">}}
+
+### Python-pandas
+
+{{< revealjs file="../lecciones/12.1-pandas-ejercicio.html" height="500px">}}
+
+{{< revealjs file="../lecciones/12.2-pandas-resumen.html" height="500px">}}
+
+
+## Errores Comunes
+
+### R
+
+{{< revealjs file="../lecciones/13-errores-comunes.html" height="500px">}}
+
+### Python
+
+{{< revealjs file="../lecciones/13.1-errores-comunes-python.html" height="500px">}}
+
+## Evaluación
+
+### R
+
+{{< revealjs file="../lecciones/14-evaluacion-intro.html" height="500px">}}
+
+### Python
+
+{{< revealjs file="../lecciones/14.1-evaluacion-intro-python.html" height="500px">}}
+:::
+
+
