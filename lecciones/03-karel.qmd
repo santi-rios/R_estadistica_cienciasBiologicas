@@ -22,6 +22,7 @@ pyodide:
     - ipython
     - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.2-py3-none-any.whl
 engine: knitr
+navbar: false
 ---
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
@@ -61,8 +62,7 @@ girar_izquierda <- function() {
 juntar_coso <- function() {
   karel::juntar_coso()
   karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1```{webr}
-
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
 }
 
 poner_coso <- function() {
@@ -121,7 +121,7 @@ girar_derecha <- function() {
 -   En R, importamos paquetes con la función `library()`.
 -   En este caso, el paquete se llama `karel` y lo importamos con el siguiente código:
 
-```{webr}
+```r
 library(karel)
 ```
 
@@ -152,7 +152,6 @@ from pykarel_web import Karel
 -   Corre el siguiente código para generar el mundo llamado `mundo001`.
 
 ```{webr}
-library(karel)
 generar_mundo("mundo001")
 ```
 
@@ -210,7 +209,6 @@ Veamos un primer ejemplo.
 Vamos a pedirle a Karel que avance, junte el coso y vuelva a avanzar:
 
 ```{webr}
-library(karel)
 
 generar_mundo("mundo001")
 avanzar()

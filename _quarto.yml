@@ -2,55 +2,41 @@ project:
   type: website
   output-dir: _site
 
-# theme:
-#   light: flatly
-#   dark: darkly
-
 website:
-  title: "Curso introductorio a R"
+  title: "R y Python para Ciencias Biológicas"
   description: "Aprende R y bioestadística con contenido interactivo"
-  repo-url: https://github.com/santi-rios/R_interactivo_ejecutar
-  repo-actions: [edit, issue]
+  # repo-url: https://github.com/santi-rios/R_interactivo_ejecutar
+  repo-actions: [issue]
+  issue-url: https://github.com/santi-rios/R_estadistica_cienciasBiologicas/issues
+  site-url: https://orcaasesina.com/
   announcement: 
     icon: info-circle
     dismissable: true
-    content: "**Alert** - this is some information that you should pay attention to"
+    content: "**Mas cursos** de R, Python, Git y bioinformática en [orcaasesina.com](https://orcaasesina.com)."
     type: primary
     position: below-navbar
   page-navigation: true
   page-footer: 
-    left: "Copyright 2021, Norah Jones" 
+    left: "Copyright 2025, Santiago Ríos" 
     right: 
       - icon: github
-        href: https://github.com/
-      - icon: twitter 
-        href: https://twitter.com/
-  sidebar:
-    style: docked
-    search: true
-    tools:
-      - icon: twitter
-        href: https://twitter.com
-      - icon: github
-        menu:
-          - text: Source Code
-            href:  https://code.com
-          - text: Report a Bug
-            href:  https://bugs.com
+        href: https://github.com/santi-rios
+      - icon: globe
+        href: https://santi-rios.github.io/
   navbar:
-    background: primary
+    background: "#ded6ea"
     search: true
     logo: images/logo.png
     left:
-      - text: "Inicio"
+      - text: "🏠 Inicio"
         href: index.qmd
     # contents: 
     #   - href: index.qmd
     #     title: "Inicio"
-      - text: "Introducción"
-        href: sections/01-intro-r.qmd
-      - text: "Aprende a Programar"
-        href: sections/02-programacion.qmd
+      - text: "💻 1.-Introducción"
+        href: sections/00-presentacion.qmd
+      - text: "📚 2.-Datos"
+        href: sections/03-importar-limpieza.qmd
       # - section: "Introducción a Estadística"
       #   contents:
       #     - sections/02-estadistica.qmd
@@ -64,7 +50,7 @@ website:
   #   background: primary
   #   search: true
   #   title: false
-  #   logo: images/logo.png
+  #   logo: images/logo.pngsections/02-programacion
   #   background: "Logo"
   #   tools:
   #     - search: true
@@ -87,10 +73,24 @@ website:
   #     - about.qmd
 
 
-# format:
-#   html:
-#     theme: cosmo
-
-# execute:
-#   echo: false  # do not show code in output
-#   freeze: false  # never re-render during project render
+format:
+  html:
+    theme: superhero
+      # light: pulse
+      # dark: superhero
+    respect-user-color-scheme: true
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Contenido"
+    lang: es
+  live-html: 
+      toc: true
+      # theme: simple
+      # scrollable: true
+      toc-depth: 2
+      toc-title: Contenido de la Lección
+      # progress: true
+      # slide-number: true
+      lang: es
+      # logo: "https://cran.r-project.org/Rlogo.svg"

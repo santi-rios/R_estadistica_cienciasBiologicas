@@ -1,18 +1,27 @@
 ---
-title: "Inicio"
+title: "Bienvenidos!"
 format:
   html:
     toc: true
     toc-depth: 2
+image: images/logo.png
 about:
-  template: jolla
-  image: profile.jpg
+  id: hero-heading
+  template: solana
   links:
-    - icon: twitter
-      text: twitter
-      href: https://twitter.com
+    - icon: person-circle
+      text: Sobre Mi
+      href: https://santi-rios.github.io/
+    - icon: pencil
+      text: Página de los cursos
+      href: https://orcaasesina.com/
 ---
 
-Bienvenido al curso de R para principiantes. En este curso, aprenderás a programar en R, un lenguaje de programación ampliamente utilizado en análisis de datos y estadística. R es una herramienta poderosa para visualizar datos, realizar cálculos estadísticos y crear gráficos.
+:::{#hero-heading}
+Bienvenido al curso de R/Python para principiantes. En este curso, aprenderás a programar en R/Python, lenguajes de programación ampliamente utilizados en análisis de datos y estadística. No necesitas experiencia previa NI instalar NADA en tu computadora.
+:::
 
+## Conoce el Curso
+
+{{< revealjs file="lecciones/00-presentacion-curso.html" height="500px" class="ratio ratio-16x9" >}}
 

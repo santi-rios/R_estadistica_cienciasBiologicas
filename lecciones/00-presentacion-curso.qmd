@@ -1,0 +1,229 @@
+---
+title: "Presentación del Curso"
+subtitle: "R y Python para Ciencias de la Salud"
+author:
+  - name: "Mtro. Santiago Ríos"
+    # email: santiagoboo99@gmail.com
+    affiliation: 
+      - name: Cursos Orca
+        city: CDMX
+        url: orcaasesina.com
+title-slide-attributes:
+  data-background-image: ../images/r_python.png
+  data-background-size: contain
+  data-background-opacity: "0.5"
+format: 
+    live-revealjs: 
+        theme: serif
+        scrollable: true
+        progress: true
+        slide-number: true
+        incremental: true
+        lang: es
+        logo: "https://cran.r-project.org/Rlogo.svg"
+pyodide:
+  packages:
+    - matplotlib
+    - ipython
+    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.2-py3-none-any.whl
+engine: knitr
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+## Instrucciones {transition="zoom-out" .smaller}
+
+![](../images/r_python.png){fig-align="center" .r-stretch}
+
+## Instrucciones
+
+::: {.callout-tip}
+Accede desde una computadora/laptop 💻 para una mejor experiencia.
+:::
+
+| Acción                     | Teclado                                    |
+|----------------------------|--------------------------------------------|
+| Siguiente Diapositiva      | <kbd>→</kbd> ó <kbd>Espacio</kbd> ó <kbd>N</kbd> |
+| Diapositiva Previa         | <kbd>←</kbd> ó <kbd>P</kbd>                  |
+| Abrir Menú                 | <kbd>M</kbd>                          |
+| Hacer Zoom                 | <kbd>Alt</kbd> ó <kbd>Ctrl</kbd> (linux) + click Mouse  |
+
+##  {#unifies-extends-1 .centered data-menu-title="Bienvenidos" background-color="#0F1620" auto-animate="true"}
+
+::: {style="margin-top: 150px; font-size: 2.2em; color: #75AADB;"}
+Puntos importantes del curso: 
+:::
+
+
+##  {#unifies-extends-2 .centered data-menu-title="Bienvenidos" background-color="#0F1620" auto-animate="true"}
+
+::: {style="margin-top: 100px; font-size: 1.2em; color: #75AADB"}
+Puntos importantes del curso:
+:::
+
+<br>
+
+::: large
+No necesitas tener experiencia previa en programación **NI INSTALAR NADA**. Este curso está diseñado para aprender los fundamentos de R/Python y bioestadística. 
+:::
+
+<br>
+
+::: {.fragment .fade-up .large fragment-index="2"}
+Está enfocado a estudiantes de ciencias biológicas y de la salud: aprenderás los análisis estadísticos más comunes en tu campo de estudio.
+:::
+
+
+## Aprende R y Python desde tu navegador
+
+Escribe en la consola (selecciona R o Python)`"Hola Mundo"`. Sustituye la línea punteada con el texto (no olvides las comillas ""). Una vez que lo hayas hecho, haz click en el botón azul "Run Code". 
+
+::: {.panel-tabset group="language"}
+
+## R
+
+
+```{webr}
+#| exercise: ex_00_primer_codigo
+______
+
+```
+
+```{webr}
+#| exercise: ex_00_primer_codigo
+#| check: true
+if (identical(.result, print("Hola Mundo"))) {
+  list(correct = TRUE, message = "Felicidades! Acabas de correr tu primer codigo en R.")
+} else {
+  list(correct = FALSE, message = "Incorrecto. Revisa que escribiste lo que se pide. Puedes revisar la solucion con el boton Show solution.")
+}
+```
+
+::: { .callout-tip collapse="true"}
+
+## Solución
+
+```r
+"Hola Mundo"
+```
+:::
+
+
+## Python
+
+
+```{pyodide}
+#| exercise: ex_00_primer_codigopy
+______
+
+```
+
+```{pyodide}
+#| exercise: ex_00_primer_codigopy
+#| check: true
+
+feedback = None
+if "Hola Mundo" in str(result):
+  feedback = {"correct": True, "message": "¡Buen trabajo! Has imprimido correctamente 'Hola Mundo'."}
+else:
+  feedback = {"correct": False, "message": "Incorrecto. Asegúrate de usar print(\"Hola Mundo\") exactamente como se pide."}
+feedback
+```
+
+::: { .callout-tip collapse="true"}
+
+## Solución
+
+```python
+"Hola Mundo"
+```
+
+:::
+
+:::
+
+## Aprende Programación con lenguaje natural {.smaller}
+
+Por ejemplo, observa cómo le pedimos al robot Karel realizar acciones con instrucciones sencillas en español (*haz click en RUN CODE*). Incluso si no sabes programar, puedes darte una idea de que hace cada función en cada paso. 
+
+::: {.callout-note}
+Si no ves el resultado desplazate para abajo en esta página.
+:::
+
+
+```{pyodide}
+from pykarel_web import Karel
+
+karel = Karel(mundo="laberinto")
+karel.juntar_coso()
+karel.girar_izquierda()
+karel.avanzar()
+karel.ejecutar_acciones()
+
+```
+
+## Temario
+
+**Módulo 1: Fundamentos de R/Python y Programación**
+
+- Manejo de paquetes
+- Introducción a la programación con Karel el robot
+- Funciones (estadísticas y de visualización)
+
+**Módulo 2: Trabajar con Datos**
+
+- Introducción a los datos y su importación
+- Limpieza de Datos
+- Errores comunes
+
+##
+
+**Módulo 3: Estadística Descriptiva y Visualización**
+
+- Tipos de variables
+- Medidas de tendencia central y dispersión
+- Visualización de datos y distribuciones (gráficos)
+- Distribuciones de probabilidad (normal y no normal)
+- Teorema del Límite Central e intervalos de confianza
+- Pruebas de hipótesis
+
+**Módulo 4: Pruebas Estadísticas No Paramétricas y Regresión**
+
+- Manejo de datos no paramétricos
+- Regresión lineal
+
+##
+
+**Módulo 5: Análisis Estadístico Avanzado**
+
+- Correlación (introducción, tipos y supuestos)
+- Prueba de Chi-cuadrada
+- Pruebas t de Student, Mann-Whitney y Wilcoxon
+- ANOVA (una y dos vías, Kruskal-Wallis)
+- ANCOVA
+
+**Módulo 6: Inferencia Estadística**
+
+- Estimación e inferencia
+- Errores de tipo I y II
+- Pruebas de hipótesis
+- Visualización de medias
+
+##
+
+**Módulo 7: gráficos de ANOVA listos para publicar**
+
+- ANOVA de 1 vía
+- ANOVA de 2 vías
+- ANOVA de Medidas Repetidas
+
+
+## Siguientes Pasos y Contacto
+
+- Si tienes alguna pregunta, no dudes en contactarme, [consulta esta página]([https://](https://santi-rios.github.io/)) para más información.
+- Accede a [la página de CursosOrca](https://orcaasesina.com/) para este y más cursos.
+
+[www.orcaasesina.com](https://orcaasesina.com/)
+
+# Fin

@@ -1,17 +1,47 @@
 ---
-title: "Presentación del Curso"
-subtitle: "Aprende a programar y estadística con R"
+title: "Introducción a R/Python"
 format:
   html:
     toc: true
     toc-depth: 2
 ---
 
-## Conoce el curso
 
-{{< revealjs file="../slides/00-presentacion-curso.html" height="500px">}}
+## Primeros Pasos
+
+::: {.panel-tabset}
+
+## Introducción a la Programación 📟
+
+{{< revealjs file="../lecciones/00-introduccion-programacion.html" height="500px">}}
+
+## Variables
+
+{{< revealjs file="../lecciones/01-a-variables-datos.html" height="500px">}}
+
+## Funciones
+
+{{< revealjs file="../lecciones/01-funciones.html" height="500px">}}
+
+## Vectores
+
+{{< revealjs file="../lecciones/01-vectores.html" height="500px">}}
 
 
-## Mira una demostración
+:::
 
-{{< revealjs file="../slides/00-demostracion-r.html" height="500px">}}
+
+## Aprende a programar con Karel
+
+::: {.panel-tabset}
+
+## Introducción a la Programación
+
+{{< revealjs file="../lecciones/03-karel.html" height="500px">}}
+
+## Control de Estructuras
+
+{{< revealjs file="../lecciones/04-karel.html" height="500px">}}
+
+
+:::

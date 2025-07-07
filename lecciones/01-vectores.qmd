@@ -13,6 +13,7 @@ format:
         # slide-number: true
         lang: es
         # logo: "https://cran.r-project.org/Rlogo.svg"
+navbar: false
 webr:
     packages: 
         - ggplot2

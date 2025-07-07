@@ -1,27 +1,9 @@
 ---
-title: "Empieza a programar con R"
-subtitle: "Familiarízate con R"
-author: "Cursos Orca"
-format: 
-    live-html: 
-        toc: true
-        # theme: simple
-        # scrollable: true
-        toc-depth: 2
-        toc-title: Contenido de la Lección
-        # progress: true
-        # slide-number: true
-        lang: es
-        # logo: "https://cran.r-project.org/Rlogo.svg"
-webr:
-    packages: 
-        - karel
-pyodide:
-  packages:
-    - matplotlib
-    - ipython
-    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.2.6-py3-none-any.whl
+title: "Funciones"
+author: "[Santiago Rios](https://santi-rios.github.io/)"
+format: live-html
 engine: knitr
+navbar: false
 ---
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}

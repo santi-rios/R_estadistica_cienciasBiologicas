@@ -19,8 +19,10 @@ pyodide:
     - pandas  # <--- Asegúrate de que pandas esté aquí
     - openpyxl # <--- Para leer archivos .xlsx
     # - xlrd # <--- Para leer archivos .xls más antiguos si es necesario
-    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.2.6-py3-none-any.whl
 engine: knitr
+navbar: false
+resources:
+    - datos/mtcars.csv
 glossary:
   path: ../glossary.yml
   popup: hover
@@ -60,6 +62,16 @@ dewe- Cada observación representa un caso o una instancia de los datos.
 
 ![Para cada variable, observamos 4 diferentes observaciones](../images/observaciones.png)
 
+## Navegación de Directorios: La Notación de Punto
+
+Cuando trabajas con archivos, es crucial entender cómo navegar por la estructura de carpetas (o directorios) de tu proyecto. Tanto R como Python utilizan una notación estándar para referirse a las rutas de los archivos.
+
+-   **`.` (un solo punto)**: Representa el **directorio actual**. Si estás ejecutando un script, `.` se refiere a la carpeta donde se encuentra ese script o desde donde lo estás ejecutando. Por ejemplo, si quieres acceder a un archivo en la misma carpeta, puedes usar `./nombre_del_archivo`.
+
+-   **`..` (dos puntos)**: Representa el **directorio padre** (la carpeta que contiene a la carpeta actual). Esto es útil para "subir" un nivel en la jerarquía de carpetas. Por ejemplo, si estás en `lecciones/` y quieres acceder a la carpeta `datos/`, que está al mismo nivel, usarías `../datos/`.
+
+Comprender esto es fundamental para cargar datos o guardar resultados en la ubicación correcta.
+
 ## Visualización de un conjunto de datos
 - R tiene varios conjuntos de datos de ejemplo que puedes cargar y explorar.
 - Python, con la librería `pandas`, permite crear y manipular DataFrames de manera similar.
@@ -67,37 +79,26 @@ dewe- Cada observación representa un caso o una instancia de los datos.
 
 ::: {.panel-tabset group="language"}
 # R
-```{webr}	
-# Leer un conjunto de datos incluido en R
-data(mtcars)
+```{webr}
+# Leer un archivo CSV desde una ruta relativa
+# Usamos "./datos/mtcars.csv" para indicar que la carpeta "datos"
+# se encuentra en el mismo nivel que el directorio desde donde se ejecuta el script.
+datos_mtcars <- read.csv("./datos/mtcars.csv")
 
 # Imprimir la tabla de datos
-# kable(head(mtcars)) # kable es para formato HTML, head() muestra las primeras filas
-head(mtcars)
+# kable(head(datos_mtcars)) # kable es para formato HTML, head() muestra las primeras filas
+head(datos_mtcars)
 ```
+
 # Python
+
 ```{pyodide}
 import pandas as pd
 
-# Crear un DataFrame similar a mtcars para el ejemplo
-# (En un entorno completo de Python, podrías cargar mtcars desde un CSV 
-# o usar librerías como statsmodels o pydataset)
-data_mtcars = {
-    'mpg': [21.0, 21.0, 22.8, 21.4, 18.7, 18.1],
-    'cyl': [6, 6, 4, 6, 8, 6],
-    'disp': [160.0, 160.0, 108.0, 258.0, 360.0, 225.0],
-    'hp': [110, 110, 93, 110, 175, 105],
-    'drat': [3.90, 3.90, 3.85, 3.08, 3.15, 2.76],
-    'wt': [2.620, 2.875, 2.320, 3.215, 3.440, 3.460],
-    'qsec': [16.46, 17.02, 18.61, 19.44, 17.02, 20.22],
-    'vs': [0, 0, 1, 1, 0, 1],
-    'am': [1, 1, 1, 0, 0, 0],
-    'gear': [4, 4, 4, 3, 3, 3],
-    'carb': [4, 4, 1, 1, 2, 1]
-}
-# Nombres de fila simulados como en R mtcars
-index_mtcars = ['Mazda RX4', 'Mazda RX4 Wag', 'Datsun 710', 'Hornet 4 Drive', 'Hornet Sportabout', 'Valiant']
-mtcars_py = pd.DataFrame(data_mtcars, index=index_mtcars)
+# Leer un archivo CSV desde una ruta relativa
+# Usamos "./datos/mtcars.csv" para indicar que la carpeta "datos"
+# se encuentra en el mismo nivel que el directorio desde donde se ejecuta el script.
+mtcars_py = pd.read_csv("./datos/mtcars.csv")
 
 # Imprimir las primeras filas del DataFrame
 print(mtcars_py.head())

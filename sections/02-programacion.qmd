@@ -5,12 +5,8 @@ format:
   html:
     toc: true
     toc-depth: 2
+    theme: pulse
 ---
 
-### Aprende a programar con Karel
 
-{{< revealjs file="../lecciones/03-karel.html" height="500px">}}
-
-
-{{< revealjs file="../lecciones/04-karel.html" height="500px">}}
 

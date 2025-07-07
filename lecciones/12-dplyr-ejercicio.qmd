@@ -9,7 +9,7 @@ author:
         url: orcaasesina.com
 format: live-html 
 toc: true
-sidebar: false
+navbar: false
 webr:
     packages: 
         - dplyr
