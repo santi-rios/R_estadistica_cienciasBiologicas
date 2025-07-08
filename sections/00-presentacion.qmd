@@ -13,8 +13,9 @@ format:
 
 ## Introducción a la Programación 📟
 
-{{< revealjs file="../lecciones/00-introduccion-programacion.html" height="500px">}}
+{{< revealjs file="lecciones/00-introduccion-programacion.html" height="500px">}}
 
+{{< revealjs file="slides/lecture-00.html" height="500px">}}
 ## Variables
 
 {{< revealjs file="../lecciones/01-a-variables-datos.html" height="500px">}}
