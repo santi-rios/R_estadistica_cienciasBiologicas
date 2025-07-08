@@ -11,14 +11,16 @@ pyodide:
     - pandas
 sidebar: false
 engine: knitr
+resources:
+  - datos/mtcars.csv
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
 
 ## Ejercicio 1
 
 Asigna los valores `2` y `5` a las variables `a` y `b`. Tras asignarles valores, multiplica los números.
-
+datos
 ```{pyodide}
 # Definición de variables
 a = 2
@@ -103,7 +105,7 @@ Ahora, vamos a leer un archivo CSV que se encuentra en la carpeta `datos`. Lee e
 import pandas as pd
 
 # Leer un archivo CSV
-datos_csv = pd.read_csv("/home/santi/Projects/R_estadistica_cienciasBiologicas/datos/mtcars.csv")
+datos_csv = pd.read_csv("./datos/mtcars.csv")
 
 # Imprimir los primeros datos
 print(datos_csv.head())
