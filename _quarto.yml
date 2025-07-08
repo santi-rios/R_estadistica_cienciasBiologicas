@@ -23,20 +23,20 @@ website:
         href: https://github.com/santi-rios
       - icon: globe
         href: https://santi-rios.github.io/
-  navbar:
-    background: "#ded6ea"
-    search: true
-    logo: images/logo.png
-    left:
-      - text: "🏠 Inicio"
-        href: index.qmd
-    # contents: 
-    #   - href: index.qmd
-    #     title: "Inicio"
-      - text: "💻 1.-Introducción"
-        href: sections/00-presentacion.qmd
-      - text: "📚 2.-Datos"
-        href: sections/03-importar-limpieza.qmd
+  # navbar:
+  #   background: "#ded6ea"
+  #   search: true
+  #   logo: images/logo.png
+  #   left:
+  #     - text: "🏠 Inicio"
+  #       href: index.qmd
+  #   # contents: 
+  #   #   - href: index.qmd
+  #   #     title: "Inicio"
+  #     - text: "💻 1.-Introducción"
+  #       href: sections/00-presentacion.qmd
+  #     - text: "📚 2.-Datos"
+  #       href: sections/03-importar-limpieza.qmd
       # - section: "Introducción a Estadística"
       #   contents:
       #     - sections/02-estadistica.qmd

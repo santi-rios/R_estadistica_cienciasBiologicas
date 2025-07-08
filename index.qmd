@@ -21,7 +21,3 @@ about:
 Bienvenido al curso de R/Python para principiantes. En este curso, aprenderás a programar en R/Python, lenguajes de programación ampliamente utilizados en análisis de datos y estadística. No necesitas experiencia previa NI instalar NADA en tu computadora.
 :::
 
-## Conoce el Curso
-
-{{< revealjs file="lecciones/00-presentacion-curso.html" height="500px" class="ratio ratio-16x9" >}}
-
