@@ -18,7 +18,10 @@ resources:
   - datos
 toc: true
 sidebar: false
+engine: knitr
 ---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 
 En esta sección pondrás en práctica conceptos de manipulación de datos en Python. El objetivo es que puedas aplicar las funciones de `pandas` a un conjunto de datos real. Esto será importante para las próximas secciones, donde aprenderás a realizar análisis estadísticos y visualizaciones de datos. Sin embargo, antes de que veamos estos temas, es importante que te sientas cómodo trabajando con `pandas`, manejando datos y realizando transformaciones básicas.
 

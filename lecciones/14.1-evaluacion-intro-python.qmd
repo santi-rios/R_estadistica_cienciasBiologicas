@@ -10,7 +10,10 @@ pyodide:
     - seaborn
     - pandas
 sidebar: false
+engine: knitr
 ---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 
 ## Ejercicio 1
 
