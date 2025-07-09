@@ -24,7 +24,6 @@ format:
 pyodide:
   packages:
     - matplotlib
-    - ipython
     - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.2-py3-none-any.whl
 engine: knitr
 ---
@@ -32,57 +31,86 @@ engine: knitr
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
 
 
-## Instrucciones {transition="zoom-out" .smaller}
-
-![](../images/r_python.png){fig-align="center" .r-stretch}
-
-## Instrucciones
-
-::: {.callout-tip}
-Accede desde una computadora/laptop 💻 para una mejor experiencia.
-:::
-
-| Acción                     | Teclado                                    |
-|----------------------------|--------------------------------------------|
-| Siguiente Diapositiva      | <kbd>→</kbd> ó <kbd>Espacio</kbd> ó <kbd>N</kbd> |
-| Diapositiva Previa         | <kbd>←</kbd> ó <kbd>P</kbd>                  |
-| Abrir Menú                 | <kbd>M</kbd>                          |
-| Hacer Zoom                 | <kbd>Alt</kbd> ó <kbd>Ctrl</kbd> (linux) + click Mouse  |
-
 ##  {#unifies-extends-1 .centered data-menu-title="Bienvenidos" background-color="#0F1620" auto-animate="true"}
 
-::: {style="margin-top: 150px; font-size: 2.2em; color: #75AADB;"}
-Puntos importantes del curso: 
+::: {style="margin-top: 100px; font-size: 2.5em; color: #75AADB; text-align: center;"}
+🧬 ¡Bienvenido al Futuro de la Investigación! 🐍
+:::
+
+::: {style="margin-top: 50px; font-size: 1.5em; color: #FFFFFF; text-align: center;"}
+Aprende R y Python para Ciencias de la Salud
 :::
 
 
-##  {#unifies-extends-2 .centered data-menu-title="Bienvenidos" background-color="#0F1620" auto-animate="true"}
+##  {#unifies-extends-2 .centered data-menu-title="¿Por qué este curso?" background-color="#0F1620" auto-animate="true"}
 
-::: {style="margin-top: 100px; font-size: 1.2em; color: #75AADB"}
-Puntos importantes del curso:
+::: {style="margin-top: 80px; font-size: 1.8em; color: #75AADB; text-align: center;"}
+🧬 ¿Por qué este curso es perfecto para ti? 🐍
 :::
 
 <br>
 
-::: large
-No necesitas tener experiencia previa en programación **NI INSTALAR NADA**. Este curso está diseñado para aprender los fundamentos de R/Python y bioestadística. 
+::: {.fragment .fade-up .large fragment-index="1"}
+✅ **Cero instalaciones**: Todo funciona en tu navegador
 :::
-
-<br>
 
 ::: {.fragment .fade-up .large fragment-index="2"}
-Está enfocado a estudiantes de ciencias biológicas y de la salud: aprenderás los análisis estadísticos más comunes en tu campo de estudio.
+🔬 **Diseñado para ciencias de la salud**: Análisis estadísticos reales de tu campo
 :::
 
+::: {.fragment .fade-up .large fragment-index="3"}
+👥 **Sin experiencia previa**: Empezamos desde cero, paso a paso
+:::
 
-## Aprende R y Python desde tu navegador
+::: {.fragment .fade-up .large fragment-index="4"}
+📊 **Aprende haciendo**: Consolas interactivas en cada lección
+:::
 
-Escribe en la consola (selecciona R o Python)`"Hola Mundo"`. Sustituye la línea punteada con el texto (no olvides las comillas ""). Una vez que lo hayas hecho, haz click en el botón azul "Run Code". 
+## 🚀 ¡Pruébalo AHORA! {.smaller}
+
+Observa como podemos calcular estadísticas básicas en segundos desde tu navegador. Corre el siguiente código para calcular la media de un conjunto de datos de ejemplo (pesos de pacientes) (**Haz click en el botón azul "Run Code"**). Puedes elegir entre R o Python, ¡ambos son igual de poderosos!
 
 ::: {.panel-tabset group="language"}
 
 ## R
 
+```{webr}
+#| exercise: ex_00_estadisticas_basicas
+# Datos de ejemplo: pesos de pacientes (kg)
+pesos <- c(68, 72, 65, 70, 75, 69, 71, 73, 67, 74)
+
+# Calcula la media
+mean(pesos)
+```
+
+## Python
+
+```{pyodide}
+#| exercise: ex_00_estadisticas_python
+import statistics
+
+# Datos de ejemplo: pesos de pacientes (kg)
+pesos = [68, 72, 65, 70, 75, 69, 71, 73, 67, 74]
+
+# Calcula la media
+statistics.mean(pesos)
+```
+
+:::
+
+::: {.callout-important}
+## 🎯 ¡Felicidades!
+Acabas de realizar tu primer análisis estadístico.
+:::
+
+
+## 🌟 Aprende R y Python desde tu navegador
+
+¡Es tu turno! Escribe `"Hola Mundo"` en la consola (sustituye las líneas punteadas). Después haz click en **"Run Code"** y observa la magia ✨
+
+::: {.panel-tabset group="language"}
+
+## R
 
 ```{webr}
 #| exercise: ex_00_primer_codigo
@@ -94,24 +122,20 @@ ______
 #| exercise: ex_00_primer_codigo
 #| check: true
 if (identical(.result, print("Hola Mundo"))) {
-  list(correct = TRUE, message = "Felicidades! Acabas de correr tu primer codigo en R.")
+  list(correct = TRUE, message = "¡Felicidades! 🎉 Acabas de correr tu primer código en R.")
 } else {
-  list(correct = FALSE, message = "Incorrecto. Revisa que escribiste lo que se pide. Puedes revisar la solucion con el boton Show solution.")
+  list(correct = FALSE, message = "Intenta de nuevo. Recuerda escribir exactamente: \"Hola Mundo\" (con comillas)")
 }
 ```
 
 ::: { .callout-tip collapse="true"}
-
-## Solución
-
+## 💡 Solución
 ```r
 "Hola Mundo"
 ```
 :::
 
-
 ## Python
-
 
 ```{pyodide}
 #| exercise: ex_00_primer_codigopy
@@ -125,105 +149,240 @@ ______
 
 feedback = None
 if "Hola Mundo" in str(result):
-  feedback = {"correct": True, "message": "¡Buen trabajo! Has imprimido correctamente 'Hola Mundo'."}
+  feedback = {"correct": True, "message": "¡Excelente! 🎉 Has ejecutado tu primer código Python."}
 else:
-  feedback = {"correct": False, "message": "Incorrecto. Asegúrate de usar print(\"Hola Mundo\") exactamente como se pide."}
+  feedback = {"correct": False, "message": "Intenta de nuevo. Escribe exactamente: \"Hola Mundo\" (con comillas)"}
 feedback
 ```
 
 ::: { .callout-tip collapse="true"}
-
-## Solución
-
+## 💡 Solución
 ```python
 "Hola Mundo"
 ```
-
 :::
 
 :::
 
-## Aprende Programación con lenguaje natural {.smaller}
+## 🤖 Aprende Programación de forma intuitiva
 
-Por ejemplo, observa cómo le pedimos al robot Karel realizar acciones con instrucciones sencillas en español (*haz click en RUN CODE*). Incluso si no sabes programar, puedes darte una idea de que hace cada función en cada paso. 
+Observa cómo nuestro robot Karel entiende comandos en **español**. Incluso sin saber programar, puedes entender qué hace cada instrucción. Aprenderás a programar de forma intuitiva con lenguaje natural en R y Python. 
 
 ::: {.callout-note}
-Si no ves el resultado desplazate para abajo en esta página.
+📱 **Tip**: Si estás en móvil, desplázate hacia abajo para ver el resultado
 :::
-
 
 ```{pyodide}
 from pykarel_web import Karel
 
 karel = Karel(mundo="laberinto")
-karel.juntar_coso()
 karel.girar_izquierda()
 karel.avanzar()
+karel.girar_izquierda()
 karel.ejecutar_acciones()
-
 ```
 
-## Temario
+::: {.callout-important}
+## 🧠 ¿Entendiste lo que pasó?
+- `girar_izquierda()` → El robot gira a la izquierda
+- `avanzar()` → El robot se mueve hacia adelante
+- `ejecutar_acciones()` → Ejecuta todos los comandos
 
-**Módulo 1: Fundamentos de R/Python y Programación**
+¡Así de intuitiva será toda tu experiencia de aprendizaje!
+:::
 
-- Manejo de paquetes
-- Introducción a la programación con Karel el robot
-- Funciones (estadísticas y de visualización)
+## 📊 Ejemplo: Crear tu primer gráfico científico
 
-**Módulo 2: Trabajar con Datos**
+::: {.panel-tabset group="language"}
 
-- Introducción a los datos y su importación
-- Limpieza de Datos
-- Errores comunes
+## R
+
+```{webr}
+# Datos de ejemplo: efectividad de tratamiento
+tratamiento <- c("Control", "Tratamiento A", "Tratamiento B")
+efectividad <- c(65, 78, 85)
+
+# Crear gráfico de barras
+barplot(efectividad, names.arg = tratamiento, 
+        col = c("#FF6B6B", "#4ECDC4", "#45B7D1"),
+        main = "Efectividad de Tratamientos",
+        ylab = "% de Eficacia",
+        ylim = c(0, 100))
+```
+
+## Python
+
+```{pyodide}
+import matplotlib.pyplot as plt
+
+# Datos de ejemplo: efectividad de tratamiento
+tratamiento = ["Control", "Tratamiento A", "Tratamiento B"]
+efectividad = [65, 78, 85]
+
+# Crear gráfico de barras
+plt.figure(figsize=(8, 6))
+plt.bar(tratamiento, efectividad, color=['#FF6B6B', '#4ECDC4', '#45B7D1'])
+plt.title('Efectividad de Tratamientos', fontsize=14, fontweight='bold')
+plt.ylabel('% de Eficacia')
+plt.ylim(0, 100)
+plt.show()
+```
+
+:::
+
+## 🎓 Lo que aprenderás: Tu roadmap al éxito
+
+::: {.callout-note icon=false}
+## 🌱 **Módulo 1: Primeros pasos sin miedo**
+- ✨ Consolas interactivas (sin instalar nada)
+- 🤖 Programación intuitiva con Karel 
+- 📦 Manejo de paquetes esenciales
+- 🔧 Funciones básicas de estadística
+:::
+
+::: {.callout-note icon=false}
+## 📊 **Módulo 2: Domina tus datos**
+- 📥 Importación de datos reales
+- 🧹 Limpieza y preparación
+- ⚠️ Errores comunes (y cómo evitarlos)
+- 🔍 Exploración inicial de datasets
+:::
+
+## 
+
+::: {.callout-note icon=false}
+## 📈 **Módulo 3: Visualización que impacta**
+- 📏 Variables y medidas estadísticas
+- 🎨 Gráficos profesionales para publicaciones
+- 📊 Distribuciones y probabilidades
+- 🎯 Intervalos de confianza
+- 🔬 Pruebas de hipótesis fundamentales
+:::
+
+::: {.callout-note icon=false}
+## 🧮 **Módulo 4: Análisis no paramétricos**
+- 📐 Datos que no siguen distribución normal
+- 📈 Regresión lineal práctica
+- 🔄 Transformaciones de datos
+:::
 
 ##
 
-**Módulo 3: Estadística Descriptiva y Visualización**
+::: {.callout-note icon=false}
+## 🚀 **Módulo 5: Estadística avanzada**
+- 🔗 Correlaciones y asociaciones
+- ❌ Pruebas Chi-cuadrada
+- 👥 Comparaciones entre grupos (t-test, Mann-Whitney)
+- 📊 ANOVA completo (1 y 2 vías, Kruskal-Wallis)
+- 🎛️ ANCOVA para controlar variables
+:::
 
-- Tipos de variables
-- Medidas de tendencia central y dispersión
-- Visualización de datos y distribuciones (gráficos)
-- Distribuciones de probabilidad (normal y no normal)
-- Teorema del Límite Central e intervalos de confianza
-- Pruebas de hipótesis
-
-**Módulo 4: Pruebas Estadísticas No Paramétricas y Regresión**
-
-- Manejo de datos no paramétricos
-- Regresión lineal
-
-##
-
-**Módulo 5: Análisis Estadístico Avanzado**
-
-- Correlación (introducción, tipos y supuestos)
-- Prueba de Chi-cuadrada
-- Pruebas t de Student, Mann-Whitney y Wilcoxon
-- ANOVA (una y dos vías, Kruskal-Wallis)
-- ANCOVA
-
-**Módulo 6: Inferencia Estadística**
-
-- Estimación e inferencia
-- Errores de tipo I y II
-- Pruebas de hipótesis
-- Visualización de medias
+::: {.callout-note icon=false}
+## 🎯 **Módulo 6: Inferencia como un experto**
+- 🎲 Estimación e inferencia estadística
+- ⚖️ Errores tipo I y II
+- 🔍 Pruebas de hipótesis avanzadas  
+- 📊 Visualización de resultados
+:::
 
 ##
 
-**Módulo 7: gráficos de ANOVA listos para publicar**
+::: {.callout-note icon=false}
+## 📑 **Módulo 7: Gráficos listos para publicar**
+- 📊 ANOVA de 1 vía (publication-ready)
+- 🔄 ANOVA de 2 vías (diseños factoriales)
+- 🔁 ANOVA de medidas repetidas
+- 🎨 Personalización profesional
+:::
 
-- ANOVA de 1 vía
-- ANOVA de 2 vías
+## 💡 ¿Por qué elegir R y Python?
+
+::: {.fragment .fade-up fragment-index="1"}
+### 🌍 **Estándares mundiales**
+R y Python son los lenguajes más usados en investigación científica globalmente
+:::
+
+::: {.fragment .fade-up fragment-index="2"}
+### 💰 **Completamente gratuitos**
+Software libre que siempre estará disponible para ti
+:::
+
+::: {.fragment .fade-up fragment-index="3"}
+### 🤝 **Comunidad activa**
+Miles de paquetes específicos para ciencias de la salud
+:::
+
+::: {.fragment .fade-up fragment-index="4"}
+### 📈 **Futuro asegurado**
+Las habilidades más demandadas en investigación y industria
+:::
 - ANOVA de Medidas Repetidas
 
+## 👥 ¿Para quién es este curso?
 
-## Siguientes Pasos y Contacto
+::: {.columns}
 
-- Si tienes alguna pregunta, no dudes en contactarme, [consulta esta página]([https://](https://santi-rios.github.io/)) para más información.
-- Accede a [la página de CursosOrca](https://orcaasesina.com/) para este y más cursos.
+::: {.column width="50%"}
+### ✅ **Perfecto si eres:**
+- 🧬 Estudiante de biología, medicina, enfermería
+- 🔬 Investigador en ciencias de la salud
+- 📊 Profesional que necesita análizar datos
+- 🎓 Estudiante de posgrado
+- 💡 Curioso sin experiencia en programación
+:::
 
-[www.orcaasesina.com](https://orcaasesina.com/)
+::: {.column width="50%"}
+### 🚫 **No necesitas:**
+- ❌ Experiencia previa en programación
+- ❌ Instalar software especializado
+- ❌ Conocimientos avanzados de matemáticas
+- ❌ Equipo especial (solo tu navegador)
+- ❌ Pagar por software costoso
+:::
+
+:::
+
+## 🎯 Al finalizar el curso podrás:
+
+::: {.fragment .fade-up fragment-index="1"}
+✅ **Analizar datos reales** de experimentos y estudios clínicos
+:::
+
+::: {.fragment .fade-up fragment-index="2"}
+✅ **Crear gráficos profesionales** listos para publicaciones
+:::
+
+::: {.fragment .fade-up fragment-index="3"}
+✅ **Interpretar resultados estadísticos** con confianza
+:::
+
+::: {.fragment .fade-up fragment-index="4"}
+✅ **Automatizar análisis repetitivos** y ahorrar tiempo
+:::
+
+::: {.fragment .fade-up fragment-index="5"}
+✅ **Colaborar con bioinformáticos** y científicos de datos
+:::
+
+## 🚀 ¡Comienza HOY!
+
+::: {.fragment .fade-up fragment-index="1"}
+### 📞 **Información y contacto**
+:::
+
+::: {.fragment .fade-up fragment-index="2"}
+- 🎓 **Inscríbete al curso**: [orcaasesina.com](https://orcaasesina.com/)
+- 🌐 **Contacto y mas sobre mi**: [santi-rios.github.io](https://santi-rios.github.io/)
+:::
+
+## 🎉 ¡Bienvenido!
+
+::: {style="margin-top: 100px; font-size: 2em; color: #75AADB; text-align: center;"}
+**¿Listo para convertirte en un analista de datos expert@?**
+:::
+
+::: {style="margin-top: 50px; font-size: 1.2em; color: #FFFFFF; text-align: center;"}
+El futuro de la investigación está en tus manos 🚀
+:::
 
 # Fin

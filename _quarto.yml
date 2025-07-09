@@ -94,3 +94,5 @@ format:
       # slide-number: true
       lang: es
       # logo: "https://cran.r-project.org/Rlogo.svg"
+      execute:
+        warning: false

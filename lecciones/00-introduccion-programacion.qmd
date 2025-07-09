@@ -5,47 +5,148 @@ author: "Cursos Orca"
 format: 
     live-html: 
         toc: true
-        toc-depth: 2
+        toc-depth: 3
         toc-title: Contenido de la Lección
         lang: es
+        theme: pulse
 navbar: false
 webr:
+    render-df: gt
     packages: 
         - ggplot2
 engine: knitr
+resources:
+  - datos/penguins.csv
 ---
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
 
 ## ¿Qué es Programar?
 
-Programar, en esencia, es dar instrucciones a una computadora para que realice tareas específicas. Piensa en ello como escribir una receta muy detallada: cada paso debe ser claro y preciso para que la computadora (el cocinero) pueda seguirlo y producir el resultado deseado.
+Programar, en esencia, es dar instrucciones a una computadora para que realice tareas específicas. Estas instrucciones se escriben en un lenguaje de programación. Piensa en esto como escribir una receta de cocina detallada: cada paso debe ser claro y preciso para que la computadora (el cocinero) pueda seguirlo y producir el resultado deseado.
 
 ![](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/483e1776-7126-4255-8e84-0557c397025f_rw_1200.png?h=bf487bf87b6ec11f1806dc1094def1d3)
 
 
-En las ciencias de la salud, utilizamos la programación para:
+## ¿Por Qué Necesitamos Programar en Ciencias de la Salud?
 
-- Analizar grandes conjuntos de datos de pacientes para identificar patrones.
-- Automatizar la generación de informes a partir de resultados de laboratorio.
-- Crear modelos para simular la propagación de enfermedades.
-- Desarrollar herramientas para la visualización de datos médicos complejos.
-- Entre muchas otras aplicaciones.
-  
 > Programar nos permite transformar datos en información útil, facilitando la toma de decisiones informadas en el ámbito de la salud.
+
+El campo de las ciencias de la salud genera una cantidad masiva de datos diariamente: historiales médicos, resultados de investigaciones, datos genómicos, imágenes médicas, y más. La programación nos ofrece las herramientas para:
+
+### Manejar y Analizar Grandes Volúmenes de Datos (Big Data)
+
+A pesar que muchos usan hojas de cálculo (Excel y similares) para analizar datos, estas tienen MUCHAS limitaciones. 
+  - Por ejemplo, pueden volverse ineficaces con grandes conjuntos de datos, y son propensas a errores de dedo ([además de que estos errores son casi imposibles de identificar](https://www.microassist.com/software-tips/real-world-risks-of-spreadsheet-errors/)). Estos errores y limitaciones de Excel pueden tener consecuencias graves y costar MILLONES:
+    - *Public Health England* perdía ~15,841 pruebas positivas de COVID-19 debido a que Excel solamente soportaba 65,000 filas de datos. [Fuente](https://www.theguardian.com/politics/2020/oct/05/how-excel-may-have-caused-loss-of-16000-covid-tests-in-england)
+    - El departamento de Virginia de Educación perdió $201 Millones de dolares por un error en una fórmula de Excel. [Fuente](https://apnews.com/article/virginia-education-8a136c2b1ec33a0cc3bca6d2cc4a0cd3)
+
+> Observa cómo en este ejemplo leemos una base de datos de 346 pingüinos y obtenemos estadísticas completas en cuestión de segundos con R/Python.
+
+::: {.panel-tabset group="language"}
+
+# R
+
+```{webr}
+# Leer datos de pingüinos (346 filas)
+penguins <- read.csv("./datos/penguins.csv")
+
+# Ver 10 datos aleatorios
+dplyr::sample_n(penguins, 10)
+
+```
+
+# Python
+
+```{pyodide}
+import pandas as pd
+
+# Leer datos de pingüinos (346 filas)
+penguins = pd.read_csv("./datos/penguins.csv")
+
+# Obtener estadísticas rápidas de TODOS los datos
+print(penguins.describe())
+```
+
+:::
+
+
+### Automatización de Tareas Repetitivas 
+
+Muchas tareas, como la limpieza de datos, la generación de gráficos estándar o la creación de informes, pueden automatizarse, ahorrando tiempo y reduciendo errores.
+  - A nivel cognitivo^[conjunto de procesos mentales que nos permiten adquirir, procesar, almacenar y utilizar información], trabajar con hojas de Excel es cansado y contraintuitivo a cómo funciona nuestra mente ([Fuente: Panko, 2013](https://ieeexplore.ieee.org/document/6480329)):
+    - Usar Excel activa los circuitos *automáticos* de la mente. Por esto mismo, cuando comentes errores NO TE DAS CUENTA. Programar es lo contrario: *requiere atención*. 
+    - Además, a medida que las hojas de Excel se vuelven mas complejas (mas datos, formulas, etc.), se vuelve mas complejo entender nuestros datos, fórmulas, recordar los pasos que realizamos, etc.
+
+> Observa cómo en este ejemplo, filtramos y analizamos los datos del punto anterior en cuestión de segundos con R/Python. Observa que solo utilizamos pocas líneas de código para lograr análisis complejos.
+
+::: {.panel-tabset group="language"}
+
+# R
+
+A pesar de que todavía no hemos visto este tema, observa cómo las funciones (instrucciones) de R utilizan verbos comunes e intuitivos:
+
+    - `filter` filtra las columnas, en este caso, le pedimos que nos filtre las especies llamadas "*Adelie*" y que sean machos.
+    - `group_by`: agrupa los datos por isla.
+    - `summarise`: resume los datos, en este caso, calculando el promedio del peso corporal de los pingüinos machos de la especie *Adelie* por isla.
+
+```{webr}
+
+penguins |>
+  dplyr::filter(species == "Adelie", sex == "male") |>
+  dplyr::group_by(island) |>
+  dplyr::summarise(mean_body_mass_g = mean(body_mass_g, na.rm = TRUE))
+
+``` 
+
+# Python
+
+A pesar de que todavía no hemos visto este tema, observa cómo las funciones (instrucciones) de Python utilizan verbos comunes e intuitivos:
+
+    - En Python, para filtrar datos, usamos condiciones lógicas dentro de corchetes. No te preocupes por entender todo el código ahora, solo observa la estructura.
+    - `groupby`: agrupa los datos por especie.
+    - `mean`: calcula el promedio del peso corporal de los pingüinos machos de la especie *Adelie* por isla.
+
+```{pyodide}
+# Filtrar solo pingüinos machos de la especie Adelie
+adelie_machos = penguins[(penguins['species'] == 'Adelie') & (penguins['sex'] == 'male')]
+
+# Calcular promedio de peso por isla (solo para machos Adelie)
+print(adelie_machos.groupby('island')['body_mass_g'].mean())
+
+```
+
+:::
+
+
+### Reproducibilidad en la Investigación
+
+El código documenta exactamente cómo se analizaron los datos. Esto es crucial para la transparencia y la validación de los resultados de la investigación.
+
+- Una herramienta muy poderosa es **Git**, que permite rastrear todos los cambios en el código, mantener un historial de modificaciones.
+    - Git facilita la reproducibilidad, ya que otros pueden ejecutar el mismo código con los mismos datos para verificar los resultados.
+
+::: {.callout-tip}
+Puedes tomar nuestro curso de Git y GitHub para aprender más sobre estas herramientas en [Git y GitHub para Ciencia de Datos](https://orcaasesina.com/course/view.php?id=3).
+:::
+
+
+### Análisis Avanzados y Modelado
+
+R y Python pueden ejecutar técnicas como el aprendizaje automático (*machine learning*) y modelados estadísticos avanzados, que son cada vez más importantes en la investigación médica y la salud pública, requieren programación.
+
+::: {.callout-tip}
+Puedes tomar nuestro curso estadística avanzada en R y Python, donde aprenderás a realizar modelados estadísticos (ANOVA, regresiones, etc.) y análisis avanzados de datos:
+
+- Curso de [Estadística Avanzada en R](https://orcaasesina.com/course/view.php?id=4).
+- Curso de [Estadística Avanzada en Python](https://orcaasesina.com/course/view.php?id=5).
+
+:::
+
 
 ![](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/5c559781-f15a-4be9-8af0-426fcc71a9e8_rw_1200.png?h=c7af78be544ee13532fb2152727af996)
 
-## ¿Por Qué Necesitamos Programar en Ciencias de la Salud?
 
-El campo de la salud genera una cantidad masiva de datos diariamente: historiales médicos electrónicos, resultados de investigaciones, datos genómicos, imágenes médicas, y más. La programación nos ofrece las herramientas para:
-
-- **Manejar y Analizar Grandes Volúmenes de Datos (Big Data):** Las hojas de cálculo tradicionales tienen limitaciones. La programación permite procesar y analizar datasets que serían imposibles de manejar manualmente.
-  - Por ejemplo, revisa [este artículo](https://www.microassist.com/software-tips/real-world-risks-of-spreadsheet-errors/) que explica que hasta 90% de las hojas de cálculo contienen errores. Estos errores pueden tener consecuencias graves y costar MILLONES de dólares.
-- **Automatización de Tareas Repetitivas:** Muchas tareas, como la limpieza de datos, la generación de gráficos estándar o la creación de informes, pueden automatizarse, ahorrando tiempo y reduciendo errores.
-- **Reproducibilidad en la Investigación:** El código documenta exactamente cómo se analizaron los datos. Esto es crucial para la transparencia y la validación de los resultados de la investigación.
-- **Análisis Avanzados y Modelado:** Técnicas como el aprendizaje automático (machine learning) y la modelización estadística, que son cada vez más importantes en la investigación médica y la salud pública, requieren programación.
-- **Personalización:** Permite crear soluciones específicas para problemas concretos que las herramientas "listas para usar" no pueden abordar.
 
 ## ¿Por Qué R y Python?
 
@@ -97,33 +198,7 @@ Python es un lenguaje de programación de propósito general, conocido por su si
 
 ::::
 
-Ambos lenguajes son de código abierto, gratuitos y cuentan con grandes comunidades de usuarios, lo que significa abundantes recursos de aprendizaje y soporte. La elección entre R y Python a menudo depende de la tarea específica, las preferencias personales o los estándares del equipo de trabajo. En este curso, te introduciremos a ambos.
 
-## Temas que Aprenderemos en este Curso
-
-Este curso está diseñado para llevarte desde los conceptos básicos hasta la capacidad de realizar análisis de datos sencillos en R y Python. Cubriremos:
-
-1.  **Fundamentos de la Programación:**
-    *   Variables y tipos de datos.
-    *   Operadores básicos (aritméticos, lógicos).
-    *   Estructuras de control (condicionales, bucles).
-    *   Funciones.
-2.  **Manejo de Datos:**
-    *   Importación y exportación de datos (CSV, Excel).
-    *   Limpieza y transformación de datos.
-    *   Filtrado y selección de datos.
-3.  **Análisis Estadístico Descriptivo:**
-    *   Cálculo de medias, medianas, desviaciones estándar.
-    *   Tablas de frecuencia.
-4.  **Visualización de Datos:**
-    *   Creación de gráficos básicos (histogramas, diagramas de dispersión, diagramas de caja).
-5.  **Introducción a Paquetes/Librerías Clave:**
-    *   En R: `dplyr`, `ggplot2`.
-    *   En Python: `pandas`, `matplotlib`/`seaborn`.
-6.  **Buenas Prácticas y Flujo de Trabajo:**
-    *   Comentar el código.
-    *   Organización de proyectos.
-    *   Principios de reproducibilidad.
 
 ---
 
@@ -146,7 +221,7 @@ Puedes realizar operaciones como suma, resta, multiplicación y división.
 3 + 5
 ```
 
-## python
+## Python
 
 ```{pyodide}
 # Suma
@@ -175,7 +250,7 @@ Si realizas múltiples operaciones, verás múltiples salidas.
 30 + 7
 ```
 
-## python
+## Python
 
 En Python, para asegurar que cada resultado se muestre explícitamente, a menudo usamos la función `print()`.
 
@@ -201,7 +276,7 @@ print(30 + 7)
 100 - 45
 ```
 
-## python
+## Python
 
 ```{pyodide}
 # Resta
@@ -234,7 +309,7 @@ Observa cómo en el siguiente bloque, si las operaciones están comentadas, no s
 # 100 / 2
 ```
 
-## python
+## Python
 
 ```{pyodide}
 # Suma (comentada, no se ejecuta)
