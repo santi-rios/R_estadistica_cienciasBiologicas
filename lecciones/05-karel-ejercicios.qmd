@@ -1,0 +1,517 @@
+---
+title: "Ejercicios Karel - R"
+author: "Santiago García Ríos"
+format: 
+    live-html: 
+        toc: true
+        # theme: simple
+        # scrollable: true
+        toc-depth: 4
+        toc-title: Contenido de la Lección
+        # progress: true
+        # slide-number: true
+        lang: es
+        # logo: "https://cran.r-project.org/Rlogo.svg"
+webr:
+    packages: 
+        - karel
+engine: knitr
+navbar: false
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{webr}
+#| autorun: true
+#| include: false
+
+library(karel)
+
+# Crear un entorno para llevar el conteo de pasos
+.karel_env <- new.env(parent = emptyenv())
+.karel_env$step_counter <- 1
+
+# Sobrescribir generar_mundo para reiniciar el contador
+generar_mundo <- function(mundo) {
+  karel::generar_mundo(mundo)
+  .karel_env$step_counter <- 1
+}
+
+# Funciones auxiliares que generan imágenes estáticas después de cada acción
+avanzar <- function() {
+  karel::avanzar()
+  karel:::plot_static_world(.karel_env$step_counter)
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
+}
+
+girar_izquierda <- function() {
+  karel::girar_izquierda()
+  karel:::plot_static_world(.karel_env$step_counter)
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
+}
+
+juntar_coso <- function() {
+  karel::juntar_coso()
+  karel:::plot_static_world(.karel_env$step_counter)
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
+}
+
+poner_coso <- function() {
+  karel::poner_coso()
+  karel:::plot_static_world(.karel_env$step_counter)
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
+}
+
+# Sobrescribir ejecutar_acciones para que genere la imagen final
+ejecutar_acciones <- function() {
+  karel:::plot_static_world(.karel_env$step_counter)
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
+  invisible()
+}
+
+# Función girar_derecha optimizada para una sola imagen
+girar_derecha <- function() {
+  karel::girar_izquierda()
+  karel::girar_izquierda()
+  karel::girar_izquierda()
+  karel:::plot_static_world(.karel_env$step_counter)
+  .karel_env$step_counter <<- .karel_env$step_counter + 1
+}
+
+```
+
+
+
+## Instrucciones
+
+- Soluciona los siguientes ejercicios utilizando cualquier método. Puedes usar funciones, bucles, o simplemente las funciones integradas de Karel.
+- No olvides carga la librería de karel en tu primer código.
+
+## Funciones y condiciones
+
+- Como recordatorio,estas son las funciones y condiciones que tenemos disponibles en el paquete de karel:
+
+
+::: {#tbl-funcionesKarel layout-ncol=2}
+
+
+| Función           | Sintaxis (R)        |
+|--------------------|---------------------|
+| Avanzar un paso           | `avanzar()`         |
+| Girar a la Izquierda |`girar_izquierda()` |
+| Juntar 1 Coso        | `juntar_coso()`     |
+| Poner 1 Coso         | `poner_coso()`      |
+| Ejecutar Acciones y mostrar figuras  | `ejecutar_acciones()` |
+
+: Funciones de Karel en R {#tbl-karelR}
+
+:::
+
+
+| R                       | Descripción                                       |
+| ----------------------- | ------------------------------------------------- |
+| `frente_abierto()`      | No hay una pared enfrente de Karel                |
+| `frente_cerrado()`      | Hay una pared enfrente de Karel                   |
+| `izquierda_abierto()`   | No hay una pared a la izquierda de Karel         |
+| `izquierda_cerrado()`   | Hay una pared a la izquierda de Karel            |
+| `derecha_abierto()`     | No hay una pared a la derecha de Karel           |
+| `derecha_cerrado()`     | Hay una pared a la derecha de Karel              |
+| `hay_cosos()`           | Hay cosos donde se encuentra Karel                |
+| `no_hay_cosos()`        | No hay cosos donde se encuentra Karel             |
+| `karel_tiene_cosos()`   | Karel tiene cosos en su mochila                   |
+| `karel_no_tiene_cosos()`| Karel no tiene cosos en su mochila                |
+| `mira_al_este()`        | Karel está mirando al este                        |
+| `mira_al_norte()`       | Karel está mirando al norte                       |
+| `mira_al_oeste()`       | Karel está mirando al oeste                       |
+| `mira_al_sur()`         | Karel está mirando al sur                         |
+
+: Condiciones *booleanas* (expresión que se evalúa como uno de dos valores posibles: verdadero (True) o falso (False)) {#tbl-booleanas}
+
+
+## Ejercicios
+
+
+### Problema 1: juntar el periódico
+
+Para calentar motores, comenzaremos con un problema simple. Imaginemos que Karel está en su casa, la cual es la región cuadrada en el centro del siguiente diagrama:
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo011")
+```
+
+Karel debe salir de su casa (`mundo011`) para recoger el periódico (representado, obviamente, por un coso) y recoger el coso. Escribir el programa en R, de las siguientes formas:
+
+- En primer lugar, se debe resolver este problema usando solamente las cuatro acciones básicas de Karel (avanzar, girar a la izquierda, poner y juntar cosos). 
+
+```{webr}
+#| min-lines: 4
+
+
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+library(karel)
+
+generar_mundo("mundo011")
+avanzar()
+avanzar()
+girar_izquierda()
+girar_izquierda()
+girar_izquierda()
+avanzar()
+girar_izquierda()
+avanzar()
+juntar_coso()
+ejecutar_acciones()
+
+```
+:::
+
+
+### Problema 2: Crear función girar_derecha
+
+Karel solo puede girar a la izquierda, pero necesitamos una función que le permita girar a la derecha. Crea una función llamada `girar_derecha()` que haga que Karel gire hacia la derecha usando solo `girar_izquierda()`.
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo001")
+```
+
+```{webr}
+# Crear la función girar_derecha
+______
+
+# Prueba tu función
+generar_mundo("mundo001")
+girar_derecha()
+ejecutar_acciones()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+girar_derecha <- function() {
+  girar_izquierda()
+  girar_izquierda()
+  girar_izquierda()
+}
+```
+:::
+
+### Problema 3: Función condicional para juntar cosos
+
+Crea una función llamada `juntar_si_hay()` que haga que Karel junte un coso solo si hay uno en su posición actual. Si no hay coso, Karel no debe hacer nada (`if`). Recuerda la @tbl-booleanas. Corre el código para probar tu función.
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo018")
+```
+
+```{webr}
+generar_mundo("mundo018")
+
+# Crear la función juntar_si_hay
+juntar_si_hay <- function() {
+  # Completa el código aquí
+  ______
+  
+}
+
+# Prueba la función en diferentes posiciones
+juntar_si_hay()
+avanzar()
+juntar_si_hay()
+avanzar()
+juntar_si_hay()
+ejecutar_acciones()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+juntar_si_hay <- function() {
+  if (hay_cosos()) {
+    juntar_coso()
+  }
+}
+```
+:::
+
+### Problema 4: Bucle while para avanzar hasta la pared
+
+Usa un bucle `while` para hacer que Karel avance hasta encontrar una pared. Karel debe detenerse justo antes de chocar con la pared.
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo005")
+```
+
+```{webr}
+generar_mundo("mundo005")
+
+______ ( ______ ) {
+  ______
+}
+
+ejecutar_acciones()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+while (frente_abierto()) {
+  avanzar()
+}
+```
+:::
+
+### Problema 5: Función para limpiar una fila completa
+
+Crea una función llamada `limpiar_fila()` que haga que Karel avance por una fila completa juntando todos los cosos que encuentre hasta llegar a una pared.
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo017")
+```
+
+
+**TIP**: Observa el flujo del código que se te pide en este diagrama:
+
+```{mermaid}
+flowchart TD
+  %% Style definitions
+  classDef condition fill:#ffeb99,stroke:#ff9900,stroke-width:2px
+  classDef action fill:#d4f1f9,stroke:#40a6bf,stroke-width:1px
+  classDef start_end fill:#e6ffe6,stroke:#009900,stroke-width:2px
+  
+  A([Inicio función]) --> B{¿frente abierto?}
+  
+  B -->|Sí| C{¿hay cosos?}
+  C -->|Sí| D[juntar coso]
+  D --> E[avanzar]
+  C -->|No| E
+  E --> B
+  
+  B -->|No| F([Fin función])
+  
+  %% Apply styles
+  class A,F start_end
+  class B,C condition
+  class D,E action
+  
+  %% Add annotations
+  linkStyle 0,1,2,3,4,5,6 stroke:#009900,stroke-width:1.5px;
+
+```
+
+
+
+```{webr}
+generar_mundo("mundo017")
+
+limpiar_fila <- function() {
+  # Combina while e if para avanzar y juntar cosos
+  ______ ( ______ ) {
+    ______ ( ______ ) {
+      ______ # qué acción debe hacer si hay_coso es TRUE?
+    }
+    ______ # qué acción debe hacer para continuar limpiando a fila?
+  }
+}
+
+limpiar_fila()
+ejecutar_acciones()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+limpiar_fila <- function() {
+  while (frente_abierto()) {
+    if (hay_cosos()) {
+      juntar_coso()
+    }
+    avanzar()
+  }
+}
+
+```
+
+:::
+
+## Ejercicio 6 - Modificar argumentos
+
+Para este ejercicio, vamos a modificar las funciones de Karel con `argumentos` para personalizar el comportamiento de las funciones. Estos argumentos pueden ser números, texto, o cualquier otro tipo de dato que cada función acepta de manera específica. Para saber qué tipo de argumentos acepta una función, puedes consultar la documentación de la función o el código fuente de la misma (esto se ve más a fondo en el curso de *estadística con R*).
+
+En los ejercicios anteriores, no hemos modificado mucho los argumentos de las funciones de Karel (o las usamos sin argumentos, como `avanzar()`). Ahora vamos a modificar algunas de estas funciones con argumentos para que Karel pueda personalizar su comportamiento. En este caso, **NO** estamos creando nuevas funciones, solo estamos modificando las funciones originales de Karel. **NOTA** que tampoco vamos a *crear* los argumentos: estos ya existen en las funciones de Karel (o cualquier otra librería de R que uses).
+
+Recuerda que hasta ahora, creábamos el mundo de esta manera:
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo012")
+```
+
+En este caso, la función `generar_mundo()` está tomando el argumento `mundo` con el valor `"mundo012"`. 
+
+::: {.callout-note}
+Como la función `generar_mundo()` solo puede tomar el argumento `mundo` ([documentación](https://ropensci.github.io/karel/reference/generar_mundo.html)), hemos omitido escribir el *argumento* y solo escribimos el valor (correspondiente al nombre del mundo) por simplicidad. Sin embargo, podemos escribir el *argumento* (`mundo`) y el *valor* (`"mundo012"`) de manera explícita con el mismo resultado:
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo(mundo = "mundo012")
+```
+
+:::
+
+Ya hemos cambiado el valor `"mundo012"`del argumento `mundo` a otros, como `"mundo015"` o `"mundo014"`, para crear diferentes mundos.
+
+- Una manera de ver qué argumentos acepta una función, es utilizando las funciones `args()` (regresa los argumentos **requeridos** de una función) y `formals()` (regresa lista de argumentos con sus valores por defecto)
+
+- Por ejemplo, para ver los argumentos de la función `generar_mundo`, puedes hacer lo siguiente: 
+
+```{webr}
+args(generar_mundo)
+formals(generar_mundo)
+```
+
+
+- La función `args(generar_mundo)` nos dice que esta `function` requiere el argumento `mundo`. No hagas mucho caso a el `NULL`, esto es porque el cuerpo de la función no es una función. Piensa en este `output` como esto:
+
+    ```r
+    function(mundo) {
+      NULL
+    }
+    ```
+
+- La función `formals(generar_mundo)` también nos dice que requiere el argumento `mundo`.
+
+::: {.callout-note}
+
+Para obtener una descripción completa de alguna función, podemos utilizar la función `help(nombre_funcion)`. Observa cómo funciona con `generar_mundo`. **NOTA**: en este caso, el desarrollador del paquete de `karel` no incluyó en la página de ayuda el nombre de los mundos disponibles para karel en la sección `Value`. De manera similar, si tu escribes una función sin generar su documentación y página de ayuda, `help()` no te ayudara mucho, pero otras funciones como `args()` si.
+
+```{webr}
+help(generar_mundo)
+```
+
+:::
+
+Como ejercicio, modifica los argumentos de la función de R `round()` para que
+
+- Su primer argumento tome el valor de `pi` (R reconoce la palabra *pi* como una constante numérica, así que puedes escribir `pi` o `3.141593`)
+- Su segundo argumento nos permita redondear a `pi` con 4 decimales 
+- El output de este ejercicio debería ser `3.1416`.
+
+Para esto, primero usa funciones de ayuda que te permitan entender los argumentos y qué valores acepta. **NOTA**: la función `formals()` no funciona con muchas funciones base de r, por lo que no la uses aquí. **NOTA 2**: Si usas `help()`, concentrate en la sección argumentos, que es lo requerido por el ejercicio.
+
+
+```{webr}
+# funciones de ayuda para ver argumentos y valores
+______
+
+# usa la función round con los valores que se te piden
+______
+
+# compara tu output con la función sin argumentos
+round(pi)
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+args(round)
+help(round)
+round(x=pi, digits=4) # o round(3.141593, 4)
+```
+
+:::
+
+> **Observa** que logramos modificar el comportamiento de una función simplemente utilizando nuevos argumentos. Cuando trabajamos con análisis de datos y estadística, **la mayoría de las veces** utilizamos funciones/módulos que solo requieres modificar los argumentos, aunque con el tiempo y experiencia crearás tus propias funciones y/o modificar el flujo con bucles, condiciones, etc. sin mayor problema. 
+
+## Ejercicio 7 - Crear función con argumentos
+
+Ahora que ya sabes cómo usar los argumentos de una función existente, vamos a crear nuestra propia función con argumentos.
+
+El objetivo es crear una función llamada `avanzar_n_veces()` que acepte un argumento numérico `n`. La función va a pasarle este argumento `n` a la función para que avance *n* veces. Para esto, vamos a usar un bucle `for` dentro de la función.
+
+```{webr}
+generar_mundo("mundo005")
+
+# escribe el argumento n
+avanzar_n_veces <- function( ______ ) {
+  # Usa un bucle for para que se repita n veces
+  for (i in 1:______ ) {
+    avanzar()
+  }
+}
+
+# Prueba tu función con diferentes argumentos
+# Primero, haz que Karel avance 3 pasos
+avanzar_n_veces(n = ______ )
+
+# Ahora, haz que Karel avance 2 pasos más
+avanzar_n_veces(______)
+
+ejecutar_acciones()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+generar_mundo("mundo005")
+
+# Crea la función avanzar_n_veces que tome un argumento n
+avanzar_n_veces <- function(n) {
+  # Usa un bucle for para que se repita n veces
+  for (i in 1:n) {
+    avanzar()
+  }
+}
+
+# Prueba tu función con diferentes argumentos
+# Primero, haz que Karel avance 3 pasos
+avanzar_n_veces(n=3)
+avanzar_n_veces(n=2)
+
+ejecutar_acciones()
+```
+
+:::
+
+
+::: {.callout-note}
+nota que si creas esta función con un valor específico, puedes llamar a la función sin especificar los argumentos-valores ya que será el valor por defecto. Sin embargo, puedes cambiarlo especificando el argumento-valor:
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo005")
+
+# definimos a n=3 como default
+avanzar_n_veces_B <- function(n=3) {
+  for (i in 1:n) {
+    avanzar()
+  }
+}
+
+# avanza 3 por defecto sin especificar
+avanzar_n_veces_B()
+# avanza 1 si especificamos
+avanzar_n_veces_B(n=1)
+
+ejecutar_acciones()
+```
+
+:::

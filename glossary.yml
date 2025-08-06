@@ -6,3 +6,9 @@ variables: |
 
 observación: |
   Un conjunto de valores de variables para un caso específico. En un dataframe, cada fila representa una observación.
+
+entorno: |
+  El contexto o conjunto de condiciones bajo las cuales se ejecuta el código. Puede incluir factores como el tiempo, el lugar y los valores de las variables.
+
+objetos: |
+  Elementos que existen en el entorno y que pueden ser manipulados o utilizados en el código. En R, los objetos pueden ser variables, funciones, datos, entre otros.

@@ -8,62 +8,77 @@ navbar: false
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
 
+```{pyodide}
+#| echo: false
+#| include: false
+#| autorun: true
+
+import micropip
+import sys
+
+async def pip_install(packages):
+  """
+  A helper function to simulate 'pip install' using micropip.
+  It accepts a string containing one or more package names.
+  """
+  # For display purposes, we'll show a simulated command
+  print(f"Running: pip install {packages}")
+  try:
+    package_list = packages.split()
+    await micropip.install(package_list)
+    # Confirm installation for the user
+    print(f"Successfully installed {packages}")
+    # Add a newline for cleaner output
+    print()
+  except Exception as e:
+    print(f"Failed to install packages: {e}", file=sys.stderr)
+
+```
+
 ## Funciones
 
 - Una de las características más poderosas de R y python es la capacidad de ampliar su funcionalidad mediante *paquetes/librerías/módulos*.
-- Estos *paquetes/librerías/módulos* contienen **funciones** que extienden las herramientas básicas del lenguaje. 
+  - Estos *paquetes/librerías/módulos* contienen **funciones** que extienden las herramientas básicas del lenguaje. 
+  - Adicionalmente, nosotros podemos escribir nuestras propias funciones para realizar tareas específicas de nuestros experimentos, scripts, etc.` 
+- La función es una palabra clave (*verbo()*) seguida de una o varias instrucciones (entradas o argumentos) que escribimos dentro del paréntesis `()`.
 - La estructura básica de una función en R y python es la siguiente: 
-  - la función es una palabra clave (*verbo*) seguida de una o varias instrucciones entre paréntesis `()`.
+
+| `funcion(entradas)`
 
 - `hacer_esto(a_esto)`
 - `hacer_aquello(a_esto, a_aquello, con_aquellos)`
 
-### funciones integradas
+![Las funciones toman entradas, realizan operaciones y devuelven resultados o salidas](../images/funciones.png){fig-align="center"}
 
-- R y python vienen con muchas funciones integradas que puedes usar directamente, como si fueran "herramientas listas para usarqe
-- Las funciones son como "recetas" que hacen una tarea específica
-- Nos permiten ejecutar varias operaciones con una sola instrucción
-- Se usan escribiendo su nombre seguido de paréntesis: función(datos)
+### Funciones integradas
+
+- R y Python vienen con muchas funciones integradas que puedes usar inmediatamente sin necesidad de importar librerías/módulos. Estas se conocen como funciones integradas o funciones base y siempre están disponibles en tu entorno.
+- Observa estos ejemplos:
 
 ::: {.panel-tabset group="language"}
 
 ## R
 
+> Corre el siguiente ejemplo para usar la función `sqrt()`, la cual recibe un valor numérico y regresa la raíz cuadrada de este número.   
+
 ```{webr}
-# Usando funciones simples en R
-numero <- 36
+# Función Raíz cuadrada
+sqrt(36)
 
-# Raíz cuadrada
-sqrt(numero)
-
-# Valor absoluto
-abs(-10)
-
-# Redondear
-round(3.14159, digits = 2)
 ```
 
 ## Python
 
+> Corre el siguiente ejemplo para usar la función `abs()`, la cual recibe un valor numérico y regresa el valor absoluto de este número.  
+
 ```{pyodide}
-# Usando funciones simples en Python
-import math
-
-numero = 36
-
-# Raíz cuadrada
-math.sqrt(numero)
-
-# Valor absoluto
-abs(-10)
-
-# Redondear
-round(3.14159, 2)
+# Función Valor Absoluto
+abs(-7.5)
 ```
 
 :::
 
-- Ahora, veamos cómo usar funciones para calcular la media de un vector. 
+Ahora, veamos cómo usar funciones para calcular la media de un vector. 
 
 ::: {.panel-tabset group="language"}
 
@@ -71,136 +86,64 @@ round(3.14159, 2)
 
 - R cuenta con una función integrada llamada `mean()` que calcula la media de un vector.
 - Esta función toma un vector **numérico** como argumento.
+- Crea un vector numérico y corre el código para calcular la media de este vector.
+  - Si no sabes cómo crear un vector numérico, revisa la lección anterior sobre vectores.
 
 ```{webr}
 # vector
-vector <- c(1, 2, 3, 4, 5)
+vector_numerico <- ______
 
 # Calcular la media usando mean()
-media_vector <- mean(vector)
-media_vector
-```
-
-## Python
-
-- Python cuenta con la función integrada `sum()` que calcula la suma de los elementos de un vector y `len()` que calcula la longitud del vector.
-  - La media se calcula dividiendo la suma de los elementos entre la longitud del vector.
-
-```{pyodide}
-# vector
-vector = [1, 2, 3, 4, 5]
-
-# Calcular la media usando mean()
-media_vector = sum(vector) / len(vector)
-media_vector
-```
-
-:::
-
-## Creando funciones simples
-
-- A veces necesitamos crear nuestras propias funciones para realizar tareas específicas.
-  - Cuando necesitamos repetir una operación, podemos crear nuestra propia función
-- Vamos a crear una función simple que calcule la media de un vector en R y python.
-
-::: {.panel-tabset group="language"}
-
-## R
-
-- La sintaxis para crear una función en R es la siguiente:
-  - Los argumentos son los datos que la función necesita para realizar su tarea.
-
-```r
-nombre_funcion <- function(argumentos) {
-  # cuerpo de la función
-  # instrucciones a ejecutar
-}
-```
-
-
-
-- En este caso, vamos a crear la función `cm_a_metros()`.
-  - La función tomará un valor numérico (en centímetros) como argumento y dividirá este valor entre 100 para convertirlo a metros.
-  - Para devolver el resultado, usamos la instrucción `return`, que indica el valor que la función devolverá al ser llamada.
-
-```{webr}
-# Función simple para convertir centímetros a metros
-cm_a_metros <- function(cm) {
-  metros <- cm / 100
-  return(metros)
-}
-
-# Probemos nuestra función
-altura_cm <- 175
-
-cm_a_metros(altura_cm)
-```
-
-- Ahora usa la función `cm_a_metros()` para convertir diferentes alturas a metros.
-
-```{webr}
-# Usar la función cm_a_metros() para convertir diferentes alturas a metros
-cm_a_metros(______) # 1.6 metros
+mean(vector_numerico)
 ```
 
 
 ## Python
 
-La sintaxis para crear una función en Python es la siguiente:
-```python
-def nombre_funcion(argumentos):
-    # cuerpo de la función
-    # instrucciones a ejecutar
+- Python cuenta con la función integrada `sum()` que calcula la suma de los elementos de un vector y `len()` que calcula la longitud del vector.
+  - La media se calcula dividiendo la suma de los elementos (`sum(vector)`) entre la longitud del vector `len(vector)`.
+- Crea un vector numérico y corre el código para calcular la media de este vector.
+  - Si no sabes cómo crear un vector numérico, revisa la lección anterior sobre vectores.
 
-```
-- En este caso, vamos a crear la función `cm_a_metros()`.
-  - La función tomará un valor numérico (en centímetros) como argumento y dividirá este valor entre 100 para convertirlo a metros.
-  - Para devolver el resultado, usamos la instrucción `return`, que indica el valor que la función devolverá al ser llamada.
 
 ```{pyodide}
-# Función simple para convertir centímetros a metros
-def cm_a_metros(cm):
-    metros = cm / 100
-    return metros
+# vector
+vector_num = ______
 
-# Probemos nuestra función
-altura_cm = 175
-cm_a_metros(altura_cm)
-```
-
-- Ahora usa la función `cm_a_metros()` para convertir diferentes alturas a metros.
-
-```{pyodide}
-# Usar la función cm_a_metros() para convertir diferentes alturas a metros
-cm_a_metros(______) # 1.6 metros
+# Calcular la media
+media_vector = sum(vector_num) / len(vector_num)
+media_vector
 ```
 
 :::
+
 
 ## Funciones de paquetes/librerías
 
 - Además de las funciones integradas, R y python tienen una gran cantidad de paquetes/librerías que contienen funciones adicionales para realizar tareas específicas.
-- Estos paquetes/librerías son como "cajas de herramientas" que contienen funciones listas para usar.
-  - **La mayoría de las veces no necesitamos crear nuestras propias funciones, ya que hay muchas disponibles en los paquetes/librerías**.
-  - En la siguiente lección, veremos más de los paquetes/librerías en R y python.
+  - **La mayoría de las veces no necesitamos crear nuestras propias funciones nuevas, ya que hay muchas disponibles en los paquetes/librerías** listas para usarse. Solo tenemos que importarlas a nuestro entorno.
 - Para usar una función de un paquete/librería, primero debes instalar el paquete/librería y luego cargarlo en tu sesión de R o python.
+  - En este curso, las lecciones ya vienen con los paquetes/librerías necesarios instalados, pero es importante que sepas cómo hacerlo por si necesitas instalar un paquete/librería en tu computadora.
 
 ::: {.panel-tabset group="language"}
 
 ## R
 
-- En R, puedes instalar un paquete/librería usando `install.packages("nombre_paquete")` y cargarlo con `library(nombre_paquete)`.
 - En el siguiente ejemplo, instalaremos y cargaremos el paquete `dplyr`, que es parte del conjunto de paquetes de `tidyverse` y se utiliza para la manipulación de datos.
-- Una vez que el paquete/librería está instalado y cargado, puedes usar las funciones y datos que contiene como si fueran funciones integradas.
-  - Después de cargar el paquete con éxito, deberías ver el mensaje `Attaching package: 'dplyr'` en la consola de R.   
+- En R, puedes instalar un paquete/librería usando `install.packages("nombre_paquete")`:
 
 ```{webr}
 # Instalar y cargar el paquete dplyr
 install.packages("dplyr")
 
+```
+
+- Una vez instalado, debemos decirle a R que queremos usar este paquete y cargar las funciones con `library(nombre_paquete)`.
+  - Después de cargar el paquete con éxito, deberías ver el mensaje `Attaching package: 'dplyr'.   
+
+```{webr}
 # Cargar el paquete dplyr para usar sus funciones
 library(dplyr)
-
 ```
 
 ::: {.callout-caution}
@@ -209,8 +152,9 @@ library(dplyr)
 - Cuando ves un mensaje que dice `The following objects are masked` en R, significa que hay funciones con el mismo nombre en diferentes paquetes/librerías.
 - Esto puede causar confusión, ya que R no sabe cuál función usar.
 - Para evitar esto, puedes usar el operador `::` para especificar de qué paquete/librería quieres usar la función.
-  - Veremos estas funciones más adelante, pero por ahora, solo ten en cuenta que puedes usar el operador `::` para evitar conflictos de nombres entre funciones de diferentes paquetes/librerías ya que en lugar de cargar todas las funciones de la librería con `library(dplyr)`, puedes usar `dplyr::select()` para llamar a la función específica `select()` del paquete `dplyr`.
-  - En este curso, usaremos el operador `::` para evitar conflictos de nombres entre funciones de diferentes paquetes/librerías, además de que es una buena práctica para saber de dónde proviene la función que estamos usando, evitar conflictos de nombres entre paquetes, además de que este método es más similar a como se importa un módulo en python.
+  - De este modo, en lugar de cargar todas las funciones de la librería 
+  - En este sentido, en lugar de usar `library(dplyr)`, puedes usar `dplyr::nombre_funcion()`.
+  - En este curso, usaremos el operador `::` para evitar conflictos de nombres entre funciones de diferentes paquetes/librerías, además de que es una buena práctica para saber de dónde proviene la función que estamos usando, evitar conflictos de nombres entre paquetes, además de que este método es más similar a como se importa un módulo en python y otros lenguajes de programación.
 
 ```{webr}
 # Usar la función select() del paquete dplyr
@@ -218,31 +162,49 @@ library(dplyr)
 dplyr::select(mtcars, mpg, hp, wt)
 ```
 
-- Por otro lado, desde la versión de R `4.4` (como la instalada en las lecciones de este curso), puedes usar la función `use()` para importar funciones específicas de un paquete/librería sin necesidad de cargar todo el paquete/librería.
-  - Este método es muy similar a como se importa un módulo en python. No usaremos este método en el curso ya que es menos explícito que utilizar el operador `::`, pero es bueno que lo conozcas.
-
-```{webr}
-use(package = "dplyr", include.only = c("select", "slice"))
-```
-
-- Esto importará solo las funciones `select()` y `slice()` del paquete `dplyr` y podrás usarlas directamente sin necesidad de cargar todo el paquete/librería o utilizar el operador `::`.
-
 :::
 
 ## Python
 
-- En python, puedes instalar un paquete/librería usando `pip install nombre_paquete` y cargarlo con `import nombre_paquete`.
-  - En este curso no usaremos `pip install` ya que los paquetes/librerías que usaremos ya están instalados en el entorno de Python. Solamente usaremos `import` para cargar los paquetes/librerías que usaremos en el curso.
-- Después de utilizar `import nombre_paquete`, puedes usar `as alias` para asignar un alias al paquete/librería que estás importando. Esto es útil para abreviar el nombre del paquete/librería y hacer que el código sea más legible.
-  - Por ejemplo, `import pandas as pd` asigna el alias `pd` al paquete/librería `pandas`, lo que te permite usar `pd` en lugar de escribir `pandas` cada vez que quieras usar una función de ese paquete/librería.
-- En el siguiente ejemplo, cargaremos el paquete/librería `pandas as pd`, que es una de las librerías más populares para la manipulación de datos en python.
-  - En python, si instalas y cargas el paquete/librería `pandas`, puedes usar funciones como `pd.read_csv()`, `df.groupby()`, `df.merge()`, entre otras, para manipular datos de manera más eficiente. Veremos más sobre `pandas` en la sección de manipulación de datos.
+- En python, puedes instalar un paquete/librería usando `pip install nombre_paquete` 
+  - **NOTA**: En tu computadora solamente escribe `pip install pandas` (sin el `await` que solo es necesario en este entorno).
 
-```python
-# Cargar el paquete/librería pandas
+```{pyodide}
+
+# Instalar pandas
+await pip_install("pandas")
+
+```
+
+- En este curso no usaremos `pip install` ya que los paquetes/librerías que usaremos ya están instalados en el entorno de Python. Solamente usaremos `import`.
+- Una vez instalado, debes cargarlo con `import nombre_paquete` y para usar las funciones importadas, escribimos `nombre_paquete.funcion()`, por ejemplo:
+
+```{pyodide}
+# Importar pandas con el alias pd
+import pandas
+
+# Ahora podemos usar funciones de pandas
+pandas.DataFrame({
+  "foo": ["az", "by", "cx", "dw"],
+  "bar": [3, 14, 15, 92],
+  "baz": [True, False, True, None],
+})
+```
+
+  - Después de utilizar `import nombre_paquete`, puedes usar `import libreria as nuevo_alias` para asignar un **alias** al paquete/librería que estás importando. Esto es útil para abreviar el nombre del paquete/librería y hacer que el código sea más legible.
+  - Por ejemplo, `import pandas as pd` asigna el alias `pd` al paquete/librería `pandas`, lo que te permite usar `pd` en lugar de escribir `pandas` cada vez que quieras usar una función de ese paquete/librería.
+    - De este modo, puedes usar funciones con alias como `pd.DataFrame()` en lugar de `pandas.DataFrame()`. Veremos más sobre `pandas` en otro módulo.
+
+```{pyodide}
+# Importar pandas con el alias pd
 import pandas as pd
 
-pd.read_csv("ruta/del/archivo.csv") # leer un archivo CSV
+# Ahora podemos usar funciones de pandas
+pd.DataFrame({
+  "foo": ["az", "by", "cx", "dw"],
+  "bar": [3, 14, 15, 92],
+  "baz": [True, False, True, None],
+})
 
 ```
 

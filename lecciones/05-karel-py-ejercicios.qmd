@@ -1,0 +1,349 @@
+---
+title: "Ejercicios Karel - Python"
+author: "Santiago García Ríos"
+format: 
+    live-html: 
+        toc: true
+        # theme: simple
+        # scrollable: true
+        toc-depth: 4
+        toc-title: Contenido de la Lección
+        # progress: true
+        # slide-number: true
+        lang: es
+        # logo: "https://cran.r-project.org/Rlogo.svg"
+pyodide:
+  packages:
+    - matplotlib
+    - ipython
+    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.4-py3-none-any.whl
+    - micropip
+engine: knitr
+navbar: false
+---
+
+{{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
+
+
+```{pyodide}
+#| autorun: true
+#| include: false
+
+from pykarel_web import Karel
+
+import micropip as mp
+await mp.install("inspect")
+```
+
+
+## Instrucciones
+
+- Soluciona los siguientes ejercicios utilizando cualquier método. Puedes usar funciones, bucles, o simplemente las funciones integradas de Karel.
+- No olvides carga las funciones de karel en tu primer código.
+
+## Funciones y condiciones
+
+- Como recordatorio,estas son las funciones y condiciones que tenemos disponibles en el paquete de karel:
+
+
+::: {#tbl-funcionesKarel layout-ncol=2}
+
+
+
+| Función           | Sintaxis (Python)   |
+|--------------------|---------------------|
+| Avanzar un paso           | `karel.avanzar()`   |
+| Girar a la Izquierda | `karel.girar_izquierda()` |
+| Juntar 1 Coso        | `karel.juntar_coso()` |
+| Poner 1 Coso         | `karel.poner_coso()`  |
+| Ejecutar Acciones  y mostrar animación | `karel.mostrar_animacion()` |
+
+: Funciones de Karel en Python {#tbl-karelPy}
+
+:::
+
+
+| Python                      | Descripción                                       |
+ | --------------------------- | ------------------------------------------------- |
+| `karel.frente_abierto`      | No hay una pared enfrente de Karel                |
+|                             |                                                   |
+| `karel.izquierda_abierta`   | No hay una pared a la izquierda de Karel         |
+|                             |                                                   |
+| `karel.derecha_abierta`     | No hay una pared a la derecha de Karel           |
+|                             |                                                   |
+| `karel.hay_coso`            | Hay cosos donde se encuentra Karel                |
+|                             |                                                   |
+|  `karel.frente_bloqueado`                           |      Hay una pared enfrente de Karel                                            |
+| `karel.no_hay_coso`                            |        No hay cosos donde se encuentra Karel                                           |
+|                             |                                                   |
+|                             |                                                   |
+|                             |                                                   |
+|                             |                                                   |
+
+: Condiciones *booleanas* (expresión que se evalúa como uno de dos valores posibles: verdadero (True) o falso (False)) {#tbl-booleanas}
+
+
+## Ejercicios
+
+### Problema 1: Crear función girar_derecha
+
+Karel solo puede girar a la izquierda, pero necesitamos una función que le permita girar a la derecha. Crea una función llamada `girar_derecha()` que haga que Karel gire hacia la derecha usando solo `girar_izquierda()`.
+
+```{pyodide}
+# Crear la función girar_derecha
+______
+
+# Prueba tu función
+karel = Karel(mundo="default")
+______ # prueba tu función
+karel.mostrar_animacion()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+def girar_derecha:
+    karel.girar_izquierda()
+    karel.girar_izquierda()
+    karel.girar_izquierda()
+```
+:::
+
+### Problema 2: Función condicional para juntar cosos
+
+Crea una función llamada `juntar_si_hay()` que haga que Karel junte un coso solo si hay uno en su posición actual. Si no hay coso, Karel no debe hacer nada. Recuerda la @tbl-booleanas. Prueba tu función ejecutando el código. No deberías de ver errores si todo está bien.
+
+```{pyodide}
+#| autorun: true
+#| edit: false
+karel = Karel(mundo="recta")
+karel.mostrar_animacion()
+```
+
+
+```{pyodide}
+karel = Karel(mundo="recta")
+
+# Crear la función juntar_si_hay
+______ :
+    ______
+
+# Prueba la función en diferentes posiciones
+juntar_si_hay()
+karel.avanzar()
+juntar_si_hay()
+karel.avanzar()
+juntar_si_hay()
+karel.mostrar_animacion()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+def juntar_si_hay:
+    if karel.hay_coso():
+        karel.juntar_coso()
+```
+:::
+
+### Problema 3: Bucle while para avanzar hasta la pared
+
+Usa un bucle `while` para hacer que Karel avance hasta encontrar una pared.
+
+```{pyodide}
+#| autorun: true
+#| edit: false
+karel = Karel(mundo="recta")
+karel.mostrar_animacion()
+```
+
+```{pyodide}
+karel = Karel(mundo="recta")
+
+# Usar while para avanzar hasta la pared
+______:
+    ______
+
+
+karel.mostrar_animacion()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+while karel.frente_abierto():
+    karel.avanzar()
+```
+:::
+
+## Ejercicio 4 - Modificar argumentos
+
+Para este ejercicio, vamos a modificar las funciones de Karel con `argumentos` para personalizar el comportamiento de las funciones. Estos argumentos pueden ser números, texto, o cualquier otro tipo de dato que cada función acepta de manera específica. Para saber qué tipo de argumentos acepta una función, puedes consultar la documentación de la función o el código fuente de la misma (esto se ve más a fondo en el curso de *estadística con Python*).
+
+En los ejercicios anteriores, no hemos modificado mucho los argumentos de las funciones de Karel (o las usamos sin argumentos, como `karel.avanzar()`). Ahora vamos a modificar algunas de estas funciones con argumentos para que Karel pueda personalizar su comportamiento. En este caso, **NO** estamos creando nuevas funciones, solo estamos modificando las funciones originales de Karel. **NOTA** que tampoco vamos a *crear* los argumentos: estos ya existen en las funciones de Karel (o cualquier otra librería de python que uses).
+
+Recuerda que hasta ahora, creábamos el mundo de esta manera:
+
+```{pyodide}
+#| autorun: true
+
+karel = Karel(mundo="default")
+karel.mostrar_animacion()
+```
+
+En este caso, `Karel(mundo="default")`está tomando el argumento `mundo` con el valor `"default"`. Ya hemos cambiado el valor `default`del argumento `mundo` a otro valor, como `"recta"` o `"laberinto_complejo"`, para crear diferentes mundos.
+
+- Una manera de ver qué argumentos acepta una función, es utilizando la función `inspect.signature()`
+- Esta función te permite ver la firma de una función, es decir, los argumentos que acepta y sus valores por defecto.
+- Por ejemplo, para ver los argumentos de la función `Karel`, puedes hacer lo siguiente: 
+
+```{pyodide}
+import inspect
+
+signature = inspect.signature(Karel)
+print(signature)
+```
+
+
+
+- Esto significa que la función `Karel` tiene los siguientes argumentos:
+  - `mundo`: un string que indica el mundo a crear (por defecto es `"default"`)
+  - `x_inicial`: un número que indica la posición `x` inicial de Karel (por defecto es `0`)
+  - `y_inicial`: un número que indica la posición `y` inicial de Karel (por defecto es `0`)
+  - `direccion_inicial`: un número que indica la dirección en la que Karel está mirando (por defecto es `'0'`)
+  - `cosos_iniciales`: un número que indica la cantidad inicial de cosos que lleva Karel.
+
+::: {.callout-note}
+
+En el ejemplo pasado, ¿cómo sabes qué número corresponde a cada punto cardinal en el argumento `direccion_inicial`? 
+
+Si algún argumento o su valor no te quedan claro, puedes obtener más información con la función `help(nombre_funcion)`. Corre el siguiente código y toma nota de qué número corresponde a cada punto cardinal en `direccion_inicial`, ya que en el siguiente ejercicio tienes que poner a karel en el norte:
+
+```{pyodide}
+help(Karel)
+```
+
+:::
+
+- Ahora, modifica los argumentos y valores de la función `Karel` para que:
+  - genere el mundo "default"
+  - karel debe comenzar en la posición (x=2, y=0)
+  - karel debe comenzar viendo al norte
+
+
+```{pyodide}
+karel = _______
+karel.mostrar_animacion()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+karel = Karel(mundo="default", x_inicial=2, y_inicial=0, direccion_inicial=1)
+```
+
+:::
+
+> **Observa** que logramos modificar el entorno de karel simplemente utilizando los argumentos de las funciones, en lugar de nosotros escribir un código que hiciera que karel se moviera y cambiara de dirección. Cuando trabajamos con análisis de datos y estadística, **la mayoría de las veces** utilizamos funciones/módulos que solo requieres modificar los argumentos, aunque con el tiempo y experiencia crearás tus propias funciones y/o modificar el flujo con bucles, condiciones, etc. sin mayor problema. 
+
+### Problema 5: Función para limpiar una fila completa
+
+Para este ejercicio, vamos a utilizar el mundo "`default`" que creaste en el ejercicio pasado. Si lograste que karel comenzara en la posición (`2,0`) y mirando hacia el norte, entonces verás que karel tiene a unos pasos una cuadrícula con `5 cosos` en un mismo lugar. 
+
+En este ejercicio, tienes que crear una función llamada `limpiar_fila()` que haga que Karel avance por una fila completa, juntando todos los cosos que encuentre hasta llegar a una pared. El resultado debería ser similar a esto:
+
+```{pyodide}
+#| autorun: true
+#| echo: false
+
+karel = Karel(mundo="default", x_inicial=2, y_inicial=0, direccion_inicial=1)
+
+def limpiar_fila_muestra():
+    while karel.frente_abierto():
+        while karel.hay_coso():
+            karel.juntar_coso()
+        karel.avanzar()
+
+
+limpiar_fila_muestra()
+karel.mostrar_animacion()
+
+```
+
+
+**TIP**: Observa el flujo del código que se te pide en el diagrama y en la siguiente explicación
+
+1. Definir la función
+   1. mientras el frente esté abierto, ejecutaremos la siguiente instrucción:
+      1. mientras haya cosos
+         1. juntar estos cosos
+      2. Fuera del bucle anterior (mientras haya coso), le decimos a karel que avance (mientras no haya cosos, karel avanza si el frente está abierto)
+2. llamar la función `limpiar_fila()`
+3. mostrar animación
+
+
+```{mermaid}
+flowchart TD
+    %% Style definitions
+    classDef condition fill:#ffeb99,stroke:#ff9900,stroke-width:2px
+    classDef action fill:#d4f1f9,stroke:#40a6bf,stroke-width:1px
+    classDef start_end fill:#e6ffe6,stroke:#009900,stroke-width:2px
+    
+    A([Inicio función]) --> B{¿Frente abierto?}
+    
+    B -->|Sí| C{¿Hay coso en esta casilla?}
+    C -->|Sí| D[Juntar coso]
+    D --[Volver a Preguntar]--> C
+    C -->|No| E[Avanzar un paso]
+    E --> B
+    
+    B -->|No| F([Fin función])
+    
+    %% Apply styles
+    class A,F start_end
+    class B,C condition
+    class D,E action
+    
+    %% Add annotations
+    linkStyle 0,1,2,3,4,5 stroke:#009900,stroke-width:1.5px;
+```
+
+
+
+```{pyodide}
+# Crea el mundo con los argumentos que se piden
+karel = _______
+
+def limpiar_fila_muestra():
+    # ejecutar acciones mientras se cumpla la condición
+    _______:
+        # tomar coso mientras haya
+        ______:
+            karel.juntar_coso()
+        ________ # avanzar
+
+
+limpiar_fila_muestra()
+karel.mostrar_animacion()
+
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+karel = Karel(mundo="default", x_inicial=2, y_inicial=0, direccion_inicial=1)
+
+def limpiar_fila_muestra():
+    while karel.frente_abierto():
+        while karel.hay_coso():
+            karel.juntar_coso()
+        karel.avanzar()
+
+
+limpiar_fila_muestra()
+karel.mostrar_animacion()
+
+```
+
+:::
+

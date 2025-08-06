@@ -1,6 +1,6 @@
 ---
-title: "Introducción a la Programación para Ciencias de la Salud"
-subtitle: "Fundamentos con R y Python"
+title: "Introducción a la Programación"
+subtitle: "Fundamentos para bioestadística con R y Python"
 author: "Cursos Orca"
 format: 
     live-html: 
@@ -8,15 +8,12 @@ format:
         toc-depth: 3
         toc-title: Contenido de la Lección
         lang: es
-        theme: pulse
 navbar: false
 webr:
     render-df: gt
     packages: 
         - ggplot2
 engine: knitr
-resources:
-  - datos/penguins.csv
 ---
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
@@ -25,190 +22,65 @@ resources:
 
 Programar, en esencia, es dar instrucciones a una computadora para que realice tareas específicas. Estas instrucciones se escriben en un lenguaje de programación. Piensa en esto como escribir una receta de cocina detallada: cada paso debe ser claro y preciso para que la computadora (el cocinero) pueda seguirlo y producir el resultado deseado.
 
-![](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/483e1776-7126-4255-8e84-0557c397025f_rw_1200.png?h=bf487bf87b6ec11f1806dc1094def1d3)
+:::: {.columns}
 
+::: {.column width="50%"}
 
-## ¿Por Qué Necesitamos Programar en Ciencias de la Salud?
-
-> Programar nos permite transformar datos en información útil, facilitando la toma de decisiones informadas en el ámbito de la salud.
-
-El campo de las ciencias de la salud genera una cantidad masiva de datos diariamente: historiales médicos, resultados de investigaciones, datos genómicos, imágenes médicas, y más. La programación nos ofrece las herramientas para:
-
-### Manejar y Analizar Grandes Volúmenes de Datos (Big Data)
-
-A pesar que muchos usan hojas de cálculo (Excel y similares) para analizar datos, estas tienen MUCHAS limitaciones. 
-  - Por ejemplo, pueden volverse ineficaces con grandes conjuntos de datos, y son propensas a errores de dedo ([además de que estos errores son casi imposibles de identificar](https://www.microassist.com/software-tips/real-world-risks-of-spreadsheet-errors/)). Estos errores y limitaciones de Excel pueden tener consecuencias graves y costar MILLONES:
-    - *Public Health England* perdía ~15,841 pruebas positivas de COVID-19 debido a que Excel solamente soportaba 65,000 filas de datos. [Fuente](https://www.theguardian.com/politics/2020/oct/05/how-excel-may-have-caused-loss-of-16000-covid-tests-in-england)
-    - El departamento de Virginia de Educación perdió $201 Millones de dolares por un error en una fórmula de Excel. [Fuente](https://apnews.com/article/virginia-education-8a136c2b1ec33a0cc3bca6d2cc4a0cd3)
-
-> Observa cómo en este ejemplo leemos una base de datos de 346 pingüinos y obtenemos estadísticas completas en cuestión de segundos con R/Python.
-
-::: {.panel-tabset group="language"}
-
-# R
-
-```{webr}
-# Leer datos de pingüinos (346 filas)
-penguins <- read.csv("./datos/penguins.csv")
-
-# Ver 10 datos aleatorios
-dplyr::sample_n(penguins, 10)
-
-```
-
-# Python
-
-```{pyodide}
-import pandas as pd
-
-# Leer datos de pingüinos (346 filas)
-penguins = pd.read_csv("./datos/penguins.csv")
-
-# Obtener estadísticas rápidas de TODOS los datos
-print(penguins.describe())
-```
+![Si no le damos las instrucciones claras y detalladas a la computadora, nuestro resultado será un desastre](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/483e1776-7126-4255-8e84-0557c397025f_rw_1200.png?h=bf487bf87b6ec11f1806dc1094def1d3)
 
 :::
 
+::: {.column width="50%"}
 
-### Automatización de Tareas Repetitivas 
-
-Muchas tareas, como la limpieza de datos, la generación de gráficos estándar o la creación de informes, pueden automatizarse, ahorrando tiempo y reduciendo errores.
-  - A nivel cognitivo^[conjunto de procesos mentales que nos permiten adquirir, procesar, almacenar y utilizar información], trabajar con hojas de Excel es cansado y contraintuitivo a cómo funciona nuestra mente ([Fuente: Panko, 2013](https://ieeexplore.ieee.org/document/6480329)):
-    - Usar Excel activa los circuitos *automáticos* de la mente. Por esto mismo, cuando comentes errores NO TE DAS CUENTA. Programar es lo contrario: *requiere atención*. 
-    - Además, a medida que las hojas de Excel se vuelven mas complejas (mas datos, formulas, etc.), se vuelve mas complejo entender nuestros datos, fórmulas, recordar los pasos que realizamos, etc.
-
-> Observa cómo en este ejemplo, filtramos y analizamos los datos del punto anterior en cuestión de segundos con R/Python. Observa que solo utilizamos pocas líneas de código para lograr análisis complejos.
-
-::: {.panel-tabset group="language"}
-
-# R
-
-A pesar de que todavía no hemos visto este tema, observa cómo las funciones (instrucciones) de R utilizan verbos comunes e intuitivos:
-
-    - `filter` filtra las columnas, en este caso, le pedimos que nos filtre las especies llamadas "*Adelie*" y que sean machos.
-    - `group_by`: agrupa los datos por isla.
-    - `summarise`: resume los datos, en este caso, calculando el promedio del peso corporal de los pingüinos machos de la especie *Adelie* por isla.
-
-```{webr}
-
-penguins |>
-  dplyr::filter(species == "Adelie", sex == "male") |>
-  dplyr::group_by(island) |>
-  dplyr::summarise(mean_body_mass_g = mean(body_mass_g, na.rm = TRUE))
-
-``` 
-
-# Python
-
-A pesar de que todavía no hemos visto este tema, observa cómo las funciones (instrucciones) de Python utilizan verbos comunes e intuitivos:
-
-    - En Python, para filtrar datos, usamos condiciones lógicas dentro de corchetes. No te preocupes por entender todo el código ahora, solo observa la estructura.
-    - `groupby`: agrupa los datos por especie.
-    - `mean`: calcula el promedio del peso corporal de los pingüinos machos de la especie *Adelie* por isla.
-
-```{pyodide}
-# Filtrar solo pingüinos machos de la especie Adelie
-adelie_machos = penguins[(penguins['species'] == 'Adelie') & (penguins['sex'] == 'male')]
-
-# Calcular promedio de peso por isla (solo para machos Adelie)
-print(adelie_machos.groupby('island')['body_mass_g'].mean())
-
-```
+![Con las instrucciones precisas, el resultado será consistentemente lo deseado](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/5c559781-f15a-4be9-8af0-426fcc71a9e8_rw_1200.png?h=c7af78be544ee13532fb2152727af996)
 
 :::
-
-
-### Reproducibilidad en la Investigación
-
-El código documenta exactamente cómo se analizaron los datos. Esto es crucial para la transparencia y la validación de los resultados de la investigación.
-
-- Una herramienta muy poderosa es **Git**, que permite rastrear todos los cambios en el código, mantener un historial de modificaciones.
-    - Git facilita la reproducibilidad, ya que otros pueden ejecutar el mismo código con los mismos datos para verificar los resultados.
-
-::: {.callout-tip}
-Puedes tomar nuestro curso de Git y GitHub para aprender más sobre estas herramientas en [Git y GitHub para Ciencia de Datos](https://orcaasesina.com/course/view.php?id=3).
-:::
-
-
-### Análisis Avanzados y Modelado
-
-R y Python pueden ejecutar técnicas como el aprendizaje automático (*machine learning*) y modelados estadísticos avanzados, que son cada vez más importantes en la investigación médica y la salud pública, requieren programación.
-
-::: {.callout-tip}
-Puedes tomar nuestro curso estadística avanzada en R y Python, donde aprenderás a realizar modelados estadísticos (ANOVA, regresiones, etc.) y análisis avanzados de datos:
-
-- Curso de [Estadística Avanzada en R](https://orcaasesina.com/course/view.php?id=4).
-- Curso de [Estadística Avanzada en Python](https://orcaasesina.com/course/view.php?id=5).
-
-:::
-
-
-![](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/5c559781-f15a-4be9-8af0-426fcc71a9e8_rw_1200.png?h=c7af78be544ee13532fb2152727af996)
-
-
-
-## ¿Por Qué R y Python?
-
-R y Python son dos de los lenguajes de programación más populares en la ciencia de datos y, por extensión, en las ciencias de la salud.
-
-> Selecciona (en las pestañas R y/o Python) el lenguaje que más te interese o el que creas que se adapta mejor a tus necesidades. 
-> Ambos son excelentes opciones y aprender uno te facilitará aprender el otro en el futuro.
-
-:::: {.panel-tabset group="language"}
-
-## R
-
-R fue diseñado específicamente para el análisis estadístico y la visualización de datos.
-
-- **Fortalezas:**
-    - Amplia gama de paquetes estadísticos especializados (bioestadística, epidemiología, genómica).
-    - Excelente para la visualización de datos de alta calidad (ggplot2).
-    - Comunidad activa y de gran apoyo en el ámbito académico y de investigación.
-- **Ejemplo Sencillo (Cargar un paquete y ver datos):**
-  No te preocupes por entender todo el código ahora, solo observa la estructura.
-  ```{webr}
-  # Cargar un paquete para visualización
-  library(ggplot2)
-
-  # Ver las primeras filas de un conjunto de datos de ejemplo
-  head(mpg)
-  ```
-
-## Python
-
-Python es un lenguaje de programación de propósito general, conocido por su sintaxis clara y legible.
-
-- **Fortalezas:**
-    - Versátil: útil para análisis de datos, desarrollo web, aprendizaje automático, y más.
-    - Curva de aprendizaje amigable para principiantes.
-    - Extensas bibliotecas para ciencia de datos (Pandas, NumPy, Scikit-learn) y visualización (Matplotlib, Seaborn).
-    - Buena integración con otras tecnologías y sistemas.
-- **Ejemplo Sencillo (Importar una librería y crear una lista):**
-  No te preocupes por entender todo el código ahora, solo observa la estructura.
-
-  ```{pyodide}
-  # Importar una librería para manejo de datos
-  import pandas as pd
-
-  # Crear una pequeña serie de datos
-  datos_pacientes = pd.Series([25, 34, 45, 29], name="Edad")
-  print(datos_pacientes)
-  ```
 
 ::::
 
 
 
----
+--------
 
-# ¡Empecemos! Tu Primer Código
+En este curso, podrás seleccionar si deseas tomar las lecciones en `R` o `Python`. Selecciona en cada lección la pestaña del lenguaje que desees (puedes cambiar en cualquier momento):
 
-Ahora que tienes una idea general, vamos a sumergirnos en la práctica. La forma más básica de interactuar con R y Python es usándolos como una calculadora.
+![Seleccionar R o Python cambia toda la lección al lenguaje seleccionado](../images/seleccionar_r_python.png){fig-align="center"}
+
+Cada lenguaje está definido por sus reglas particulares:
+
+- *Un léxico*: conjunto de palabras/frases válidas para escribir las instrucciones.
+- *Sintaxis*: reglas que establecen cómo se pueden combinar las distintas partes.
+- *Semántica*: significado que se les da a las palabras o frases.
+
+Adicionalmente, R y Python utilizan palabras para representar simbólicamente las acciones que debe realizar la computadora. Por ejemplo, vamos a ejecutar nuestro primer código al pedirle a R/Python que nos muestre el texto "Hola Mundo". Para esto, usaremos la instrucción `print()`, que nos "imprime" o muestra el valor dentro del paréntesis. Selecciona R/Python y haz click en el botón "Run Code" para ver el resultado.
+
+::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+print("Hola Mundo")
+```
+
+## Python
+
+```{pyodide}
+print("Hola Mundo")
+```
+
+:::
+
+::: {.callout-note}
+
+Al seleccionar R o Python en la pestaña, estás seleccionado un *interpretador*, el cuál es un programa que toma las acciones que escribes en R/Python y lo traduce a instrucciones que la máquina puede entender (`1 y 0`). Por esto, asegúrate de seleccionar el interprete adecuado ya que el interprete de R no sabe interpretar comandos de Python y viceversa.
+
+:::
 
 ## Operaciones Aritméticas Básicas
 
-Puedes realizar operaciones como suma, resta, multiplicación y división.
+Ahora que tienes una idea general, vamos a sumergirnos en la práctica. La forma más básica de interactuar con R y Python es usándolos como una calculadora.
+
+Primero corre el código en la consola de R o Python para ver los resultados y después puedes modificarlo para hacer más operaciones.
 
 ### Suma
 
@@ -302,24 +174,21 @@ Observa cómo en el siguiente bloque, si las operaciones están comentadas, no s
 ## R
 
 ```{webr}
-# Suma (comentada, no se ejecuta)
-# 50 + 50
-
-# División (comentada, no se ejecuta)
+# División (comentario)
 # 100 / 2
 ```
 
 ## Python
 
 ```{pyodide}
-# Suma (comentada, no se ejecuta)
-# 50 + 50
-
-# División (comentada, no se ejecuta)
+# División (comentario)
 # 100 / 2
 ```
+
 ::::
-Descomenta (borra el `#`) alguna de las líneas anteriores y vuelve a ejecutar el código para ver la salida.
+
+Quita el comentario (borra el `#`) de la división `100 / 2` y vuelve a ejecutar el código para ver la salida (debería ser `50`). Si quitas el comentario de la primera línea, obtendrás un error. Esto se verá más adelante.
+
 :::
 
 Continuaremos con más operaciones y conceptos en las siguientes secciones.

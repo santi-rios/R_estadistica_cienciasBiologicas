@@ -17,60 +17,10 @@ website:
     position: below-navbar
   page-navigation: true
   page-footer: 
-    left: "Copyright 2025, Santiago Ríos" 
+    left: "Santiago Ríos - Cursos OrcaAsesina" 
     right: 
-      - icon: github
-        href: https://github.com/santi-rios
       - icon: globe
         href: https://santi-rios.github.io/
-  # navbar:
-  #   background: "#ded6ea"
-  #   search: true
-  #   logo: images/logo.png
-  #   left:
-  #     - text: "🏠 Inicio"
-  #       href: index.qmd
-  #   # contents: 
-  #   #   - href: index.qmd
-  #   #     title: "Inicio"
-  #     - text: "💻 1.-Introducción"
-  #       href: sections/00-presentacion.qmd
-  #     - text: "📚 2.-Datos"
-  #       href: sections/03-importar-limpieza.qmd
-      # - section: "Introducción a Estadística"
-      #   contents:
-      #     - sections/02-estadistica.qmd
-      # - section: "Modelado Estadístico"
-      #   contents:
-      #     - sections/03-estadisticall.qmd
-      # - section: "Estadística Avanzada"
-      #   contents:
-      #     - sections/04-estadisticalll.qmd
-  # navbar:
-  #   background: primary
-  #   search: true
-  #   title: false
-  #   logo: images/logo.pngsections/02-programacion
-  #   background: "Logo"
-  #   tools:
-  #     - search: true
-  #     - icon: "fa-solid fa-moon"
-  #       href: "
-  #         - text: "Dark"
-  #         - text: "Light"
-      # - icon: twitter
-      #   href: https://twitter.com
-      # - icon: github
-      #   menu:
-      #     - text: Source Code
-      #       href:  https://code.com
-      #     - text: Report a Bug
-      #       href:  https://bugs.com  
-  #   left:
-  #     - text: "Home"
-  #       href: index.qmd
-  #     - talks.qmd
-  #     - about.qmd
 
 
 format:
@@ -93,6 +43,9 @@ format:
       # progress: true
       # slide-number: true
       lang: es
+      theme: pulse
+      date: last-modified
+      date-format: "YYYY-MM-DD, T:HH:mm"
       # logo: "https://cran.r-project.org/Rlogo.svg"
       execute:
         warning: false

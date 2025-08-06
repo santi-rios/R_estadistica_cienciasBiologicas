@@ -1,5 +1,5 @@
 ---
-title: "Estructuras de control con Karel"
+title: "Estructuras de Control"
 subtitle: "Comienza a programar con Karel"
 author: "Cursos Orca"
 format: 
@@ -7,7 +7,7 @@ format:
         toc: true
         # theme: simple
         # scrollable: true
-        toc-depth: 2
+        toc-depth: 4
         toc-title: Contenido de la Lección
         # progress: true
         # slide-number: true
@@ -20,94 +20,45 @@ pyodide:
   packages:
     - matplotlib
     - ipython
-    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.2-py3-none-any.whl
+    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.4-py3-none-any.whl
 engine: knitr
 navbar: false
 ---
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
 
+
 ```{webr}
 #| autorun: true
 #| include: false
+library("Karel")
 
-library(karel)
+```
 
-# Crear un entorno para llevar el conteo de pasos
-.karel_env <- new.env(parent = emptyenv())
-.karel_env$step_counter <- 1
+```{pyodide}
+#| autorun: true
+#| include: false
 
-# Sobrescribir generar_mundo para reiniciar el contador
-generar_mundo <- function(mundo) {
-  karel::generar_mundo(mundo)
-  .karel_env$step_counter <- 1
-}
-
-# Funciones auxiliares que generan imágenes estáticas después de cada acción
-avanzar <- function() {
-  karel::avanzar()
-  karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1
-}
-
-girar_izquierda <- function() {
-  karel::girar_izquierda()
-  karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1
-}
-
-juntar_coso <- function() {
-  karel::juntar_coso()
-  karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1
-}
-
-poner_coso <- function() {
-  karel::poner_coso()
-  karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1
-}
-
-# Sobrescribir ejecutar_acciones para que no haga nada
-ejecutar_acciones <- function() {
-  invisible()
-}
-
-# Función girar_derecha optimizada para una sola imagen
-girar_derecha <- function() {
-  karel::girar_izquierda()
-  karel::girar_izquierda()
-  karel::girar_izquierda()
-  karel:::plot_static_world(.karel_env$step_counter)
-  .karel_env$step_counter <<- .karel_env$step_counter + 1
-}
+from pykarel_web import Karel
 
 ```
 
 
-Ahora, antes de comenzar un tema más avanzado (**estructuras de control**), considera este ejemplo:
+Veamos el siguiente mundo.
 
 :::: {.panel-tabset group="language"}
 
 ## R
 
-Carga el mundo `mundo001` y ejecuta el siguiente código:
-
 ```{webr}
-library(karel)
-
-cargar_super_karel() # cargar funciones especiales de karel
-
 generar_mundo("mundo014")
-
 ```
 
-
 - Este mundo es relativamente sencillo. Si queremos que Karel llegué al final (columna 20), podemos decirle que avance 19 veces.
-  - Ejecuta el siguiente código para que Karel avance 19 veces (*recuerda que se genera una imagen por cada paso*):
+  - Para no generar 20 imágenes vamos a usar `karel:::plot_static_world()` para generar solo el paso 5, 10, 15 y 20. Puedes modificar estos argumentos dentro de esta función para ver algún paso en específico.
 
 ```{webr}
-library(karel)
+
 generar_mundo("mundo014")
 
 avanzar() # 1
@@ -129,29 +80,30 @@ avanzar() # 16
 avanzar() # 17
 avanzar() # 18
 avanzar() # 19
-avanzar() # 20
-avanzar() # 21
-ejecutar_acciones()
+karel:::plot_static_world(5)
+karel:::plot_static_world(10)
+karel:::plot_static_world(15)
+karel:::plot_static_world(20)
 ```
 
 ## Python
 
-Primero importamos el paquete de Karel y generamos el mundo `recta`:
+Primero importamos Karel de pykarel_web y generamos el mundo `recta`:
 
 ```{pyodide}
 # Inicializar a Karel en el mundo predeterminado
-from pykarel_web import Karel
+from _______ import ______
 
-karel = Karel(mundo="recta")
+karel = Karel(mundo="______")
 karel.ejecutar_acciones()
 
 ```
 
 - Este mundo es relativamente sencillo. Si queremos que Karel llegué al final (columna 20), podemos decirle que avance 19 veces.
-  - Ejecuta el siguiente código para que Karel avance 19 veces (*solo se muestran los últimos pasos*):
+  - Ejecuta el siguiente código para que Karel avance 19 veces (presiona el botón de `Play` para ver la animación).
 
 ```{pyodide}
-# Inicializar a Karel en el mundo predeterminado
+# Inicializar a Karel en el mundo recta
 from pykarel_web import Karel
 
 karel = Karel(mundo="recta")
@@ -175,7 +127,7 @@ karel.avanzar() # 16
 karel.avanzar() # 17
 karel.avanzar() # 18
 karel.avanzar() # 19
-karel.ejecutar_acciones(page=2)
+karel.mostrar_animacion()
 ```
 
 ::::
@@ -189,35 +141,57 @@ karel.ejecutar_acciones(page=2)
 
 - Este código, aunque sencillo, es muy ineficiente. Si queremos que Karel avance 100 veces, tendríamos que escribir `avanzar()` 100 veces.
 - En programación, queremos evitar la repetición de código tanto como sea posible.
-- Para esto, usamos estructuras de control, que nos permiten controlar el flujo de las acciones de un algoritmo o programa.
+- Para esto, usamos **estructuras de control**, que nos permiten controlar el flujo de las acciones de un algoritmo o programa.
 - Por ejemplo, podríamos solucionar este problema de estas dos formas:
-  - Podemos decirle a Karel que avance 19 veces (en lugar de escribir 19 veces que avance)
+  - Podemos decirle a Karel que avance 19 veces en una sola línea de código (en lugar de escribir 19 veces que avance)
   - Podemos decirle a Karel que avance hasta que encuentre una pared.
-- El primer caso, es un ejemplo de una estructura de control secuencial, mientras que el segundo es un ejemplo de una estructura de control iterativa. Vamos a revisarlas:
+- El primer caso, es un ejemplo de una estructura de control secuencial, mientras que el segundo es un ejemplo de una estructura de control iterativa. Vamos a revisarlas...
 
 
 
 ## Estrucutras de control
+
 - Frecuentemente, cuando ejecutamos un programa, queremos que ciertas partes del código se ejecuten solo si se cumple una condición específica, o queremos que se repitan ciertas partes del código varias veces.
 - Esto se logra con estructuras de control, que son el conjunto de reglas que permiten controlar el flujo de las acciones de un algoritmo o programa.
 - Se dividen en secuenciales, condicionales e iterativas.
 
 ### Estructuras de control secuenciales
 
-- Estas estructuras están compuestas por un número definido de acciones que se ubican en un orden específico y se suceden una tras otra.
+- Estas estructuras están compuestas por un número definido de acciones que se ubican en un orden específico y se suceden una tras otra. 
+  - Es decir, ejecutamos un paso, luego el siguiente, luego el siguiente, etc. 
 - Los ejemplos anteriores están conformados por este tipo de estructura.
 
+![Ejemplo de estructura secuencial. En este caso, se ejecuta una acción, luego otra, luego otra, etc.](..//images/estructura_secuencial.png)
+
 ### Estructuras de control iterativas
-- A veces, queremos que ciertas partes del código se repitan varias veces.
-- Para esto, usamos estructuras de control iterativas, que permiten repetir un bloque de código mientras se cumpla una condición específica.
-- Las estructuras de control iterativas más comunes son `for` y `while`.
-- `for` se usa cuando sabemos cuántas veces queremos que se repita un bloque de código.
-- `while` se usa cuando no sabemos cuántas veces queremos que se repita un bloque de código.
-- La estructura de `for` en R es la siguiente:
+
+- Una estructura de control iterativa (o bucle/*loop*) nos permite repetir un conjunto de instrucciones múltiples veces.
+- Son fundamentales en programación porque nos ayudan a evitar la repetición de código y a crear soluciones más eficientes.
+
+¿Por qué necesitamos bucles?
+
+Imagina que necesitas hacer la misma tarea 100 veces: 
+
+- Sin bucles: Escribirías el mismo código 100 veces (ineficiente y propenso a errores) 
+- Con bucles: Escribes el código una vez y le indicas que se repita 100 veces (eficiente y claro)
+
+![Ejemplo de estructura iterativa](../images/estructura_iterativa.png)
+
+**Tipos de bucles principales**
+
+Existen dos tipos principales de bucles:
+
+**Bucle FOR**: Se usa cuando sabemos exactamente cuántas repeticiones necesitamos
+
+**Bucle WHILE**: Se usa cuando no sabemos cuántas repeticiones serán necesarias y queremos repetir el código mientras se cumpla una condición.
+
+#### for
+
+- La estructura de `for` en r es la siguiente:
 
 ```r
-for (i in <valor_inicial>:<valor_final>) {
-    ...Acción/es...
+for (i in valor_inicial:valor_final) {
+    ...Acciónes...
 }
 ```
 
@@ -229,49 +203,164 @@ for i in range(valor_inicial, valor_final):
 ```
 
 - La letra i se usa para representar la cantidad de repeticiones.
-- Por ejemplo, si queremos repetir un bloque de código 5 veces, escribimos `for (i in 1:5)` y en python `for i in range(1, 6)`.
+- Por ejemplo, si queremos repetir un bloque de código 5 veces, escribimos `for (i in 1:5)` y en python `for i in range(0, 5)`.
 
 ::: {.callout-warning}
+
 ## Indexado en R y Python
 
 - En R, el indexado comienza en 1, mientras que en Python comienza en 0.
-- Esto significa que si queremos repetir un bloque de código 5 veces en R, escribimos `for (i in 1:5)`, mientras que en Python escribimos `for i in range(0, 5)`.
-- En R, el valor final es inclusivo, mientras que en Python es exclusivo.
+- Esto significa que si queremos repetir un bloque de código 5 veces en R, escribimos 
+  - `for (i in 1:5)`, lo que tomaría los valores 1, 2, 3, 4, 5. Es decir, repetiría el código 5 veces.
+- en Python escribimos 
+    - `for i in range(0, 5)`, lo que tomaría los valores 0, 1, 2, 3, 4. Es decir, repetiría el código 5 veces.
+- Recuerda que en la lección de vectores vimos esto:
+
+
+::: {.columns}
+
+::: {.column width="50%"}
+### R
+
+```{webr}
+#| autorun: true
+#| edit: false
+
+frutas <- c(
+  "manzana", 
+  "naranja", 
+  "plátano", 
+  "uva"
+  )
+
+for (index in seq_along(frutas)) {
+  value <- frutas[index]
+  cat(sprintf("Indice: %d, Valor: %s\n", index, value))
+}
+
+```
+
+:::
+
+::: {.column width="50%"}
+### Python
+
+```{pyodide}
+#| autorun: true
+#| edit: false
+
+frutas = [
+  "manzana", 
+  "naranja", 
+  "plátano", 
+  "uva"
+  ]
+
+for index, value in enumerate(frutas):
+    print(f"Indice: {index}, Valor: {value}")
+```
+
+:::
+
+:::
 
 ::::
 
-- Ahora, vamos a ver un ejemplo de cómo usar un `for` para que Karel avance 19 veces en el mundo `mundo014`.
+- Ahora, vamos a ver un ejemplo de cómo usar un `for` para que Karel avance 19 veces.
+- Completa el código y ejecuta. 
+  - Si todo sale bien, deberías de ver a karel llegar a la última posición.
 
 :::: {.panel-tabset group="language"}
 
 ## R
 
+- NOTA: la última posición la graficamos con el comando `karel:::plot_static_world(20)`. Observa que utilizamos `20` en lugar de 19. Esto **no** tiene que ver con el indexado de R, sino que la función de karel toma el comando `generar_mundo` como un paso extra. No te preocupes por esto, solo recuerda que `karel:::plot_static_world(20)` grafica la última posición de karel. 
+
+
 ```{webr}
 generar_mundo("mundo014")
+
+for (______ in ______:______) {
+  avanzar()
+}
+
+# Ver a karel
+karel:::plot_static_world(5)
+karel:::plot_static_world(10)
+karel:::plot_static_world(20)
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+generar_mundo("mundo014")
+
 for (i in 1:19) {
   avanzar()
 }
-ejecutar_acciones()
+
+
+karel:::plot_static_world(5)
+karel:::plot_static_world(10)
+karel:::plot_static_world(20)
 ```
+
+:::
 
 ## Python
 
 ```{pyodide}
-# Inicializar a Karel en el mundo predeterminado
-from pykarel_web import Karel
+karel = Karel(mundo="recta")
 
+for ______ in range(_______, ______):
+    karel.avanzar()
+
+
+karel.mostrar_animacion()
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
 karel = Karel(mundo="recta")
 
 for i in range(0,19):
     karel.avanzar()
 
 
-karel.ejecutar_acciones()
+karel.mostrar_animacion()
 ```
 
 :::
 
-- En este caso, Karel avanzará 19 veces en lugar de tener que escribir `avanzar()` 19 veces.
+:::
+
+
+::: {.callout-note title="Observa el bucle for"}
+
+Observa el siguiente diagrama para entender lo que está haciendo el bucle `for` para avanzar 19 veces. Observa que en cada iteración, `i` aumenta `1` valor. Mientras `i` sea menor que `19`, entonces se ejecuta la acción de avanzar. Cuando `i` es mayor que este valor, entonces para el bucle. 
+
+```{mermaid}
+%%| label: fig-for
+%%| fig-cap: "Diagrama de flujo para un bucle for que se repite 19 veces."
+
+graph TD
+  A[Inicio del bucle for] --> B{i < 19};
+  B -- Verdadero --> C[avanzar];
+  C --> D[i = i + 1];
+  D --> B;
+  B -- Falso --> E[Fin del bucle];
+
+```
+
+:::
+
+
+> Conclusión: utilizando for, logramos que Karel avanzara 19 veces en lugar de tener que escribir `avanzar()` 19 veces.
+
+
+#### while
 
 - Por otro lado, la estructura de `while` en R es la siguiente:
 
@@ -282,143 +371,291 @@ while (condición) {
 }
 ```
 
+Y en python es la siguiente:
+
 ```python
 while condición:
     # Acciones a repetir
 ```
 
 - Estas iteraciones pueden continuar mientras que se verifique alguna condición.
-- el conjunto de instrucciones se repite mientras que se siga evaluando como VERDADERO una condición declarada al inicio del bloque.
+- el conjunto de instrucciones se repite mientras que se siga evaluando como **VERDADERO** una condición declarada al inicio del bloque.
 - Cuando la condición ya no se cumple, el proceso deja de ejecutarse.
-- En vez de usar un for en el cual hay que especificar la cantidad de veces que el proceso debe repetirse, podemos usar un while para que Karel siga avanza hasta que encuentre una pared en el mundo `mundo014`.
+- En vez de usar un `for` en donde hay que especificar la cantidad de veces que el proceso debe repetirse, podemos usar un `while` para que Karel siga avanza hasta que encuentre una pared.
 
-- El paquete de Karel nos da algunas condiciones que podemos evaluar:
-    - `frente_abierto()` 	…no hay una pared enfrente de Karel
-    - `frente_cerrado()` 	… hay una pared enfrente de Karel
-    - `izquierda_abierto()` 	…no hay una pared a la izquierda de Karel
-    - `izquierda_cerrado()` 	…hay una pared a la izquierda de Karel
-    - `derecha_abierto()` 	…no hay una pared a la derecha de Karel
-    - `derecha_cerrado()` 	…hay una pared a la derecha de Karel
-    - `hay_cosos()` 	…hay cosos donde se encuentra Karel
-    - `no_hay_cosos()` 	…no hay cosos donde se encuentra Karel
-    - `karel_tiene_cosos()` 	…Karel tiene cosos en su mochila
-    - `karel_no_tiene_cosos()` 	…Karel no tiene cosos en su mochila
-    - `mira_al_este()` …Karel está mirando al este
-    - `mira_al_norte()`	…Karel está mirando al norte
-    - `mira_al_oeste()`	…Karel está mirando al oeste
-    - `mira_al_sur() `…Karel está mirando al sur
+- El paquete de Karel nos da varias algunas condiciones que podemos evaluar:
 
-- `karel.frente_abierto`
-- `karel.hay_coso`
-- `karel.izquierda_abierta`
-- `karel.derecha_abierta`
 
-- Vamos a ver un ejemplo de cómo usar un `while` para que Karel avance hasta que encuentre una pared en el mundo `mundo014`.
+| R                       | Descripción                                       | Python                      | Descripción                                       |
+| ----------------------- | ------------------------------------------------- | --------------------------- | ------------------------------------------------- |
+| `frente_abierto()`      | No hay una pared enfrente de Karel                | `karel.frente_abierto`      | No hay una pared enfrente de Karel                |
+| `frente_cerrado()`      | Hay una pared enfrente de Karel                   |                             |                                                   |
+| `izquierda_abierto()`   | No hay una pared a la izquierda de Karel         | `karel.izquierda_abierta`   | No hay una pared a la izquierda de Karel         |
+| `izquierda_cerrado()`   | Hay una pared a la izquierda de Karel            |                             |                                                   |
+| `derecha_abierto()`     | No hay una pared a la derecha de Karel           | `karel.derecha_abierta`     | No hay una pared a la derecha de Karel           |
+| `derecha_cerrado()`     | Hay una pared a la derecha de Karel              |                             |                                                   |
+| `hay_cosos()`           | Hay cosos donde se encuentra Karel                | `karel.hay_coso`            | Hay cosos donde se encuentra Karel                |
+| `no_hay_cosos()`        | No hay cosos donde se encuentra Karel             |                             |                                                   |
+| `karel_tiene_cosos()`   | Karel tiene cosos en su mochila                   |  `karel.frente_bloqueado`                           |      Hay una pared enfrente de Karel                                            |
+| `karel_no_tiene_cosos()`| Karel no tiene cosos en su mochila                | `karel.no_hay_coso`                            |        No hay cosos donde se encuentra Karel                                           |
+| `mira_al_este()`        | Karel está mirando al este                        |                             |                                                   |
+| `mira_al_norte()`       | Karel está mirando al norte                       |                             |                                                   |
+| `mira_al_oeste()`       | Karel está mirando al oeste                       |                             |                                                   |
+| `mira_al_sur()`         | Karel está mirando al sur                         |                             |                                                   |
+
+: Condiciones *booleanas* (expresión que se evalúa como uno de dos valores posibles: verdadero (True) o falso (False)) {#tbl-booleanas}
+
+
+Observa primero algunos ejemplos de estas condiciones:
+
+:::: {.panel-tabset group="language"}
+
+## R
+
+Observa el output de este código:
+
+```{webr}
+#| autorun: true
+
+generar_mundo("mundo014")
+
+# Preguntamos si el frente está abierto
+frente_abierto() # TRUE
+
+# preguntamos si la izquierda está abierta
+frente_cerrado() # FALSE
+
+```
+
+
+- `frente_abierto()` devuelve `TRUE` ya que estamos evaluando la pregunta: "¿No hay una pared frente a Karel?", lo cuál es cierto en este caso.
+- `frente_cerrado()` devuelve `FALSE` ya que estamos evaluando la pregunta: "Hay una pared frente a Karel?", lo cuál es falso en este caso.
+
+## Python
+
+```{pyodide}
+#| autorun: true
+karel = Karel(mundo="recta")
+print(karel.frente_abierto())
+print(karel.frente_bloqueado())
+
+
+karel.mostrar_animacion()
+
+```
+
+
+
+- `karel.frente_abierto()` devuelve `True` ya que estamos evaluando la pregunta: "¿No hay una pared frente a Karel?", lo cuál es cierto en este caso.
+- `karel.frente_bloqueado()` devuelve `False` ya que estamos evaluando la pregunta: "Hay una pared frente a Karel?", lo cuál es falso en este caso.
+
+::::
+
+
+
+Vamos a ver un ejemplo de cómo usar un `while` para que Karel avance hasta que encuentre una pared en el mundo. Para entenderlo mejor, vamos a visualizar el flujo del código que vamos a escribir con un diagrama de flujo:
+
+
+```{mermaid}
+%%| label: fig-while
+%%| fig-cap: "En cada paso, preguntamos si el frente se encuentra abierto. En términos más formales, preguntamos si `frente_abierto = TRUE`. Si esta condición se cumple, entonces karel avanza. Si `frente_abierto = FALSE` (es decir, hay una pared frente), entonces karel para y no avanza más."
+
+graph TD
+  A[Generar Mundo] --> B{Preguntamos si Frente abierto};
+  B -- TRUE --> C[avanzar];
+  C --> B;
+  B -- FALSE --> D[FIN];
+
+```
+
+En código, vamos a:
+
+- Primero crear el mundo
+- Luego definir el loop `while` que evalúe si el frente esta abierto.
+  - Si esta condición se cumple (TRUE), entonces avanzamos.
+  - Si no se cumple, karel para. 
+- Completa el código con la condición booleana que necesitamos para preguntarle a karel si el frente está abierto:
 
 :::: {.panel-tabset group="language"}
 
 ## R
 
 ```{webr}
+# Primero generamos el mundo
 generar_mundo("mundo014")
-while (frente_abierto()) {
+
+# ahora definimos el bucle
+while ( ______ ) {
   avanzar()
 }
-ejecutar_acciones()
+
+# ejecutamos las acciones
+karel:::plot_static_world(5)
+karel:::plot_static_world(10)
+karel:::plot_static_world(20)
+```
+
+Vamos a guardar la función `while (frente_abierto())` para usarla en el futuro cuando queramos que Karel avance mientras el frente esté abierto. Para esto, solo corremos el bucle dentro de la función, de la siguiente manera:
+
+```{webr}
+#| autorun: true
+
+avanzar_frente_abierto <- function() {
+  while (frente_abierto()) {
+    avanzar()
+  }
+}
 ```
 
 ## Python
 
 ```{pyodide}
-# Inicializar a Karel en el mundo predeterminado
-from pykarel_web import Karel
-
+# Inicializar a Karel en el mundo recta
 karel = Karel(mundo="recta")
 
-while karel.frente_abierto():
+# ahora definimos el bucle
+while ______:
     karel.avanzar()
 
-karel.ejecutar_acciones()
+# mostramos la animación
+karel.mostrar_animacion()
 ```
+
+Vamos a guardar la función `while (frente_abierto())` para usarla en el futuro cuando queramos que Karel avance mientras el frente esté abierto. Para esto, solo corremos el bucle dentro de la función, de la siguiente manera:
+
+```{pyodide}
+#| autorun: true
+
+def avanzar_frente_abierto():
+  while karel.frente_abierto():
+    karel.avanzar()
+
+```
+
 
 ::::
 
-::: {.callout-tip}
-A veces es más facil visualizar el flujo de un script con un diagrama de flujo. Por ejemplo, el siguiente diagrama de flujo representa el código anterior:
-
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-214436.jpg)
-
-:::
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/fileb94f755d7b.gif)	
 
 - En este caso, Karel avanzará hasta que encuentre una pared en lugar de tener que escribir `avanzar()` 19 veces.
 - Este código es más flexible ya que Karel seguirá avanzando hasta que encuentre una pared, sin importar cuántas veces tenga que avanzar.
 - Si desconociéramos cuántas veces Karel tiene que avanzar, sería más conveniente usar un `while` en lugar de un `for`.
 
+::: {.callout-important title="Indentación"}
+
+La indentación se refiere a desplazar líneas de texto o código hacia la derecha y usualmente se logra con la tecla `tab` o escribiendo `4` espacios con la tecla `espacio`. La indentación ayuda a identificar visualmente la jerarquía del código. En el ejemplo pasado, esta jerarquía indica que primero se ejecuta la definición de la función, luego el bucle while dentro de la función, y luego la instrucción de avanzar dentro del bucle while. En otras palabras, cuando indentas, le dices a R/python que ese bloque de código pertenece a cierto grupo (al grupo del bucle `while`, o al grupo del bloque `funcion():`, etc.):
+
+![](../images/indentacion.png)
 
 
-::: {.callout-warning}
-- Es importante tener cuidado con las estructuras de control iterativas, ya que si no se especifica una condición de salida, el programa podría entrar en un bucle infinito.
-- Observa lo que pasa en el siguiente código.
-- Como es un loop infinito, tendrás que parar el código manualmente. Esto se hace presionando el botón de interrupción en la consola de R (botón rojo o tecla escape).
+En el código pasado, esta jerarquía de ve y ejecuta en este orden:
 
-```r
-# No correr! (o sí, para ver que pasa)
-generar_mundo("mundo003")
-while (no_hay_cosos()) {
-    girar_izquierda()
-}
-ejecutar_acciones()
+```{mermaid}
+%%| label: fig-while-py
+%%| fig-cap: "Diagrama de flujo para la función `avanzar_frente_abierto`. El bucle `while` se ejecuta mientras la condición `karel.frente_abierto()` sea verdadera."
+
+graph TD
+  A[Inicio: Definir la función] --> B{bucle while};
+  B -- Verdadero --> C[avanzar];
+  C --> B;
+  B -- Falso --> D[Fin];
+
 ```
-
-```python
-# Inicializar a Karel en el mundo predeterminado
-from pykarel_web import Karel
-
-karel = Karel(mundo="recta")
-
-while karel.hay_coso == True:
-    karel.girar_izquierda()
-
-karel.ejecutar_acciones()
-```
-- Qué pasa en este código? Karel girará a la izquierda hasta que encuentre un coso, pero en este mundo no hay cosos, por lo que Karel girará indefinidamente.
 
 :::
 
-- Ahora, imagina que Karel está en un mundo totalmente rodeado de paredes.
-- Qué pasa si ejecutamos el siguiente código?
+---
 
-```r
+> **Ahora, imagina que Karel está en en el siguiente mundo**.
+
+:::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+#| autorun: true
+#| edit: false
+generar_mundo("mundo015")
+```
+
+Qué pasa si ejecutamos el código pasado?
+
+- usaremos la función que creamos en lugar de volver a escribir todo. 
+- Vamos a ver qué pasa en el primer y segundo paso de Karel.
+
+```{webr}
 generar_mundo("mundo015")
 
-while (frente_abierto()) {
-  avanzar()
-  ejecutar_acciones()
-}
+avanzar_frente_abierto()
+
+karel:::plot_static_world(1)
+karel:::plot_static_world(2)
 
 ```
 
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Rplot01cubo.png)
 
-- Como ves, Karel no puede avanzar porque no hay un espacio libre frente a él.
-- En este caso, algo que nos resultaría útil es primero preguntar si hay un espacio libre frente a Karel.
+- Como ves, Karel no avanza porque no hay un espacio libre frente a él, terminando el bucle.
+  - Recuerda cómo funciona el código en @fig-while
+- En este caso, algo que nos resultaría útil es primero preguntar si hay un espacio libre frente a Karel antes de decidir avanzar y si no lo hay, entonces girar para buscar un espacio libre.
 - Esto es un ejemplo de una estructura de control condicional, que veremos a continuación.
 
 
+## Python
 
+```{pyodide}
+#| autorun: true
+#| edit: false
+karel = Karel(mundo="laberinto")
+karel.ejecutar_acciones()
+```
+
+Qué pasa si ejecutamos el código pasado?
+
+
+```{pyodide}
+karel = Karel(mundo="laberinto")
+
+# ahora definimos el loop
+while karel.frente_abierto():
+    karel.avanzar()
+
+# mostramos la animación
+karel.mostrar_animacion()
+```
+
+- Como ves, Karel no avanza porque no hay un espacio libre frente a él, terminando el bucle.
+  - Recuerda cómo funciona el código en @fig-while
+- En este caso, algo que nos resultaría útil es primero preguntar si hay un espacio libre frente a Karel antes de decidir avanzar y si no lo hay, entonces girar para buscar un espacio libre.
+- Esto es un ejemplo de una estructura de control condicional, que veremos a continuación.
+
+
+::::
 
 ### Estrucutras de control condicionales
 
-- Para resolver problemas, podemos necesitar que ciertas partes del código se ejecuten solo si se cumple una condición específica.
-- Podemos pedirle al código que este se ejecute solo si una condición es verdadera (`TRUE`) o falsa (`FALSE`).
-
 #### if
 
-- La estructura `if` es la más básica de las estructuras condicionales.
-- Se usa para ejecutar un bloque de código si una condición es verdadera.
+- Para resolver el problema pasado, podemos decirle al código que se ejecute solo si una condición es verdadera (`TRUE`) o falsa (`FALSE`). La ejecución condicional se escribe con `if` y se puede entender cómo: ¨S*i algo es verdadero, entonces haz esto*¨. 
+
+```{mermaid}
+%%| label: fig-if
+%%| fig-cap: "Si ocurre algo entonces ejecutamos unas sentencias y en caso contrario ejecutamos otras. ."
+
+graph TD
+  B{Condición};
+  B -- FALSE --> C[Acción para falso];
+  B -- TRUE --> D[Acción para verdadero];
+  C --> E[FIN]
+  D --> E[FIN]
+
+```
+
+
+- Recuerda las condiciones que podemos evaluar como verdaderas o falsas en @tbl-booleanas
+
+:::: {.panel-tabset group="language"}
+
+## R
+
 - La sintaxis básica de un `if` en R es la siguiente:
 
 ```r
@@ -428,41 +665,169 @@ if (condición) {
 ```
 
 - Si la condición es verdadera, el código dentro de las llaves `{}` se ejecutará.
-- Karel tiene las siguientes evaluaciones que podemos usar en un `if`:
-    - `frente_abierto()`: Evalúa que no exista una pared frente a Karel.
-    - `izquierda_abierto()`: Evalúa que no exista una pared a la izquierda de Karel.
-    - `hay_cosos()` : hay cosos donde se encuentra Karel
-    - `karel_tiene_cosos()`: Evalúa si Karel tiene al menos un coso en su mochila.
-    - `mira_este()`: Evalúa si Karel está mirando hacia el este.
 
-- Mira como podemos modificar el código anterior para que Karel avance solo si hay un espacio libre frente a él.
+
+## Python
+
+- La sintaxis básica de un `if` en python es la siguiente:
+
+
+```python
+if condition:
+    # Código a ejecutar si la condición es True
+```
+
+::::
+
+
+- Mira como podemos modificar el código anterior para que Karel:
+  - En lugar de preguntar si el frente está abierto, vamos a preguntar si el frente está cerrado. Esto nos permitirá saber si hay una pared frente a Karel. 
+  - Si esta condición se cumple (es decir, `frente_cerrado = True` o en otras palabras, hay una pared), entonces le vamos a decir a karel que gire a la izquierda y luego avance mientras no haya una pared. Para esto, usaremos la función que creamos en el paso anterior (`avanzar_frente_abierto()`).
+
+```{mermaid}
+%%| label: fig-ifmermaid
+%%| fig-cap: "En este caso, vamos a preguntar primero si el frente está bloqueado. En caso que sea cierto, giramos a la izquierda y avanzamos hasta que topemos con una pared."
+
+graph TD
+  A[Inicio] --> B{Frente bloqueado?};
+  B -- TRUE --> C[Girar a la izquierda];
+  C --> D[Avanzar hasta topar con pared];
+  D --> E[Mostrar figuras];
+  B -- FALSE --> E;
+  E --> F[Fin];
+
+```
+
+
+:::: {.panel-tabset group="language"}
+
+
+## R
+
+Completa el código. Recuerda que primero vamos a preguntar si el frente está cerrado. ¿Qué condición debemos evaluar? Revisa la @tbl-booleanas para ver qué función usar. Si todo sale bien, deberías de ver a Karel girar a la izquierda y avanzar hasta que encuentre una pared.
+
+```{webr}
+
+generar_mundo("mundo015")
+
+if ( ______ ) {
+  girar_izquierda()
+  avanzar_frente_abierto()
+}
+
+# ver a karel
+karel:::plot_static_world(1)
+karel:::plot_static_world(11)
+
+```
+
+::: {.callout collapse="true" title="Solución"}
 
 ```r
 
-generar_mundo("mundo013")
-if (frente_abierto()) {
-  avanzar()
-  ejecutar_acciones()
+if (frente_cerrado()) {
+  girar_izquierda()
+  avanzar_frente_abierto()
 }
 
 ```
 
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-214652.jpg)
+:::
+
+## Python
+
+Completa el código. Recuerda que primero vamos a preguntar si el frente está cerrado. ¿Qué condición debemos evaluar? Revisa la @tbl-booleanas para ver qué función usar. Si todo sale bien, deberías de ver a Karel girar a la izquierda y avanzar hasta que encuentre una pared.
 
 
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Rplot01cubo.png)
+```{pyodide}
+karel = Karel(mundo="laberinto")
 
-- Observa que Karel no avanza porque la condición de `frente_abierto()` es falsa. En este caso, no tenemos error en el código, simplemente no se ejecuta la acción de avanzar.
-- Algo útil que podríamos hacer es decirle a Karel que, si no hay un espacio libre frente a él, nos diga que no puede avanzar.
+if ______:
+    karel.girar_izquierda()
+    avanzar_frente_abierto()
+    karel.mostrar_animacion()
+```
 
 
+::: {.callout collapse="true" title="Solución"}
+
+```python
+
+karel = Karel(mundo="laberinto")
+
+if karel.frente_bloqueado():
+    karel.girar_izquierda()
+    avanzar_frente_abierto()
+    karel.mostrar_animacion()
+
+```
+
+:::
+
+::::
+
+Si ves el flujo de este código (@fig-ifmermaid), si la condición NO se cumpliera (es decir, si el frente no estuviera bloqueado), Karel NO hace nada. Por ejemplo, si corremos el código pasado en este mundo (el cuál tiene el frente abierto), observa que karel simplemente no avanza:
+
+:::: {.panel-tabset group="language"}
+
+## R
+
+```{webr}
+
+generar_mundo("mundo012")
+
+if (frente_cerrado()) {
+  girar_izquierda()
+  avanzar_frente_abierto()
+}
+
+ejecutar_acciones()
+
+```
+
+## Python
+
+- La sintaxis básica de un `if` en python es la siguiente:
+
+```{pyodide}
+karel = Karel(mundo="default")
+
+if karel.frente_bloqueado():
+    karel.girar_izquierda()
+    avanzar_frente_abierto()
+
+karel.mostrar_animacion()
+```
+
+::::
+
+En este caso, usaremos `if else`. 
 
 #### if else
 
+A veces, queremos que se ejecute un bloque de código si una condición es verdadera y otro bloque si es falsa.
 
+- Para esto, usamos la estructura `if else`, que significa "si no es verdadero, entonces realiza esto otro".
+- `if else` nos permite crear la siguiente lógica:
 
-- A veces, queremos que se ejecute un bloque de código si una condición es verdadera y otro bloque si es falsa.
-- Para esto, usamos la estructura `if else`, que significa "si no es verdadero, entonces realiza esto".
+```{mermaid}
+%%| label: fig-ifelse
+%%| fig-cap: "En este caso, si la condición no se cumple, se ejecuta el código de `else`."
+
+graph TD
+  A[Inicio] --> B{Frente bloqueado?};
+  B -- if condicion TRUE --> C[Girar a la izquierda];
+  C --> D[Avanzar hasta el frente abierto];
+  D --> E[Mostrar figura];
+  B -- else FALSE --> G[Avanzar hasta el frente abierto];
+  G --> E
+  E --> F[Fin];
+
+```
+
+:::: {.panel-tabset group="language"}
+
+## R
 
 - la sintaxis básica de un `if else` en R es la siguiente:
 
@@ -474,288 +839,671 @@ if (condición) {
 }
 ```
 
+Modificando nuestro código, quedaría así:
 
+- Ahora, karel va a girar a la izquierda si el frente está bloqueado, y si no lo está, simplemente avanzará hasta que encuentre una pared. Completa el siguiente código escribiendo la condición `else` con la función `avanzar_frente_abierto()`
 
 ```{webr}
-generar_mundo("mundo013")
+generar_mundo("mundo012")
 
-if (frente_abierto()) {
-  avanzar()
-  ejecutar_acciones()
-} else {
-  print("no tengo espacio")
-}
+if (frente_cerrado()) {
+  girar_izquierda()
+  avanzar_frente_abierto()
+} ______
+
+# ver a karel
+karel:::plot_static_world(1)
+karel:::plot_static_world(6)
 ```
 
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-214523.jpg)
 
-- Ahora Karel nos dirá que no tiene espacio para avanzar si no hay un espacio libre frente a él.
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Rplot01cubo.png)
-
-
-#### if else if
-
-- A veces, queremos evaluar múltiples condiciones.
-- Para esto, usamos la estructura `if else if`, que significa "si no es verdadero, entonces evalúa esta otra condición".
-- La sintaxis básica de un `if else if` en R es la siguiente:
+::: {.callout collapse="true" title="Solución"}
 
 ```r
-if (condición1) {
-  # Código si condición1 es TRUE
-} else if (condición2) {
-  # Código si condición2 es TRUE
-} else {
-  # Código si ninguna condición es TRUE
-}
-```
 
-- Considera el siguiente ejemplo
-- en este mundo, podemos hacer lo siguiente:
-- Primero, preguntar si hay frente_abierto(), si es verdadero, avanzar.
-- Si no es verdadero, preguntar si hay derecha_abierto(), si es verdadero, girar_derecha() y avanzar.
-- Si no es verdadero, girar_izquierda() y avanzar.
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/ifelseif1.png)
-
-```{webr}
-generar_mundo("mundo024")
-
-if (frente_abierto()) {
-  avanzar()
-} else if (derecha_abierto()) {
-  girar_derecha()
-  avanzar()
-} else {
+if (frente_cerrado()) {
   girar_izquierda()
-  avanzar()
-}
-
-ejecutar_acciones()
-
-
-```	
-
-![NOTA. En la condición Derecha abierta le falta un girar derecha antes de avanzar, como en el código](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-214606.jpg)
-
-- Cómo podemos mejorar este código para que Karel avance hasta que encuentre una pared y en el proceso recolecte todos los cosos que encuentre?
-- En este caso, podemos usar un `while` para que Karel avance hasta que encuentre una pared y un `if` para que recolecte los cosos que encuentre y revise que haya frente libre.
-- Vamos a solucionar los problemas por partes y luego los juntaremos.
-- El primer problema que tenemos que resolver es que Karel avanze mientras tenga frente abierto.
-
-
-
-
-
-```{webr}
-generar_mundo("mundo024")
-
-while (frente_abierto()) {
-  avanzar()
-  ejecutar_acciones()
-}
-```
-
-- Como en este mundo no hay frente abierto, karel simplemente no avanzará.
-- Ahora, vamos a resolver el segundo problema, que Karel revise si tiene el frente_izquierdo() abierto y si es cierto, avanzar.
-- Primero, podemos poner crear una función que nos permita avanzar hasta que encuentre una pared (código pasado). Depsués, podemos decirle a Karel que gire izquierda y avance hasta que encuentre una pared.
-
-```{webr}
-generar_mundo("mundo024")
-
-moverse_hasta_pared <- function() {
-  while (frente_abierto()) {     # Mientras el frente esté abierto
-    avanzar()                    # Avanza
-  }
-}
-
-girar_izquierda()
-moverse_hasta_pared()
-
-ejecutar_acciones()
-```
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-214753.jpg)
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/file6fd05cfa553e.gif)
-
-
-- Podemos hacer más eficiente el código anterior con una condición `if` que evalúe si hay izquierda_abierto() y si es verdadero, girar_izquierda() y avanzar().
-
-```{webr}
-generar_mundo("mundo024")
-
-moverse_hasta_pared <- function() {
-  while (frente_abierto()) {     # Mientras el frente esté abierto
-    avanzar()                    # Avanza
-  }
-}
-
-if (frente_abierto()) {
-  moverse_hasta_pared()
+  avanzar_frente_abierto()
 } else {
-  girar_izquierda()
-  moverse_hasta_pared()
+  avanzar_frente_abierto()
 }
-
-
-ejecutar_acciones()
 
 ```
-
-
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/file6fd04f137e0d.gif)
-
-
-
-- Pero ahora, considera que podemos mejorar este código. Imagina que Karel no tiene el frente izquierdo libre, no podría avanzar.
-- Podemos hacer esto con un `if` `else` `if`.
-- En el siguiente código, primero preguntamos si la condición `frente_abierto()` es verdadera, si es así, avanzamos. Si no, giramos a la izquierda. Ahora, antes de avanzar, preguntamos si tenemos el frente abierto, si es así, avanzamos. Esto evita errores si Karel no tiene la izquierda abierta. 
-
-```{webr}
-generar_mundo("mundo024")
-
-moverse_hasta_pared <- function() {
-  while (frente_abierto()) {     # Mientras el frente esté abierto
-    avanzar()                    # Avanza
-  }
-}
-
-if (frente_abierto()) {
-  moverse_hasta_pared()
-} else {
-  girar_izquierda()
-  if (frente_abierto()) {
-    moverse_hasta_pared()
-  }
-}
-
-
-ejecutar_acciones()
-```
-
-
-- Ahora, nos falta que Karel recolecte los cosos que encuentre en el camino.
-- Podemos hacer esto con un `if` que evalúe si hay cosos y si es así, recolectarlos.
-- Esto lo podemos hacer dentro de la función `moverse_hasta_pared()`.
-
-```{webr}
-generar_mundo("mundo024")
-
-
-# Función para avanzar y recolectar coso si hay frente abierto
-moverse_hasta_pared <- function() {
-  while (frente_abierto()) {     # Mientras el frente esté abierto
-    avanzar()                    # Avanza
-    if (hay_cosos()) {            # Si hay un coso, lo recolecta
-      juntar_coso()
-    }
-  }
-}
-
-# Función principal que controla el movimiento de Karel
-explorar_laberinto <- function() {
-  if (frente_abierto()) {  # Si el frente está abierto
-    moverse_hasta_pared() # Avanza y recolecta cosos hasta que el frente se cierre
-  } else {                 # Si el frente está cerrado
-    girar_izquierda()      # Gira a la izquierda para verificar
-    if (frente_abierto()) {  # Si el lado izquierdo está abierto
-      moverse_hasta_pared() # Avanza y recolecta cosos en esa dirección
-    }
-  }
-}
-
-# Ejecución del programa
-generar_mundo("mundo024")
-explorar_laberinto()
-ejecutar_acciones()  # Ejecuta las acciones en el mundo de Karel
-```
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-213917.jpg)
-
-
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/file6fd029632c04.gif)
-
-
-
-- Como observarás, este es un caso en el que se combinan estructuras de control secuenciales, condicionales e iterativas.
-- Construir programas complejos a partir de estructuras de control más simples es una de las claves de la programación.
-- Sin embargo, muchas veces las soluciones más eficientes no son las más complejas, sino las más sencillas y fáciles de entender.
-- Regresemos al ejemplo del laberinto del final de la lección pasada:
-
-- Karel está en un laberinto como el siguiente, donde el coso indica la salida.
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/laberinto.png)
-
-- Tip: Hay una estrategia para resolver cualquier laberinto: si cuando entrás tocás con tu mano la pared a tu derecha y caminás sin dejar de tocarla nunca, eventualmente llegarás a la salida. 
-- implementa el algoritmo de la mano derecha que le ayude a Karel salir del laberinto del mundo `mundo009`.
-
-![](https://ropensci.github.io/karel/articles/30.gif)
-
-
-
-
-
-::: {.callout-tip}
-El flujo del código debe representar la siguiente lógica:
-
-![](http://orcaasesina.com/wp-content/uploads/2024/10/Screenshot-2024-10-17-214844.jpg)
 
 :::
 
 
+Prueba este mismo código en el mundo `mundo015` y observa que también funciona y karel avanza hasta la pared:
+
 ```{webr}
-#| code-fold: true
-#| code-summary: "Mostrar Respuesta"
-generar_mundo("mundo009")
-while (no_hay_cosos()) {
-  girar_derecha()
-  while (frente_cerrado()) {
-    girar_izquierda()
-  }
-  avanzar()
+generar_mundo("mundo015")
+
+if (frente_cerrado()) {
+  girar_izquierda()
+  avanzar_frente_abierto()
+} else {
+  avanzar_frente_abierto()
 }
-ejecutar_acciones()
+
+# ver a karel
+karel:::plot_static_world(1)
+karel:::plot_static_world(11)
+```
+
+::: {.callout-important}
+¿Por qué relevante que el código funcione en ambos mundos?'
+
+- En programación, es importante que el código sea flexible y pueda adaptarse a diferentes situaciones.
+- En este caso, el código funciona tanto si el frente está bloqueado como si no lo está, lo que significa que Karel puede adaptarse a diferentes mundos y situaciones.
+- Esto es un principio fundamental de la programación: escribir código que sea robusto y pueda manejar diferentes escenarios sin necesidad de modificaciones constantes.
+- Con el tiempo, desarrollarás la habilidad de escribir código que sea más general y pueda adaptarse a diferentes situaciones sin necesidad de cambios significativos. Sin embargo, no te preocupes si al principio no lo logras y tu código no es perfecto, es un proceso que lleva tiempo y práctica.
+:::
+
+## Python
+
+- la sintaxis básica de un `if else` en Python es la siguiente:
+
+```python
+if condicion:
+  # Código si la condición es TRUE
+else:
+  # Código si la condición es FALSE
+
+```
+
+Modificando nuestro código, quedaría así:
+
+- Ahora, karel va a girar a la izquierda si el frente está bloqueado, y si no lo está, simplemente avanzará hasta que encuentre una pared. Completa el siguiente código escribiendo la condición `else` con la función `avanzar_frente_abierto()`. Recuerda indentar esta función dentro de la condición else.
+
+```{pyodide}
+karel = Karel(mundo="default")
+
+if karel.frente_bloqueado():
+    karel.girar_izquierda()
+    avanzar_frente_abierto()
+______
+    
+karel.mostrar_animacion()
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+if karel.frente_bloqueado():
+    karel.girar_izquierda()
+    avanzar_frente_abierto()
+else:
+    avanzar_frente_abierto()
+
+```
+
+:::
+
+Prueba este mismo código en el mundo `laberinto` y observa que también funciona y karel avanza hasta la pared:
+
+```{pyodide}
+karel = Karel(mundo="laberinto")
+
+if karel.frente_bloqueado():
+    karel.girar_izquierda()
+    avanzar_frente_abierto()
+else:
+    avanzar_frente_abierto()
+    
+karel.mostrar_animacion()
+```
+
+::: {.callout-important}
+¿Por qué relevante que el código funcione en ambos mundos?'
+
+- En programación, es importante que el código sea flexible y pueda adaptarse a diferentes situaciones.
+- En este caso, el código funciona tanto si el frente está bloqueado como si no lo está, lo que significa que Karel puede adaptarse a diferentes mundos y situaciones.
+- Esto es un principio fundamental de la programación: escribir código que sea robusto y pueda manejar diferentes escenarios sin necesidad de modificaciones constantes.
+- Con el tiempo, desarrollarás la habilidad de escribir código que sea más general y pueda adaptarse a diferentes situaciones sin necesidad de cambios significativos. Sin embargo, no te preocupes si al principio no lo logras y tu código no es perfecto, es un proceso que lleva tiempo y práctica.
+:::
+
+
+:::
+
+
+::: {.callout-note}
+
+## Estructuras de control más complejas
+
+Existen otras estructuras de control más complejas, como `if-else-else` que evalúa múltiples condiciones, o estructuras de control anidadas (por ejemplo, usar `while` dentro de un `if-else`). Vamos a ver un ejercicio guíado de estos casos. El objetivo es que trates de utilizar estas estructuras para completar los siguientes ejercicios y te familiarizes con los flujos de control. 
+
+:::
+
+## Ejercicio `if-else-else`
+
+La estructura `if-else-else` (también conocida como `if-elif-else` en Python o `if-else if-else` en R) permite evaluar múltiples condiciones en secuencia. Cada condición se verifica solo si las condiciones anteriores son falsas. Esto permite ejecutar diferentes bloques de código dependiendo de cuál condición se cumpla primero.
+
+```{mermaid}
+%%| label: fig-if-else-if
+%%| fig-cap: "Diagrama de flujo para una estructura if-else-else."
+
+graph TD
+    A[Inicio] --> B{Primera condición IF}
+    B -- Verdadero --> C[Ejecutar bloque de código 1]
+    B -- Falso --> D{Segunda condición ELIF}
+    D -- Verdadero --> E[Ejecutar bloque de código 2]
+    D -- Falso --> F{Tercera condición ELSE}
+    F -- Verdadero --> G[Ejecutar bloque de código 3]
+    C --> I[Fin]
+    E --> I
+    G --> I
+```
+
+
+:::: {.panel-tabset group="language"}
+
+## R
+
+Ahora nos vamos a imaginar que Karel está en un laberinto como el siguiente, donde el coso en la esquina superior derecha indica la salida:
+
+- Tenemos que crear un programa para que Karel pueda llegar hasta la salida (el coso):
+
+![](../images/karel_laberinto.gif){fig-align="center"}
+
+
+::: {.callout-tip}
+
+Hay una estrategia para resolver cualquier laberinto: si cuando entrás tocás con tu mano la pared a tu derecha y caminás sin dejar de tocarla nunca, eventualmente llegarás a la salida. Esto se conoce como la *regla de la mano derecha*.
+
+:::
+
+
+Como es un ejercicio complejo, vamos a descomponer el problema por partes. Esto se conoce como **descomposición de problemas** y es una técnica fundamental en programación.
+
+> **Descomposición de problemas**: Descomponer un problema en partes más pequeñas y manejables para resolverlo paso a paso.
+
+### Descomposición del problema
+  
+1. Definir el objetivo principal: Nuestro objetivo es que Karel se mueva hasta que encuentre un "coso". En otras palabras, podemos ejecutar una serie de acciones mientras no haya un coso en el camino de karel.
+
+- Qué condición (@tbl-booleanas) nos conviene usar si queremos ejecutar una serie de acciones mientras karel NO tenga un coso en su camino?
+  - Pon atención a la palabra "NO" en la pregunta. El programa será diferente si preguntamos "si hay un coso" o "si no hay un coso".
+- Qué bucle nos conviene utilizar si no sabemos el número de movimientos que karel tendrá que realizar? Revisa el inicio de esta lección si no lo recuerdas.
+
+Completa el bucle y condición a evaluar en el siguiente código. Por ahora, como solamente estamos evaluando una condición sin hacer nada, usaremos la función `stop()` para evitar que el bucle corra infinitamente. Es importante que revises que tu respuesta sea correcta antes de continuar.
+
+```{webr}
+
+# Primero, generamos el mundo
+generar_mundo("mundo009")
+
+# Completa el bucle y condicion
+______ ( ______ ) {
+  # Aquí irá la lógica para moverse
+  # por el momento te dara error
+  # solo revisa que tu respuesta sea correcta
+  stop("Revisa si tu respuesta es correcta y continua con el siguiente paso")
+}
+
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+> Utilizamos `while` ya que no sabemos cuántas veces vamos a repetir el código y evaluamos la condición `no_hay_cosos()` para repetir las acciones mientras no haya cosos en el camino de karel.
+
+
+```r
+# Primero, generamos el mundo
+generar_mundo("mundo009")
+
+# El bucle se ejecutará mientras no haya un coso
+while (no_hay_cosos()) {
+  # Aquí irá la lógica para moverse
+  # por el momento te dara error
+  # solo revisa que tu respuesta sea correcta
+  stop("Revisa si tu respuesta es correcta y continua con el siguiente paso")
+}
+
+```
+
+:::
+
+---
+
+2. recuerda que vamos a utilizar la regla de la mano derecha. Crea una función para girar a la derecha y llámala `girar_derecha`
+
+```{webr}
+#| min-lines: 4
+
+
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+# Esta función hará que Karel gire a la derecha
+girar_derecha <- function() {
+  girar_izquierda()
+  girar_izquierda()
+  girar_izquierda()
+}
+```
+:::
+
+3. Implementar la lógica de la mano derecha
+
+Ahora, para simular "tocar la pared con la mano derecha y no soltarla", podemos hacer lo siguiente:
+
+- Preguntamos si la derecha se encuentra libre.
+  - ¿Qué estructura de control podemos utilizar para ejecutar solo si se cumple una condición?
+- En caso que lo esté, para seguir tocando la pared con la "mano derecha", tenemos que girar a la derecha y avanzar.
+
+En este caso, vamos a utilizar una estructura de control dentro de otra. Esto se conoce como **anidación de estructuras de control** y nos permite evaluar condiciones dentro de otras condiciones. 
+
+Completa las líneas con la estructura y condición que se piden.
+
+
+```{webr}
+generar_mundo("mundo009")
+
+while (no_hay_cosos()) {
+  # 1. Karel siempre intenta ir a la derecha
+  ______ ( ______ ) {
+    girar_derecha()
+    avanzar()
+  }
+  stop("paramos el script por el momento")
+}
+
+
 ```
 
 
 
+::: {.callout collapse="true" title="Solución"}
 
-## Ejercicios Extra
+```r
+generar_mundo("mundo009")
 
-- en el mundo 'mundo021', crea una función que le permita a karel recolectar todos los cosos.
-- Intenta lo mismo en el `mundo018`
-- Haz que Karel recorra los bordes del `mundo020`.
-- Vuelve a realizar los ejercicios de las últimas dos lecciones y trata de resolverlos con distintas estructuras de control.
-- Si tienes problemas, trata de resolver el código por pequeñas partes. Una vez que tengas una parte del código funcionando, puedes agregar más partes. En cada paso puedes usar la función `ejecutar_acciones()` para ver cómo se comporta Karel en cada paso.
-- Adicionalmente, trata de construir un diagrama de flujo para cada uno de los ejercicios que realices.
+while (no_hay_cosos()) {
+  # 1. Karel siempre intenta ir a la derecha
+  if (derecha_abierto()) {
+    girar_derecha()
+    avanzar()
+  }
+  stop("paramos el script por el momento")
+}
 
-![](http://orcaasesina.com/wp-content/uploads/2024/10/22.png)
+```
 
-
-
-
-
-
-
-
+:::
 
 
+- Ahora, si NO tenemos la derecha abierta, podemos preguntar si el frente está libre y avanzar. En este caso, vamos a utilizar `else if`  para realizar una acción si una condición se cumple y realizar otra acción si otra condición se cumple (en este caso, si el frente está libre.)
+
+```{webr}
+generar_mundo("mundo009")
+
+while (no_hay_cosos()) {
+  # 1. Karel siempre intenta ir a la derecha
+  if (derecha_abierto()) {
+    girar_derecha()
+    avanzar()
+  } else if ( ______ ) {
+    avanzar()
+  }
+  stop("paramos el script por el momento")
+}
+
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+generar_mundo("mundo009")
+
+while (no_hay_cosos()) {
+  # 1. Karel siempre intenta ir a la derecha
+  if (derecha_abierto()) {
+    girar_derecha()
+    avanzar()
+  } else if (frente_abierto()) {
+    avanzar()
+  }
+  stop("paramos el script por el momento")
+}
+
+```
+
+
+:::
+
+- Por último, si el frente y la derecha están bloqueadas, karel no sabría que hacer. Para esto usaremos `if-else if-else` para que podamos evaluar 3 condiciones:
+  - `if`: Si la derecha está abierta, girar a la derecha y avanzar
+  - `else if`: Si el frente está abierto, avanzar.
+  - `else`: Si el frente y la derecha están ocupadas, girar a la izquierda. No tienes que evaluar la condición de si el frente y la derecha están ocupadas, ya que esto se deduce de que las dos condiciones anteriores no se cumplieron.
+- Si todo sale bien, Karel debería de avanzar por el laberinto hasta que encuentre el coso cuando se ejecuta el siguiente código:
+  - Completa el código con la condición `else` que falta y la acción que debe realizar Karel si no hay un espacio libre a la derecha ni al frente.
+
+
+```{webr}
+generar_mundo("mundo009")
+
+while (no_hay_cosos()) {
+  # 1. Karel siempre intenta ir a la derecha
+  if (derecha_abierto()) {
+    girar_derecha()
+    avanzar()
+  } else if (frente_abierto()) {
+    avanzar()
+  } ______ {
+    ______ # girar a la izquierda
+  }
+}
+
+# generar algunas figuras para ver el resultado
+karel:::plot_static_world(5)
+karel:::plot_static_world(20)
+karel:::plot_static_world(40)
+karel:::plot_static_world(60)
+karel:::plot_static_world(80)
+karel:::plot_static_world(104)
+```
+
+::: {.callout collapse="true" title="Solución"}
+
+```r
+generar_mundo("mundo009")
+
+while (no_hay_cosos()) {
+  # 1. Karel siempre intenta ir a la derecha
+  if (derecha_abierto()) {
+    girar_derecha()
+    avanzar()
+  } else if (frente_abierto()) {
+    avanzar()
+  } else {
+    girar_izquierda()
+  }
+}
+
+# generar algunas figuras para ver el resultado
+karel:::plot_static_world(5)
+karel:::plot_static_world(20)
+karel:::plot_static_world(40)
+karel:::plot_static_world(60)
+karel:::plot_static_world(80)
+karel:::plot_static_world(104)
+```
+:::
+
+## Python
+
+Ahora nos vamos a imaginar que Karel está en un laberinto como el siguiente, donde el coso en la ezquina superior derecha indica la salida:
+
+```{pyodide}
+#| autorun: true
+#| edit: false
+karel = Karel(mundo="laberinto_complejo")
+karel.ejecutar_acciones()
+```
+
+
+Tenemos que crear un programa para que Karel pueda llegar hasta la salida (el coso):
+
+![](../images/karel_laberinto_py.gif){width="500px" fig-align="center"}
+
+
+::: {.callout-tip}
+
+Hay una estrategia para resolver cualquier laberinto: si cuando entrás tocás con tu mano la pared a tu derecha y caminás sin dejar de tocarla nunca, eventualmente llegarás a la salida. Esto se conoce como la regla de la mano derecha y se traduce en doblar siempre a la derecha, en toda selección de caminos que se te presente
+
+:::
+
+Como es un ejercicio complejo, vamos a descomponer el problema por partes. Esto se conoce como **descomposición de problemas** y es una técnica fundamental en programación.
+
+> **Descomposición de problemas**: Descomponer un problema en partes más pequeñas y manejables para resolverlo paso a paso.
+
+### Descomposición del problema
+
+1. Definir el objetivo principal: Nuestro objetivo es que Karel se mueva hasta que encuentre un "coso". En otras palabras, podemos ejecutar una serie de acciones mientras no haya un coso en el camino de karel.
+
+- Qué condición (@tbl-booleanas) nos conviene usar si queremos ejecutar una serie de acciones mientras karel NO tenga un coso en su camino?
+  - Pon atención a la palabra "NO" en la pregunta. El programa será diferente si preguntamos "si hay un coso" o "si no hay un coso".
+- Qué bucle nos conviene utilizar si no sabemos el número de movimientos que karel tendrá que realizar? Revisa el inicio de esta lección si no lo recuerdas.
+
+Completa el bucle y condición a evaluar en el siguiente código. Por ahora, como solamente estamos evaluando una condición sin hacer nada, usaremos la función `break` para evitar que el bucle corra infinitamente. Es importante que revises que tu respuesta sea correcta antes de continuar.
+
+```{pyodide}
+
+# Primero, generamos el mundo
+karel = Karel(mundo="laberinto_complejo")
+
+# Completa el bucle y condicion
+______ ______ :
+  # Aquí irá la lógica para moverse
+  # por el momento solo revisa el bucle y la condicion evaluada
+  # vamos a parar el bucle con break
+  break
+
+# Al final, ejecutamos las acciones para ver el resultado
+karel.mostrar_animacion()
+
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+> Utilizamos `while` ya que no sabemos cuántas veces vamos a repetir el código y evaluamos la condición `no_hay_cosos()` para repetir las acciones mientras no haya cosos en el camino de karel.
+
+
+```python
+# Primero, generamos el mundo
+karel = Karel(mundo="laberinto_complejo")
+
+# El bucle se ejecutará mientras no haya un coso
+while karel.no_hay_coso():
+  # Aquí irá la lógica para moverse
+
+# Al final, ejecutamos las acciones para ver el resultado
+karel.mostrar_animacion()
+
+```
+
+:::
+
+2. recuerda que vamos a utilizar la regla de la mano derecha. Crea una función para girar a la derecha y llámala `girar_derecha`
+
+```{pyodide}
+#| min-lines: 4
+
+
+```
+
+
+::: {.callout collapse="true" title="Solución"}
+
+```python
+# Esta función hará que Karel gire a la derecha
+def girar_derecha():
+    karel.girar_izquierda()
+    karel.girar_izquierda()
+    karel.girar_izquierda()
+```
+:::
+
+3. Implementar la lógica de la mano derecha
+
+Ahora, para simular "tocar la pared con la mano derecha y no soltarla", podemos hacer lo siguiente:
+
+- Preguntamos si la derecha se encuentra libre.
+  - ¿Qué estructura de control podemos utilizar para ejecutar solo si se cumple una condición?
+- En caso que lo esté, para seguir tocando la pared con la "mano derecha", tenemos que girar a la derecha y avanzar.
+
+En este caso, vamos a utilizar una estructura de control dentro de otra. Esto se conoce como **anidación de estructuras de control** y nos permite evaluar condiciones dentro de otras condiciones. 
+
+Completa las líneas con la estructura y condición que se piden.
+
+```{pyodide}
+karel = Karel(mundo="laberinto_complejo")
+
+while karel.no_hay_coso():
+  # 1. Karel siempre intenta ir a la derecha
+  ______ ______:
+    girar_derecha()
+    karel.avanzar()
+  # vamos a parar el bucle con break
+  break
+
+karel.mostrar_animacion()
+
+```
 
 
 
+::: {.callout collapse="true" title="Solución"}
+
+```python
+karel = Karel(mundo="laberinto_complejo")
+
+while karel.no_hay_coso():
+  if karel.derecha_abierta():
+    girar_derecha()
+    karel.avanzar()
+  break
+
+```
+:::
+
+- Ahora, si NO tenemos la derecha abierta, podemos preguntar si el frente está libre y avanzar. En este caso, vamos a utilizar `elif` (*else-if*)  para realizar una acción si una condición se cumple y realizar otra acción si otra condición se cumple (en este caso, si el frente está libre.)
+
+
+```{pyodide}
+karel = Karel(mundo="laberinto_complejo")
+
+while karel.no_hay_coso():
+  # 1. Karel siempre intenta ir a la derecha
+  if karel.derecha_abierta():
+    girar_derecha()
+    karel.avanzar()
+  elif ______:
+    ______ # avanzar
+  # vamos a parar el bucle con break
+  break
+
+karel.mostrar_animacion()
+
+```
 
 
 
+::: {.callout collapse="true" title="Solución"}
+
+```python
+karel = Karel(mundo="laberinto_complejo")
+
+while karel.no_hay_coso():
+    if karel.derecha_abierta():
+        # Si la derecha está libre, gira y avanza
+        girar_derecha()
+        karel.avanzar()
+    elif karel.frente_abierto():
+        # Si no, si el frente está libre, avanza
+        karel.avanzar()
+    break
+
+karel.mostrar_animacion()
+```
+:::
 
 
+- Por último, si el frente y la derecha están bloqueadas, karel no sabría que hacer. Para esto usaremos `if-elif-else` para que podamos evaluar 3 condiciones:
+  - `if`: Si la derecha está abierta, girar a la derecha y avanzar
+  - `elif`: Si el frente está abierto, avanzar.
+  - `else`: Si el frente y la derecha están ocupadas, girar a la izquierda. No tienes que evaluar la condición de si el frente y la derecha están ocupadas, ya que esto se deduce de que las dos condiciones anteriores no se cumplieron.
+- Si todo sale bien, Karel debería de avanzar por el laberinto hasta que encuentre el coso cuando se ejecuta el siguiente código:
+  - Completa el código con la condición `else` que falta y la acción que debe realizar Karel si no hay un espacio libre a la derecha ni al frente.
+
+::: {.callout-note}
+
+NOTA: debido a que son muchos pasos, este código tarda ~1-2 minutos en crear la animación completa (si la consola sigue mostrando un punto, significa que sigue calculando). Si lo hichiste bien, karel llegrá al final del laberinto. Puedes aumentar la velocidad de la animación en el botón Velocidad. *Un pequeño detalle…* para aumentar la velocidad hay que mover el boton de velocidad hacia la izquierda, no hacia la derecha. Prometo resolver pronto este bug en una nuevo versión de Karel.
+
+:::
+
+```{pyodide}
+karel = Karel(mundo="laberinto_complejo")
+
+while karel.no_hay_coso():
+    if karel.derecha_abierta():
+        # Si la derecha está libre, gira y avanza
+        girar_derecha()
+        karel.avanzar()
+    elif karel.frente_abierto():
+        # Si no, si el frente está libre, avanza
+        karel.avanzar()
+    ______:
+        # Si el frente y la derecha están bloqueados, gira a la izquierda
+        ______ # girar a la izquierda
+
+karel.mostrar_animacion()
+
+```
 
 
+::: {.callout collapse="true" title="Solución"}
+
+```python
+karel = Karel(mundo="laberinto_complejo")
+
+while karel.no_hay_coso():
+    if karel.derecha_abierta():
+        # Si la derecha está libre, gira y avanza
+        girar_derecha()
+        karel.avanzar()
+    elif karel.frente_abierto():
+        # Si no, si el frente está libre, avanza
+        karel.avanzar()
+    else:
+        # Si el frente y la derecha están bloqueados, gira a la izquierda
+        karel.girar_izquierda()
+
+karel.mostrar_animacion()
+```
+:::
 
 
+::::
+
+En resumen, lo que estamos haciendo se puede visualizar con el siguiente diagrama de flujo:
+
+```{mermaid}
+graph TD
+  %% Main flow styling
+  classDef mainProcess fill:#f9f,stroke:#333,stroke-width:2px;
+  classDef decision fill:#bbf,stroke:#33f,stroke-width:2px;
+  classDef action fill:#bfb,stroke:#393,stroke-width:1px;
+  classDef endPoint fill:#fbb,stroke:#b33,stroke-width:1px;
+  
+  %% Main flow
+  A[Crear Mundo]:::mainProcess --> B{No hay coso?}:::decision
+  B -- "True" --> C
+  B -- "No (False)" --> I[Terminar bucle]:::action
+  
+  %% Decision tree - right-hand rule implementation
+  subgraph "Algorítmo de mano derecha"
+    C{derecha abierta?}:::decision
+    C -- "True" --> D[Girar derecha y avanzar]:::action
+    C -- "False" --> F{frente abierto?}:::decision
+    F -- "True" --> G[Avanzar]:::action
+    F -- "False" --> H[Girar izquierda]:::action
+  end
+  
+  %% Loop back to main condition
+  D --> B
+  G --> B
+  H --> B
+  
+  I --> J[End]:::endPoint
+
+```
 
 
-
-
+De nuevo, estos son temas complejos que con la experiencia se te irán facilitando. En las proximas lecciones, verás que las funciones que se utilizan para analizar datos siguen una lógica mucho más sencilla. Sin embargo, si es importante que al menos te familiarices con estos temas para que sepas cómo funciona el código y no estés ejecutando funciones sin saber qué pasa realmente.

@@ -1,6 +1,5 @@
 ---
-title: "Variables y Tipos de Datos"
-subtitle: "Introducción para Ciencias de la Salud"
+title: "Objetos y Variables"
 author: "Cursos Orca"
 format:
   live-html:
@@ -13,91 +12,171 @@ webr:
   packages:
     - ggplot2
 engine: knitr
+glossary:
+  path: ../glossary.yml
+  popup: hover
+  show: true
 ---
 
 {{< include ../_extensions/r-wasm/live/_knitr.qmd >}}
 
+
+En la lección pasada generamos instrucciones en R/Python para realizar operaciones e imprimir un texto. Todos estos elementos que tenemos disponibles para completar dichas tareas: la instrucción `print()`, los operadores `+` y `-`, los resultados de las sumas y restas, etc., se conocen como {{< glossary entorno >}} o ambiente. A los elementos que tenemos disponibles en el entorno, se les llama {{< glossary objetos >}}.
+
+![Regresando al ejemplo del cocinero, el entorno sería la cocina, la persona el lenguaje de programación y los utensilios de la cocina serían los objetos](https://cdn.myportfolio.com/45214904-6a61-4e23-98d6-b140f8654a40/5c559781-f15a-4be9-8af0-426fcc71a9e8_rw_1200.png?h=c7af78be544ee13532fb2152727af996)
+
+## Objetos
+
+A medida que avancemos, veremos que existen distintas clases de {{< glossary objetos >}}, algunos con estructuras más simples y otros más complejos. Adicionalmente, cada lenguaje de programación tiene sus propios objetos, maneras de llamarlos y formas de crear nuestros propios objetos.
+
+Como primera lección en este tema, vamos a revisar los 3 tipos de datos que podemos guardar en objetos: datos numéricos, datos de texto y datos lógicos.
+
 ## ¿Qué son las Variables?
 
-Una variable es como una etiqueta que le pones a un valor en la memoria de la computadora. Imagina que tienes cajas donde guardas cosas. Cada caja tiene una etiqueta para que sepas qué hay dentro. En programación, las variables son esas etiquetas.
+> "En programación, una variable es un espacio de memoria nombrado que se utiliza para almacenar datos".
 
-![](./figuras/variables.jpg)
+Ciertos objetos pueden almacenar temporalmente un valor (datos). Estos objetos se conocen como **variables**. Como su nombre lo indica, el valor de estos objetos puede cambiar y solamente está disponible cuando le indicamos a R/Python que lo guarde. Para guardar la variable, le asignamos una etiqueta.  
 
+Para entender este concepto, imagina que tienes una caja (la *variable*) donde guardas cosas (*datos*). Para identificar la caja, le pones una etiqueta o nombre para que sepas :
 
-Por ejemplo, si tienes una caja (variable que llamaremos X) que guarda la edad de un paciente (valor igual a 1), podrías llamar la variable `x` o `edad_paciente`. Así, cada vez que necesites saber la edad, solo miras esa caja.
+![Si la variable tiene siempre un valor fijo, se dice que es una constante. En lecciones más avanzadas, veremos que normalmente es útil declarar las constantes al inicio de nuestro programa.](./figuras/variables.jpg){fig-align="center"}
 
-![](./figuras/variables_ejemplo.jpg)
+Por ejemplo, si tienes una caja (*variable*) que guarda la edad de un paciente (*valor igual a 1*), podrías llamar la variable `x`. Así, cada vez que necesites saber la edad, solo llamas a `x` y obtienes el valor que guardaste allí. Sin embargo, se recomienda elegir un nombre para la variable que sea representativo de la información que va a guardar el objeto, como `edad_paciente` en lugar de `x`.
+
+![](./figuras/variables_ejemplo.jpg){fig-align="center"}
 
 
 ### Asignación de Variables
-Para asignar un valor a una variable, usamos un símbolo especial. En R, usamos `<-`, y en Python, usamos `=`.
+
+Para hacer que una variable guarde un determinado valor se tiene que asignar el valor. Para asignar un valor a una variable, usamos un símbolo especial. En R, usamos `<-`, y en Python, usamos `=`.
+
+Vamos a crear una variable y asignarle un valor:
 
 :::: {.panel-tabset group="language"}
 
 ## R
 
-En R, la asignación se ve así:
-- Primero, creamos una variable llamada `edad_paciente` y le asignamos un valor de 30 años.
-- Al correr el código, estamos guardando el valor 30 en la variable `edad_paciente`.
+Antes que nada, corre el siguiente código y observa el error `Error: object 'edad_paciente' not found`. Esto sucede porque estamos "abriendo" la variable `edad_paciente` sin antes haberle asignado un valor.
 
 ```{webr}
-edad_paciente <- 30
+edad_paciente
 ```
 
-Y para imprimir el valor de la variable, simplemente escribimos su nombre:
+Para solucionar esto:
+
+- Primero, creamos una variable llamada `edad_paciente` y le asignamos `<-` un valor de `30`.
+- Al correr el código, estamos guardando el valor 30 en la variable `edad_paciente`. En este punto solo estamos creando y guardando en la memoria la variable.
+
+```{webr}
+edad_paciente <- 5
+```
+
+Y para ver el valor de la variable, simplemente escribimos su nombre:
+
 ```{webr}
 edad_paciente
 ```
 
 ## Python
 
-En Python, se ve así:
-- Primero, creamos una variable llamada `edad_paciente` y le asignamos un valor de 30 años.
-- Al correr el código, estamos guardando el valor 30 en la variable `edad_paciente`.
+Antes que nada, corre el siguiente código y observa el error `name 'edad_paciente' is not defined`. Esto sucede porque estamos "abriendo" la variable `edad_paciente` sin antes haberle asignado un valor.
 
 ```{pyodide}
-edad_paciente = 30
+edad_paciente
 ```
 
-Y para imprimir el valor de la variable, usamos la función `print()`:
+Para solucionar esto:
+
+- Primero, creamos una variable llamada `edad_paciente` y le asignamos `=` un valor de 30.
+- Al correr el código, estamos guardando el valor 30 en la variable `edad_paciente`. En este punto solo estamos creando y guardando en la memoria la variable.
 
 ```{pyodide}
-print(edad_paciente)
+edad_paciente = 5
+```
+
+Y para ver el valor de la variable, simplemente escribimos su nombre:
+
+```{pyodide}
+edad_paciente
 ```
 
 ::::
+
+Ahora que ya creamos la variable `edad_paciente`, vamos a cambiar el valor que almacenamos con distintos tipos de datos. Recuerda que al crear esta variable, la estamos haciendo disponible en el entorno.
+
+![](../images/variables_b.png)
+
+---
 
 ## Tipos de Datos
 
 Los tipos de datos definen qué tipo de información puede guardar una variable. Algunos tipos comunes son:
 
-*   **Numéricos:** Para números (enteros o decimales). Por ejemplo, la edad de un paciente o su peso.
+*   **Numéricos:** Para números (enteros o decimales). Por ejemplo, la edad de un paciente o su peso. En el ejemplo pasado, este es el tipo de datos que hemos visto:
 
-```
-edad_paciente <- 30
-```
+::: {.panel-tabset group="language"}
 
-*   **Texto (Strings):** Para palabras o frases. Por ejemplo, el nombre de un paciente. **nota**: observa como usamos comillas para definir un string, a diferencia de los números que no necesitan comillas.
+# R
 
-```
-nombre_paciente <- "Juan Pérez"
-```
-
-*   **Booleanos:** Para valores de verdadero o falso.Por ejemplo, si un paciente es fumador o no. **NOTA**: en R usamos `TRUE` o `FALSE`, mientras que en Python usamos `True` o `False`.
-
-```
-es_fumador <- TRUE
+```{webr}
+edad_paciente <- 5
+edad_paciente
 ```
 
-> Por el momento nos enfocaremos en estos tipos de datos básicos. A medida que avancemos, veremos otros tipos más complejos.
+## Python
 
-## Ejercicio de Variables en R y Python
+```{pyodide}
+edad_paciente = 5
+edad_paciente
+```
 
-Veamos cómo crear variables y asignarles valores en R y Python. Tienes que crear variables para almacenar la edad (variable numérica), el nombre (string) y si el paciente es fumador o no (booleano). Luego, imprime los valores de esas variables y verifica que su tipo de dato sea el que se pide.
+:::
+
+*   **Texto (Strings o caracteres):** Para palabras o frases. Por ejemplo, el nombre de un paciente. **nota**: observa como usamos comillas para definir un string, a diferencia de los números que no necesitan comillas.
+
+::: {.panel-tabset group="language"}
+
+# R
+
+```{webr}
+edad_paciente <- "cinco"
+edad_paciente
+```
+
+## Python
+
+```{pyodide}
+edad_paciente = "cinco"
+edad_paciente
+```
+
+:::
+
+::: {.callout-note}
+
+Observa que cambiamos el valor de la variable `edad_paciente` y ahora en lugar de contener el valor numérico `5`, contiene el texto "cinco".
+
+:::
+
+*   **Booleanos:** Para valores de verdadero o falso.Por ejemplo, si un paciente es fumador o no. **NOTA**: en R usamos `TRUE` o `FALSE`, mientras que en Python usamos `True` o `False`. Este tipo de datos se verá más adelante.
+
+  ```{{r}}
+  es_fumador <- TRUE
+  ```
+
+  ```{{python}}
+  es_fumador = True
+  ```
+
+
+## Ejercicio Práctico
+
+Reemplaza las líneas `______` para crear las variables con los distintos tipos de datos: temperatura_corporal (*variable numérica*), el diagnostico (*string, texto o carácter*) y si el paciente tiene_fiebre o no (*booleano*). Solo sustituye las líneas `______` con estos valores y corre el código para verificar que su tipo de dato sea el que se pide.
 
 - NOTA. Para verificar el tipo de dato de una variable, usamos funciones específicas en cada lenguaje:
   - En R, usamos `typeof()` para verificar el tipo de datos.
   - En Python, usamos `type()` para el mismo propósito
+- No te preocupes por esta parte del código, se verá más adelante. Lo importante es que obtengas el tipo de dato que se pide.
 
 :::: {.panel-tabset group="language"}
 
@@ -126,8 +205,6 @@ typeof(tiene_fiebre)
 typeof(diagnostico)
 
 ```
-
-En R, usamos `<-` para asignar valores a las variables.
 
 ::: { .solution exercise="ex_tipos_r" } 
 ::: { .callout-tip collapse="false"}
@@ -175,8 +252,6 @@ print(type(diagnostico))
 
 ```
 
-En Python, usamos `=` para asignar valores. 
-
 ::: { .solution exercise="ex_tipos_py" } 
 ::: { .callout-tip collapse="false"}
 
@@ -198,19 +273,9 @@ diagnostico = "Paciente sano"
 
 ::::
 
-
-::: {.callout-important}
-## Punto Clave - Nombres de Variables
-
-*   Los nombres de las variables deben ser descriptivos.
-*   Evita espacios en los nombres; usa guiones bajos (`_`).
-*   R es más tolerante, pero en general, los nombres deben empezar con una letra.
-*   Python es sensible a mayúsculas y minúsculas (`edad` es diferente de `Edad`).
-:::
-
 ## Operaciones con Variables
 
-Una vez que tienes variables, puedes realizar operaciones con ellas.
+Una vez que tienes variables, puedes realizar operaciones con ellas. En el siguiente ejemplo, reemplaza las líneas "______" con tu peso (kg) y altura (m) (o inventa estos valores), y corre el código para obtener tu Índice de Masa Corporal (IMC). Observa que calculamos este índice con el nombre de las variables, las cuales guardan el valor que les asignaste.
 
 ### Operaciones Numéricas
 
@@ -219,65 +284,27 @@ Una vez que tienes variables, puedes realizar operaciones con ellas.
 ## R
 
 ```{webr}
-edad_paciente <- 35
-peso_paciente_kg <- 75.5
-altura_paciente_m <- 1.75
+peso_paciente_kg <- ______
+altura_paciente_m <- ______
 
 # Calcular el IMC (índice de masa corporal)
 imc <- peso_paciente_kg / (altura_paciente_m ^ 2)
 
 # Imprimir los resultados
-edad_paciente
 imc
 ```
 
 ## Python
 
 ```{pyodide}
-edad_paciente = 35
-peso_paciente_kg = 75.5
-altura_paciente_m = 1.75
+peso_paciente_kg = ______
+altura_paciente_m = ______
 
 # Calcular el IMC (índice de masa corporal)
 imc = peso_paciente_kg / (altura_paciente_m ** 2)
 
 # Imprimir los resultados
-print(edad_paciente)
-print(imc)
-```
-
-::::
-
-### Concatenación de Textos (Strings)
-
-Intenta remplazar los valores de las variables `nombre` y `apellido` con tu propio nombre y apellido. Si tienes un segundo apellido, puedes agregarlo también e intentar concatenarlo. 
-
-:::: {.panel-tabset group="language"}
-
-## R
-
-```{webr}
-nombre <- "Juan"
-apellido <- "Pérez"
-
-# Concatenar nombre y apellido
-nombre_completo <- paste(nombre, apellido)
-
-# Imprimir el resultado
-nombre_completo
-```
-
-## Python
-
-```{pyodide}
-nombre = "Juan"
-apellido = " Pérez"
-
-# Concatenar nombre y apellido
-nombre_completo = nombre + apellido
-
-# Imprimir el resultado
-print(nombre_completo)
+imc
 ```
 
 ::::

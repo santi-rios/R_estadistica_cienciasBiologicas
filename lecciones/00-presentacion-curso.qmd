@@ -24,7 +24,7 @@ format:
 pyodide:
   packages:
     - matplotlib
-    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.2-py3-none-any.whl
+    - https://santi-rios.github.io/pykarel_web/pykarel_web-0.3.4-py3-none-any.whl
 engine: knitr
 ---
 
@@ -34,7 +34,7 @@ engine: knitr
 ##  {#unifies-extends-1 .centered data-menu-title="Bienvenidos" background-color="#0F1620" auto-animate="true"}
 
 ::: {style="margin-top: 100px; font-size: 2.5em; color: #75AADB; text-align: center;"}
-🧬 ¡Bienvenido al Futuro de la Investigación! 🐍
+🧬 ¡Bienvenido! 🐍
 :::
 
 ::: {style="margin-top: 50px; font-size: 1.5em; color: #FFFFFF; text-align: center;"}
@@ -191,49 +191,11 @@ karel.ejecutar_acciones()
 ¡Así de intuitiva será toda tu experiencia de aprendizaje!
 :::
 
-## 📊 Ejemplo: Crear tu primer gráfico científico
-
-::: {.panel-tabset group="language"}
-
-## R
-
-```{webr}
-# Datos de ejemplo: efectividad de tratamiento
-tratamiento <- c("Control", "Tratamiento A", "Tratamiento B")
-efectividad <- c(65, 78, 85)
-
-# Crear gráfico de barras
-barplot(efectividad, names.arg = tratamiento, 
-        col = c("#FF6B6B", "#4ECDC4", "#45B7D1"),
-        main = "Efectividad de Tratamientos",
-        ylab = "% de Eficacia",
-        ylim = c(0, 100))
-```
-
-## Python
-
-```{pyodide}
-import matplotlib.pyplot as plt
-
-# Datos de ejemplo: efectividad de tratamiento
-tratamiento = ["Control", "Tratamiento A", "Tratamiento B"]
-efectividad = [65, 78, 85]
-
-# Crear gráfico de barras
-plt.figure(figsize=(8, 6))
-plt.bar(tratamiento, efectividad, color=['#FF6B6B', '#4ECDC4', '#45B7D1'])
-plt.title('Efectividad de Tratamientos', fontsize=14, fontweight='bold')
-plt.ylabel('% de Eficacia')
-plt.ylim(0, 100)
-plt.show()
-```
-
-:::
 
 ## 🎓 Lo que aprenderás: Tu roadmap al éxito
 
 ::: {.callout-note icon=false}
-## 🌱 **Módulo 1: Primeros pasos sin miedo**
+## 🌱 **Módulo 1: Primeros pasos**
 - ✨ Consolas interactivas (sin instalar nada)
 - 🤖 Programación intuitiva con Karel 
 - 📦 Manejo de paquetes esenciales
@@ -373,16 +335,6 @@ Las habilidades más demandadas en investigación y industria
 ::: {.fragment .fade-up fragment-index="2"}
 - 🎓 **Inscríbete al curso**: [orcaasesina.com](https://orcaasesina.com/)
 - 🌐 **Contacto y mas sobre mi**: [santi-rios.github.io](https://santi-rios.github.io/)
-:::
-
-## 🎉 ¡Bienvenido!
-
-::: {style="margin-top: 100px; font-size: 2em; color: #75AADB; text-align: center;"}
-**¿Listo para convertirte en un analista de datos expert@?**
-:::
-
-::: {style="margin-top: 50px; font-size: 1.2em; color: #FFFFFF; text-align: center;"}
-El futuro de la investigación está en tus manos 🚀
 :::
 
 # Fin

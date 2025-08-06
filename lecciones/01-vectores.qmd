@@ -24,10 +24,12 @@ engine: knitr
 
 # Vectores
 
+Ahora vamos a ver otro tipo de objetos que almacenan más de un valor, los vectores.
+
 ## Introducción
 
 - En `programación`, un **vector**, arreglo o lista, es una estructura que almacena una secuencia de valores.
-- A diferencia de los vectores en matemáticas, los vectores pueden contener diferentes tipos de datos, como números, texto, o valores lógicos.
+- A diferencia de los vectores en matemáticas, los vectores en programación pueden contener diferentes tipos de datos, como números, texto, o valores lógicos.
   - Por el momento, nos enfocaremos en `vectores numéricos`. 
 
 ![Piensa en los vectores como variables con muchos valores](./figuras/vectores.jpg)
@@ -47,7 +49,7 @@ mis_numeros <- c(1, 2, 3, 4, 5)
 
 ```
 
-## python
+## Python
 
 - Puedes crear una lista/vector utilizando los corchetes `[]`. Simplemente colocas los números que quieres dentro de los corchetes, separados por comas.
 - Ejecuta el siguiente código para crear una lista de números. 
@@ -66,7 +68,7 @@ mis_numeros = [1, 2, 3, 4, 5]
 - Observa cómo al correr el código anterior, no tenemos salida.
 - Esto es porque solo hemos creado el vector, pero no hemos hecho nada con él. Es decir, almacenamos el vector en la variable `mis_numeros` en la memoria, pero no mostrará nada hasta que le pidamos que haga algo con él.
 - Si ya corriste el código de arriba, podemos imprimir el vector `mis_numeros` para ver su contenido. 
-- Ten en cuenta que si no has corrido el código, o reinicias la página, no podrás imprimir el vector ya que no existe en la memoria de R/python (tendrías que volver a correr el código de arriba). 
+- Ten en cuenta que si no has corrido el código, o reinicias la página, no podrás imprimir el vector ya que no existe en la memoria de R/Python (tendrías que volver a correr el código de arriba). 
 
 :::: {.panel-tabset group="language"}
 
@@ -74,24 +76,22 @@ mis_numeros = [1, 2, 3, 4, 5]
 
 ```{webr}
 # Imprimir el vector
-print(mis_numeros)
+mis_numeros
 ```
 
-## python
+## Python
 
 ```{pyodide}
 # Imprimir el vector
-print(mis_numeros)
+mis_numeros
 ```
 
 ::::
 
-## Vectores no numéricos
+## Vectores de texto
 
 - Solo como ejemplo, ejecuta el siguiente código para crear un vector con datos no numéricos. Veremos esto en una lección posterior.
   - Observa que las palabras se encuentran entre comillas `""`. 
-  - En contraste, los valores numéricos los escribimos sin comillas: `12`. 
-  - Observa que en cualquier caso, separamos los elementos con comas `,`. 
 
 
 :::: {.panel-tabset group="language"}
@@ -104,20 +104,73 @@ print(mis_numeros)
 frutas <- c("manzana", "naranja", "plátano", "uva")
 
 # imprimir el vector
-print(frutas)
+frutas
 ```
 
-## python
+## Python
 
 ```{pyodide}
 # Crear un vector de nombre de frutas
 frutas = ["manzana", "naranja", "plátano", "uva"]
 
 # imprimir el vector
-print(frutas)
+frutas
 ```
 
 ::::
+
+::: {.callout-important}
+
+***OJO***
+
+El orden de los elementos en un vector (**Índice**) es importante. En python, comenzamos a contar desde el 0, mientras que en R comenzamos a contar desde el 1. Por ejemplo, si queremos acceder al primer elemento del vector `frutas`, en R sería `frutas[1]` y en Python sería `frutas[0]`. Observa:
+
+::: {.columns}
+
+::: {.column width="50%"}
+### R
+
+```{webr}
+#| autorun: true
+
+frutas <- c(
+  "manzana", 
+  "naranja", 
+  "plátano", 
+  "uva"
+  )
+
+for (index in seq_along(frutas)) {
+  value <- frutas[index]
+  cat(sprintf("Indice: %d, Valor: %s\n", index, value))
+}
+
+```
+
+:::
+
+::: {.column width="50%"}
+### Python
+
+```{pyodide}
+#| autorun: true
+
+frutas = [
+  "manzana", 
+  "naranja", 
+  "plátano", 
+  "uva"
+  ]
+
+for index, value in enumerate(frutas):
+    print(f"Indice: {index}, Valor: {value}")
+```
+
+:::
+
+:::
+
+:::
 
 ## Vectores - Operaciones
 
@@ -138,7 +191,7 @@ sum(mis_numeros_suma)
 
 ```
 
-## python
+## Python
 
 ```{pyodide}
 # Crear un vector de números
@@ -156,10 +209,15 @@ En otro módulo del curso veremos más funciones y operaciones que puedes realiz
 
 
 **Instrucciones**. 
+
 i, Crea un vector llamado `mis_numeros_ejercicio` con los valores `1, 2, 3, 4, y 5`.
-2. Calcula la suma de los números en este vector con la función `sum()` y guarda el resultado en la variable `mis_numeros_suma`.
-3. Calcula la media de los números en este vector como  `mis_numeros_suma/5`, guardando el resultado en la variable `mis_numeros_media`.
-4. Imprime el resultado de `mis_numeros_media`.
+
+i. Calcula la suma de los números en este vector con la función `sum()` y guarda el resultado en la variable `mis_numeros_suma`.
+
+i. Calcula la media de los números en este vector como  `mis_numeros_suma / 5 `, guardando el resultado en la variable `mis_numeros_media`.
+
+i. Corre el código. El resultado de `mis_numeros_media` debe ser `3`, que es la media de los números del vector.
+Si tienes dudas, haz click en "*Show Solution*" para ver la solución. 
 
 :::: {.panel-tabset group="language"}
 
@@ -169,7 +227,7 @@ i, Crea un vector llamado `mis_numeros_ejercicio` con los valores `1, 2, 3, 4, y
 #| exercise: ex_2_r
 
 # Crear un vector de números y asígnalo a la variable mis_numeros_ejercicio
-mis_numeros_ejercicio <- _______
+______ <- _______
 
 # Calcular la suma de los números
 mis_numeros_suma <- sum(_______)
@@ -205,14 +263,14 @@ print(mis_numeros_media)
 :::
 :::
 
-## python
+## Python
 
 
 ```{pyodide}
 #| exercise: ex_2_py
 
 # Crear un vector de números y asígnalo a la variable mis_numeros_ejercicio
-mis_numeros_ejercicio = _______
+______ = _______
 
 # Calcular la suma de los números
 mis_numeros_suma = sum(_______)
@@ -231,7 +289,7 @@ print(mis_numeros_media)
 
 ## Solución
 
-```python
+```Python
 # Crear un vector de números y asígnalo a la variable mis_numeros_ejercicio
 mis_numeros_ejercicio = [1, 2, 3, 4, 5]
 
